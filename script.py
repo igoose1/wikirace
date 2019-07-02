@@ -2,6 +2,7 @@ import zimply
 import time
 import re
 import urllib.parse as parse
+import sys
 
 
 def get_links_from_html(path_to_file):
@@ -27,8 +28,8 @@ def int_to_bytes(x):
     return bytes([b1, b2, b3, b4])
 
 
-def generate_graph(x):
-    wikipedia = zimply.zimply.ZIMFile('wikipedia_ru_all_novid_2018-06.zim', 'utf-8')
+def generate_graph(x, zim_name):
+    wikipedia = zimply.zimply.ZIMFile(zim_name, 'utf-8')
     articleCount = wikipedia.header_fields['articleCount']
     
     edges = open('edges' + str(x), 'wb')
@@ -65,7 +66,7 @@ def generate_graph(x):
     edges.close()
     print(time.time() - start_time)
 
-
+generate_graph(int(sys.argv[1]), sys.argv[2])
 
 
 
