@@ -39,7 +39,7 @@ start_time = time.time()
 for i in range(61):
     current_article = wikipedia.read_directory_entry_by_index(i)
     if 'redirectIndex' in current_article.keys():
-        offset.write(int_to_bytes(0))
+        offset.write(int_to_bytes(off))
         continue
     cnt = 0
     if current_article['namespace'] == 'A':
