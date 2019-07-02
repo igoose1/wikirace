@@ -17,5 +17,6 @@ def get(request, title_name):
 
     return HttpResponse(
         wiki_page_request.content,
-        content_type=wiki_page_request.headers['content-type']
+        content_type=wiki_page_request.headers['content-type'],
+        status=wiki_page_request.status_code
     )
