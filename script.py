@@ -5,11 +5,8 @@ import urllib.parse as parse
 import sys
 
 
-def get_links_from_html(path_to_file):
-    pats = []
-    with open(path_to_file, 'r', encoding='utf-8') as file:
-        for line in file:
-            pats += re.findall(r'href="[^""]*.html"', line)
+def get_links_from_html(data):
+    pats = re.findall(r'href="[^""]*.html"', data)
     links = []
     for elem in pats:
         elem = elem[6:-1]
@@ -50,8 +47,8 @@ def generate_graph(x, zim_name):
         cnt = 0
         if current_article['namespace'] == 'A':
             data = wikipedia._read_blob(current_article['clusterNumber'], current_article['blobNumber'])
-            open('buffer.html', 'wb').write(data)
-            links = get_links_from_html('buffer.html')
+            
+            links = get_links_from_html(data.decode('utf-8'))
             for link in links:
                 entry, index = wikipedia._get_entry_by_url('A', link)
                 if entry is None or 'redirectIndex' in entry.keys():
