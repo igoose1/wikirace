@@ -11,6 +11,14 @@ class GraphReader:
         ret |= byte_array[2] << 8
         ret |= byte_array[3] << 0
         return ret
+    def edges_count(self, parent_id:int):
+        self.offset.seek(self.offset_block*parent_id)
+        offset_begin = self.offset.read(4)
+        offset_begin = self._bytes_to_int(offset_begin)
+        offset_end = self.offset.read(4)
+        offset_end = self._bytes_to_int(offset_end)
+        edges_count = (offset_end - offset_begin) // self.edge_b_count
+        return edges_count
     def Edges(self, parent_id:int):
         self.offset.seek(self.offset_block*parent_id)
         offset_begin = self.offset.read(4)
