@@ -60,7 +60,7 @@ def generate_graph(x):
         offset.write(int_to_bytes(off))
         off += cnt * 4
         
-    offset.write(bytes(off))
+    offset.write(int_to_bytes(off))
     offset.close()
     edges.close()
     print(time.time() - start_time)
