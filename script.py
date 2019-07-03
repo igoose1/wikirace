@@ -51,8 +51,11 @@ def generate_graph(x, zim_name):
             links = get_links_from_html(data.decode('utf-8'))
             for link in links:
                 entry, index = wikipedia._get_entry_by_url('A', link)
-                if entry is None or 'redirectIndex' in entry.keys():
+                if entry is None:
                     continue
+                while 'redirectIndex' in entry.keys():
+                    index = entry['redirectIndex']
+                    entry = wikipedia.read_directory_entry_by_index(index)
                 edges.write(int_to_bytes(index))
                 cnt += 1
         offset.write(int_to_bytes(off))
