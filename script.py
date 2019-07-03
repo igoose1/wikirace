@@ -25,7 +25,7 @@ def int_to_bytes(x):
     return bytes([b1, b2, b3, b4])
 
 
-def generate_graph(x, zim_name):
+def generate_graph(x, zim_name, threads_num):
     wikipedia = zimply.zimply.ZIMFile(zim_name, 'utf-8')
     articleCount = wikipedia.header_fields['articleCount']
     
@@ -34,10 +34,10 @@ def generate_graph(x, zim_name):
     off = 0    
     
     start_time = time.time()
-    block = articleCount // 16
+    block = articleCount // threads_num
     start = x * block
     fin = (x + 1) * block
-    if x == 15:
+    if x == threads_num - 1:
         fin = articleCount
     for i in range(start, fin):
         current_article = wikipedia.read_directory_entry_by_index(i)
@@ -68,7 +68,14 @@ def generate_graph(x, zim_name):
     edges.close()
     print(time.time() - start_time)
 
-generate_graph(int(sys.argv[1]), sys.argv[2])
+'''
+in command line: 
+1 argument - id of thread (from 0 to (number_of_threads - 1))
+2 argument - number of threads
+3 argument - name of zim file
+'''
+
+generate_graph(int(sys.argv[1]), sys.argv[3], int(sys.argv[2]))
 
 
 
