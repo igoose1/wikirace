@@ -1,5 +1,5 @@
 from random import randrange
-from GraphReader import GraphReader
+from wiki.GraphReader import GraphReader
 
 class GameOperator:
     def __init__(self, zim_file, graph_reader:GraphReader, start_new_game=True):
