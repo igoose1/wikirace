@@ -31,3 +31,6 @@ class GraphReader:
             child_id = self.edges.read(4)
             child_id = self._bytes_to_int(child_id)
             yield child_id
+    def __exit__(self, *_):
+        self.offset.close()
+        self.edges.close()

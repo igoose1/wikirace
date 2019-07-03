@@ -29,7 +29,7 @@ class GameOperator:
             
         end_page_id_tmp = self.current_page_id
         for step in range(5):
-            edges = list(self.reader.edges(end_page_id_tmp))
+            edges = list(self.reader.Edges(end_page_id_tmp))
             next_id = randrange(0, len(edges))
             if (edges[next_id] == self.current_page_id):
                 break
@@ -56,7 +56,7 @@ class GameOperator:
             if entry['namespace'] != 'A':
                 return None
             
-            valid_edges = list(self.reader.edges(self.current_page_id))
+            valid_edges = list(self.reader.Edges(self.current_page_id))
             
             if idx not in valid_edges:
                 return False
