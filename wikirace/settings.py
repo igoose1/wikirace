@@ -54,7 +54,7 @@ ROOT_URLCONF = 'wikirace.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['wiki/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,6 +66,8 @@ TEMPLATES = [
         },
     },
 ]
+
+STATICFILES_DIRS = ['wiki/static']
 
 WSGI_APPLICATION = 'wikirace.wsgi.application'
 

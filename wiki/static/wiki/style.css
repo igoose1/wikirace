@@ -1,0 +1,61 @@
+* {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    /*display: inline;*/
+    /*position: relative;*/
+}
+
+.header {
+    height: 20%;
+    width: 80%;
+    background-color: green;
+    float: left;
+    display: inline-flex;
+}
+
+.side-bar {
+    height: 100%;
+    width: 20%;
+    background-color: purple;
+    float: right;
+}
+
+frame {
+    height: 80%;
+    width: 80%;
+    position: absolute;
+    float: left;
+}
+
+.header .path {
+    height: 100%;
+    width: 80%;
+    background-color: brown;
+}
+
+.header .counter {
+    height: 100%;
+    width: 20%;
+    background-color: pink;
+    text-align: center;
+    font-size: 250%;
+
+}
+
+.wiki {
+/*    margin-top: 20%;*/
+    float: left;
+    height: 80%;
+    width: 80%;
+    background-color: yellow;
+}
+.header .counter span {
+    /*    margin: 50%;
+        padding: 10px;*/
+}
