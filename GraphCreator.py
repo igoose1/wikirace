@@ -6,6 +6,10 @@ import sys
 
 
 def get_links_from_html(data):
+    '''
+    If you need to extract graph from category (not full wikipedia)
+    remove '.html'
+    '''
     pats = re.findall(r'href="[^""]*.html"', data)
     links = []
     for elem in pats:
@@ -28,6 +32,9 @@ def int_to_bytes(x):
 def generate_graph(x, zim_name, threads_num):
     wikipedia = zimply.zimply.ZIMFile(zim_name, 'utf-8')
     articleCount = wikipedia.header_fields['articleCount']
+
+    used = [-1] * articleCount
+    it_id = 0
     
     edges = open('edges' + str(x), 'wb')
     offset = open('offset' + str(x), 'wb')
@@ -51,9 +58,9 @@ def generate_graph(x, zim_name, threads_num):
             links = get_links_from_html(data.decode('utf-8'))
             for link in links:
                 entry, index = wikipedia._get_entry_by_url('A', link)
-                if entry is None:
-                    continue
-                while entry is not None and entry['namespace'] == 'A' and 'redirectIndex' in entry.keys():
+                it_id += 1
+                while entry is not None and entry['namespace'] == 'A' and 'redirectIndex' in entry.keys() and used[index] != it_id:
+                    used[index] = it_id
                     index = entry['redirectIndex']
                     entry = wikipedia.read_directory_entry_by_index(index)
                 if entry is None or entry['namespace'] != 'A':
@@ -76,6 +83,3 @@ in command line:
 '''
 
 generate_graph(int(sys.argv[1]), sys.argv[3], int(sys.argv[2]))
-
-
-
