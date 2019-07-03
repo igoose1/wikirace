@@ -4,7 +4,13 @@ from zimply.zimply import ZIMFile
 class MyZIMFile(ZIMFile):
     def __init__(self, filename, encoding='utf-8'):
         super().__init__(filename, encoding)
-        
+    def get_by_index(self, index:int):
+        article = None
+        try:
+            article = self._get_article_by_index(index)
+        except:
+            pass
+        return article
     # get_by_url will return an Article by url
     # Article = namedtuple("Article", ["data", "namespace", "mimetype"])
     # Article.data: bytes
@@ -19,6 +25,10 @@ class MyZIMFile(ZIMFile):
             namespace = "A" 
         else:
             url = "/".join(url_parts)
-        article = self.get_article_by_url(namespace, url)
+        article = None
+        try:
+            article = self.get_article_by_url(namespace, url)
+        except:
+            pass
         
         return article
