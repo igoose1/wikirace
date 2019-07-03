@@ -11,8 +11,8 @@ class GameOperator:
             self.initialize_game()
     def _get_random_article_id(self):
         article_id = randrange(0, len(self.zim))
-        article = self.zim._get_article_by_index(article_id)
-        while article.namespace != "A":
+        article = self.zim.get_by_index(article_id)
+        while (article is None) or article.namespace != "A":
             article_id = randrange(0, len(self.zim))
             article = self.zim._get_article_by_index(article_id)
             
@@ -50,6 +50,10 @@ class GameOperator:
             
         if url:    
             entry, idx = self.zim._get_entry_by_url("A",url)
+            article = self.zim.get_by_index(idx)
+            if article is None:
+                return None
+            
             while 'redirectIndex' in entry.keys():
                 idx = entry['redirectIndex']
                 entry = self.zim.read_directory_entry_by_index(idx)
