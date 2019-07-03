@@ -30,23 +30,29 @@ def int_to_bytes(x):
 
 
 def generate_graph(x, zim_name, threads_num):
+    if x < 0 or x >= threads_num:
+        return
+    
     wikipedia = zimply.zimply.ZIMFile(zim_name, 'utf-8')
     articleCount = wikipedia.header_fields['articleCount']
 
     used = [-1] * articleCount
     it_id = 0
     
-    edges = open('edges' + str(x), 'wb')
-    offset = open('offset' + str(x), 'wb')
+    edges = open('data/edges' + str(x), 'wb')
+    offset = open('data/offset' + str(x), 'wb')
     off = 0    
     
     start_time = time.time()
     block = articleCount // threads_num
     start = x * block
     fin = (x + 1) * block
+    
     if x == threads_num - 1:
         fin = articleCount
     for i in range(start, fin):
+        if i % 1000 == 0:
+            print(i, "files are ready")
         current_article = wikipedia.read_directory_entry_by_index(i)
         if 'redirectIndex' in current_article.keys():
             offset.write(int_to_bytes(off))
@@ -54,7 +60,6 @@ def generate_graph(x, zim_name, threads_num):
         cnt = 0
         if current_article['namespace'] == 'A':
             data = wikipedia._read_blob(current_article['clusterNumber'], current_article['blobNumber'])
-            
             links = get_links_from_html(data.decode('utf-8'))
             for link in links:
                 entry, index = wikipedia._get_entry_by_url('A', link)
@@ -76,7 +81,7 @@ def generate_graph(x, zim_name, threads_num):
     print(time.time() - start_time)
 
 '''
-in command line: 
+in command line:
 1 argument - id of thread (from 0 to (number_of_threads - 1))
 2 argument - number of threads
 3 argument - name of zim file
