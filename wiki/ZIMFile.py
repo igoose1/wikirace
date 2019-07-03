@@ -13,7 +13,7 @@ class MyZIMFile(ZIMFile):
     def get_by_url(self, relative_url):
         _, namespace, *url_parts = relative_url.split("/")
         
-        url=None
+        url = None
         if len(namespace) > 1:
             url = namespace 
             namespace = "A" 
