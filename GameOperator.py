@@ -15,6 +15,12 @@ class GameOperator:
         while article.namespace != "A":
             article_id = randrange(0, len(self.zim))
             article = self.zim._get_article_by_index(article_id)
+            
+        entry = self.zim.read_directory_entry_by_index(article_id)
+        while 'redirectIndex' in entry.keys():
+            article_id = entry['redirectIndex']
+            entry = self.zim.read_directory_entry_by_index(article_id)
+            
         return article_id
     def initialize_game(self):
         self.current_page_id = self._get_random_article_id()
@@ -43,11 +49,18 @@ class GameOperator:
             return True
             
         if url:    
-            _, idx = self.zim._get_entry_by_url("A",url)
+            entry, idx = self.zim._get_entry_by_url("A",url)
+            while 'redirectIndex' in entry.keys():
+                idx = entry['redirectIndex']
+                entry = self.zim.read_directory_entry_by_index(idx)
+            if entry['namespace'] != 'A':
+                return None
+            
             valid_edges = list(self.reader.edges(self.current_page_id))
             
             if idx not in valid_edges:
                 return False
+            
             self.current_page_id = idx
 
             finished = (self.current_page_id == self.end_page_id)
