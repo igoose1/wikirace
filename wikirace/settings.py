@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from wikirace import settings_local
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,13 +19,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!_&$hf=3ehc#23mgiesblf$#0kg$3d77fco%q@e#q79vsy%soo'
+SECRET_KEY = settings_local.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = settings_local.DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = settings_local.ALLOWED_HOSTS
 
 # Application definition
 
@@ -73,12 +73,7 @@ WSGI_APPLICATION = 'wikirace.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+DATABASES = settings_local.DATABASES
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -120,7 +115,7 @@ NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
 # WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
 
 # Path to wiki data files
-WIKI_ZIMFILE_PATH = '../wikidump.zim'
-GRAPH_DIR = 'graph/'
-GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
-GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
+WIKI_ZIMFILE_PATH = settings_local.WIKI_ZIMFILE_PATH
+GRAPH_DIR = settings_local.GRAPH_DIR
+GRAPH_OFFSET_PATH = settings_local.GRAPH_OFFSET_PATH
+GRAPH_EDGES_PATH = settings_local.GRAPH_EDGES_PATH
