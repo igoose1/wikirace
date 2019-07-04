@@ -1,0 +1,5 @@
+db.sqlite3
+graph/
+.idea/
+wiki/__pycache__/
+wikirace/__pycache__/
