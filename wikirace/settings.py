@@ -121,6 +121,6 @@ NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
 
 # Path to wiki data files
 WIKI_ZIMFILE_PATH = 'wikidump.zim'
-GRAPH_DIR = 'graph'
-GRAPH_OFFSET_PATH = GRAPH_DIR + '/offset_all'
-GRAPH_EDGES_PATH = GRAPH_DIR + '/edges_all'
+GRAPH_DIR = 'data/'
+GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
+GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
