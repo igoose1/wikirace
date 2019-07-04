@@ -10,7 +10,7 @@ def get(request, title_name):
 	zim = MyZIMFile('F:\\LKSH\\New\\by_category\\wikipedia_ru_geography_nopic_2019-05.zim')
 	graph = GraphReader('F:\\LKSH\\offset0', 'F:\\LKSH\\edges0')  # later
 	currOperator = GameOperator(zim, graph)
-	if request.session.get('operator', None) is None:
+	if request.session.get('operator', None) is None:  # or input('TYPE') == 's'  # for restart
 		# начало игры
 		currOperator.initialize_game()
 		request.session['steps'] = 0
@@ -38,7 +38,6 @@ def get(request, title_name):
 		# wiki_page_request = requests.get(settings.WIKI_MIRROR_HOST + title_name)  # здесь вместо title_name current_page_id
 		wiki_page = zim._get_article_by_index(currOperator.current_page_id)
 		# mimetype - тип. У статьи - text/html
-		print(wiki_page.data)
 		return HttpResponse(wiki_page.data, wiki_page.mimetype)
 	
 	return HttpResponse(requested_page.data, requested_page.mimetype)
