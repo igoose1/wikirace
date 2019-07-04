@@ -1,6 +1,7 @@
 from random import randrange
 #from wiki.models import Game
 from GraphReader import GraphReader, _int_to_bytes, _bytes_to_int
+import time
 
 class GameOperator:
     def __init__(self, vertices_file, graph_reader: GraphReader):
@@ -32,6 +33,7 @@ class GameOperator:
         return article_id
 
     def initialize_game(self):
+        start = time.time()
         N = 5054753
         MAX_BFS_TREE_SIZE = 10**4
         MAX_BFS_TREE_DEPTH = 10
@@ -44,6 +46,7 @@ class GameOperator:
         idx = 0
         dist[self.start_page_id] = 0
         last_layer = 0
+        edges_sum = 0
         while idx < len(queue) and len(queue) < MAX_BFS_TREE_SIZE and dist[queue[idx]] < MAX_BFS_TREE_DEPTH:
             cur_vertex = queue[idx]
             #print(cur_vertex)
@@ -52,6 +55,7 @@ class GameOperator:
                 continue
             edges = self.reader.Edges(cur_vertex)
             for next_ in edges:
+                edges_sum += 1
                 if dist[next_] == -1:
                     dist[next_] = dist[cur_vertex] + 1
                     queue.append(next_)
@@ -61,6 +65,8 @@ class GameOperator:
                         break
         self.end_page_id = queue[randrange(last_layer, len(queue) - 1)]
         print(dist[self.end_page_id])
+        print('edges', edges_sum)
+        print(time.time() - start)
         
     def next_page(self, relative_url: str):
         if self.game_finished:
