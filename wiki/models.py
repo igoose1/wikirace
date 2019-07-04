@@ -11,5 +11,10 @@ class Game(models.Model):
     ended = models.BooleanField(null=True)
 
     def __str__(self):
-        s = "first: "+str(self.first)+"\nlast :"+str(self.last)+"\nsteps :"+str(self.steps)
+        s = '{sid} ({steps}, {fr} -> {ls})'.format(
+            sid=self.session_id,
+            steps=self.steps,
+            fr=self.first,
+        ls=self.last
+        )
         return s
