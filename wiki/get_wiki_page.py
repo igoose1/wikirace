@@ -1,4 +1,5 @@
 from gevent import monkey
+
 monkey.patch_all = lambda *_: None
 
 from django.http import HttpResponse, Http404
@@ -6,45 +7,52 @@ from django.conf import settings
 
 from django.template import loader
 
-
 from .ZIMFile import MyZIMFile
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
 from wiki.models import Game
-from var_init import *
 
 
 def get(request, title_name):
-    game_operator = GameOperator(zim, graph)
-    if request.session.get('operator', None) is None or input('TYPE') == 's':
+    zim_file = MyZIMFile(settings.WIKI_DATA)
+    graph = GraphReader(settings.GRAPH_DIR + '/offset_all', settings.GRAPH_DIR + '/edges_all')
+
+    game_operator = GameOperator(zim_file, graph)
+    if request.session.get('operator', None) is None:
         # начало игры
         game_operator.initialize_game()
-        Game.objects.create(session_id=request.session.session_key,
-                            first=game_operator.current_page_id,
-                            last=game_operator.end_page_id,
-                            steps=0,
-							ended=False)
         request.session['steps'] = 0
         request.session['operator'] = game_operator.save()
+
         return HttpResponse('New game!')
     else:
         game_operator.load(request.session['operator'])
+        print(request.session.session_key)
+        curr_game = Game.objects.get_or_create(
+            session_id=request.session.session_key,
+            )[0]
+        curr_game.first = game_operator.start_page_id
+        curr_game.ended = game_operator.game_finished
+        curr_game.last = game_operator.end_page_id
+        curr_game.steps = request.session['steps']
+        curr_game.save()
+        print(curr_game)
 
-    #wiki_page_request = requests.get(settings.WIKI_MIRROR_HOST + title_name)
+    # wiki_page_request = requests.get(settings.WIKI_MIRROR_HOST + title_name)
 
-    content = zim_file.get_by_url(f'/{title_name}')
+    content = zim_file.get_by_url('/' + title_name)
     if content is None:
-        raise Http404()
+        return zim_file
 
     data, namespace, mime_type = content
 
     if namespace == 'A':
         request.session['steps'] += 1
-        next_page_result = game_operator.next_page(f'/{title_name}')
+        next_page_result = game_operator.next_page('/' + title_name)
         curr_game = Game.objects.filter(session_id=request.session.session_key)[0]
         curr_game.steps = request.session['steps']
         curr_game.ended = next_page_result
-        curr_game.commit()
+        curr_game.save()
         request.session['operator'] = game_operator.save()
 
         if next_page_result:

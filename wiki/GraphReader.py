@@ -1,4 +1,4 @@
-def _bytes_to_int(self,byte_array:bytes):
+def _bytes_to_int(byte_array:bytes):
     ret = 0
     ret |= byte_array[0] << 24
     ret |= byte_array[1] << 16

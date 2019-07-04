@@ -3,3 +3,5 @@ graph/
 .idea/
 wiki/__pycache__/
 wikirace/__pycache__/
+wiki/migrations/
+zimply.log
