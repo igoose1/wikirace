@@ -26,13 +26,6 @@ body {
     float: right;
 }
 
-frame {
-    height: 80%;
-    width: 80%;
-    position: absolute;
-    float: left;
-}
-
 .header .path {
     height: 100%;
     width: 80%;

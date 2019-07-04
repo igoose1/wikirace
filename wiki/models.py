@@ -1,3 +1,11 @@
 from django.db import models
 
+
 # Create your models here.
+
+class Game(models.Model):
+    first = models.IntegerField()
+    last = models.IntegerField()
+    session_id = models.CharField(unique=True)
+    steps = models.IntegerField()
+    ended = models.BooleanField()
