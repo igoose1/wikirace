@@ -1,7 +1,3 @@
-from gevent import monkey
-
-monkey.patch_all = lambda *_: None
-
 from django.http import HttpResponse, Http404
 from django.conf import settings
 

@@ -1,4 +1,15 @@
+
+# TODO: describe this ugly hack
+from gevent import monkey
+monkey.patch_all = lambda *_: None
+
+import logging
+saved_basicConfig = logging.basicConfig
+logging.basicConfig = lambda *_, **__: None
+
 from zimply.zimply import ZIMFile
+
+logging.baseConfig = saved_basicConfig
 
 
 class MyZIMFile(ZIMFile):
