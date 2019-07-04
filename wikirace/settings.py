@@ -66,9 +66,6 @@ TEMPLATES = [
     },
 ]
 
-WIKI_DATA = "../wikidump.zim"
-GRAPH_DIR = "graph"
-
 STATICFILES_DIRS = ['wiki/static']
 
 WSGI_APPLICATION = 'wikirace.wsgi.application'
@@ -123,6 +120,7 @@ NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
 # WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
 
 # Path to wiki data files
-WIKI_ZIMFILE_PATH = 'wikipedia_ru_all_novid_2018-06.zim'
-GRAPH_OFFSET_PATH = 'data/offset'
-GRAPH_EDGES_PATH = 'data/edges'
+WIKI_ZIMFILE_PATH = 'wikidump.zim'
+GRAPH_DIR = 'graph'
+GRAPH_OFFSET_PATH = GRAPH_DIR + '/offset_all'
+GRAPH_EDGES_PATH = GRAPH_DIR + '/edges_all'
