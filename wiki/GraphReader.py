@@ -6,6 +6,13 @@ def _bytes_to_int(byte_array:bytes):
     ret |= byte_array[3] << 0
     return ret
 
+def _int_to_bytes(x:int):
+    b1 = ((x & (255 << 24)) >> 24)
+    b2 = ((x & (255 << 16)) >> 16)
+    b3 = ((x & (255 << 8)) >> 8)
+    b4 = (x & 255)
+    return bytes([b1, b2, b3, b4])
+
 
 class GraphReader:
     def __init__(self, offset_file:str, edges_file:str):
