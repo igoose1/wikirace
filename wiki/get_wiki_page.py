@@ -2,22 +2,19 @@ from django.http import HttpResponse
 from django.conf import settings
 from wiki.GameOperator import GameOperator
 from wiki.models import Game
-from wiki.ZIMFile import MyZIMFile
-from wiki.GraphReader import GraphReader
+from var_init import *
 
 
 def get(request, title_name):
-    print("req")  # delete
-    zim = MyZIMFile(settings.WIKI_DATA)
-    graph = GraphReader(settings.GRAPH_DIR + '/offset0', settings.GRAPH_DIR + '/edges0')  # later
     currOperator = GameOperator(zim, graph)
-    if request.session.get('operator', None) is None:
+    if request.session.get('operator', None) is None or input('TYPE') == 's':
         # начало игры
         currOperator.initialize_game()
         Game.objects.create(session_id=request.session.session_key,
                             first=currOperator.current_page_id,
                             last=currOperator.end_page_id,
-                            steps=0)
+                            steps=0,
+							ended=False)	
         request.session['steps'] = 0
         request.session['operator'] = currOperator.save()
         print('Start')
@@ -39,7 +36,7 @@ def get(request, title_name):
         curr_game = Game.objects.filter(session_id=request.session.session_key)[0]
         curr_game.steps = request.session['steps']
         curr_game.ended = result
-        curr_game.update()
+        curr_game.commit()
         if result == True:
             return HttpResponse('You win!')
         elif result is None:
