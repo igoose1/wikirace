@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'wiki',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,9 +65,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WIKI_DATA = "../wikidump.zim"
-GRAPH_DIR = "graph"
 
 STATICFILES_DIRS = ['wiki/static']
 
@@ -117,3 +115,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
+
+# WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
+
+# Path to wiki data files
+WIKI_ZIMFILE_PATH = 'wikidump.zim'
+GRAPH_DIR = 'data/'
+GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
+GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
