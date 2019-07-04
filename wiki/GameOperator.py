@@ -11,16 +11,17 @@ class GameOperator:
         self.zim = zim_file
         self.reader = graph_reader
         self.start_page_id = None
-
+        self.steps = 0
     def save(self):
         return [self.current_page_id, self.end_page_id,
-                self.game_finished, self.start_page_id]
+                self.game_finished, self.start_page_id, self.steps]
 
     def load(self, saved):
         self.current_page_id = saved[0]
         self.end_page_id = saved[1]
         self.game_finished = saved[2]
         self.start_page_id = saved[3]
+        self.steps = saved[4]
 
     def _get_random_article_id(self):
         article_id = randrange(0, len(self.zim))
@@ -37,7 +38,7 @@ class GameOperator:
         return article_id
 
     def initialize_game(self):
-
+        self.steps = 0
         self.game_finished = False
         self.current_page_id = self._get_random_article_id()
         self.start_page_id = self.current_page_id
@@ -84,7 +85,7 @@ class GameOperator:
 
             if idx not in valid_edges:
                 return False
-
+            self.steps += 1
             self.current_page_id = idx
 
             finished = (self.current_page_id == self.end_page_id)
