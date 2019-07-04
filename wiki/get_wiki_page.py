@@ -14,16 +14,16 @@ from wiki.models import Game
 
 
 def get(request, title_name):
-    zim_file = MyZIMFile(settings.WIKI_DATA)
-    graph = GraphReader(settings.GRAPH_DIR + '/offset_all', settings.GRAPH_DIR + '/edges_all')
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    graph = GraphReader(settings.GRAPH_OFFSET_PATH, setttins.GRAPH_EDGES_PATH)
 
     game_operator = GameOperator(zim_file, graph)
+
+    # Game initialization
     if request.session.get('operator', None) is None:
-        # начало игры
         game_operator.initialize_game()
         request.session['steps'] = 0
         request.session['operator'] = game_operator.save()
-
         return HttpResponse('New game!')
     else:
         game_operator.load(request.session['operator'])
