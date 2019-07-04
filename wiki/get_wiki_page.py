@@ -7,7 +7,6 @@ from wiki.GraphReader import GraphReader
 
 
 def get(request, title_name):
-	print("req") #delete
 	zim = MyZIMFile('F:\\LKSH\\New\\by_category\\wikipedia_ru_geography_nopic_2019-05.zim')
 	graph = GraphReader('F:\\LKSH\\offset0', 'F:\\LKSH\\edges0')  # later
 	currOperator = GameOperator(zim, graph)
@@ -19,7 +18,9 @@ def get(request, title_name):
 		print('Start')
 	else:
 		currOperator.load(request.session['operator'])
-	print('INFO', currOperator.current_page_id, currOperator.end_page_id, request.session['steps'])
+	print('From:', zim.read_directory_entry_by_index(currOperator.current_page_id)['title'], 
+		  'To:', zim.read_directory_entry_by_index(currOperator.end_page_id)['title'], 
+		  'Steps:', request.session['steps'])
 	# nextPage(title_name) - True - конец игры False - нет None - не статья
 	requested_page = zim.get_by_url('/' + title_name)
 	
@@ -37,7 +38,7 @@ def get(request, title_name):
 		# wiki_page_request = requests.get(settings.WIKI_MIRROR_HOST + title_name)  # здесь вместо title_name current_page_id
 		wiki_page = zim._get_article_by_index(currOperator.current_page_id)
 		# mimetype - тип. У статьи - text/html
-		print("shvid")
+		print(wiki_page.data)
 		return HttpResponse(wiki_page.data, wiki_page.mimetype)
 	
 	return HttpResponse(requested_page.data, requested_page.mimetype)
