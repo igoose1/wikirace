@@ -23,7 +23,9 @@ def get(request, title_name):
         print('Start')
     else:
         currOperator.load(request.session['operator'])
-    print('INFO', currOperator.current_page_id, currOperator.end_page_id, request.session['steps'])
+    print('From:', zim.read_directory_entry_by_index(currOperator.current_page_id)['title'],
+          'To:', zim.read_directory_entry_by_index(currOperator.end_page_id)['title'],
+          'Steps:', request.session['steps'])
     # nextPage(title_name) - True - конец игры False - нет None - не статья
     requested_page = zim.get_by_url('/' + title_name)
 
