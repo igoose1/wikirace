@@ -122,5 +122,5 @@ STATIC_URL = '/static/'
 
 # Path to wiki data files
 WIKI_ZIMFILE_PATH = 'wikipedia_ru_all_novid_2018-06.zim'
-GRAPH_OFFSET_PATH = 'offset'
+GRAPH_OFFSET_PATH = 'data/offset'
 GRAPH_EDGES_PATH = 'data/edges'
