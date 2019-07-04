@@ -41,8 +41,9 @@ body {
 
 }
 
-.wiki {
+.wiki-window {
 /*    margin-top: 20%;*/
+    overflow-y: auto;
     float: left;
     height: 80%;
     width: 80%;

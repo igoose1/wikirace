@@ -12,6 +12,7 @@ class GameOperator:
         self.reader = graph_reader
         self.start_page_id = None
         self.steps = 0
+
     def save(self):
         return [self.current_page_id, self.end_page_id,
                 self.game_finished, self.start_page_id, self.steps]
@@ -49,19 +50,20 @@ class GameOperator:
         for step in range(5):
             edges = list(self.reader.Edges(end_page_id_tmp))
             next_id = randrange(0, len(edges))
-            if (edges[next_id] == self.current_page_id):
+            if edges[next_id] == self.current_page_id:
                 break
             end_page_id_tmp = edges[next_id]
         self.end_page_id = end_page_id_tmp
+
     def next_page(self, relative_url: str):
         if self.game_finished:
             return True
         _, namespace, *url_parts = relative_url.split('/')
 
         url = None
-        if (namespace == 'A'):
+        if namespace == 'A':
             url = "/".join(url_parts)
-        if (len(namespace) > 1):
+        if len(namespace) > 1:
             url = namespace
 
         already_finish = (self.current_page_id == self.end_page_id);

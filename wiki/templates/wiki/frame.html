@@ -2,6 +2,7 @@
 {% load static %}
 <head>
     <title>WikiRace</title>
+    <meta charset="UTF-8"/>
     <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
 </head>
 <body>
@@ -21,7 +22,7 @@
     <div class="side-bar">
     </div>
     <div class="wiki-window">
-        {{ wiki_content }}
+        {{ wiki_content|safe }}
     </div>
 </body>
 </html>
