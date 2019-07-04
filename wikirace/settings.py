@@ -120,4 +120,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
+
+# WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
+WIKI_ZIMFILE_PATH = 'wikipedia_ru_all_novid_2018-06.zim'
+GRAPH_OFFSET_PATH = 'offset'
+GRAPH_EDGES_PATH = 'data/edges'
