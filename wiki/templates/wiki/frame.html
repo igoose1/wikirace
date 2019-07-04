@@ -4,25 +4,35 @@
     <title>WikiRace</title>
     <meta charset="UTF-8"/>
     <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/style_for_window.css' %}">
 </head>
 <body>
-    <div class="header">
-        <div class="path">
-            <div class="from">
-                <span>From: {{ from }}</span>
-            </div>
-            <div class="to">
-                <span>To: {{ to }}</span>
-            </div>
+<div class="left-side-bar">
+    <div class="logo">
+        <span>WikiГонки</span>
+    </div>
+    <div class="info">
+        <div class="from">
+            <span>From: {{ from }}</span>
+        </div>
+        <div class="to">
+            <span>To: {{ to }}</span>
         </div>
         <div class="counter">
-            <span>{{ counter }}</span>
+            <span>Steps made: {{ conter }}</span>
         </div>
     </div>
+<<<<<<< HEAD
+</div>
+<div class="wiki-window">
+    {{ wiki_content | safe }}
+</div>
+=======
     <div class="side-bar">
     </div>
     <div class="wiki-window">
         {{ wikicontent |safe}}
     </div>
+>>>>>>> 1159d6244aaea33df0c6ad3ed299ec3ac23708a9
 </body>
 </html>

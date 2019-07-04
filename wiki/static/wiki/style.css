@@ -7,40 +7,55 @@
 body {
     height: 100%;
     width: 100%;
-    /*display: inline;*/
-    /*position: relative;*/
 }
 
-.header {
-    height: 20%;
-    width: 80%;
-    background-color: green;
+.left-side-bar {
     float: left;
-    display: inline-flex;
+    width: 500px;
+    height: 100%;
+    /*background-color: darkgrey;*/
+    box-shadow: 10px 0px 20px darkgrey;
+    font-family: "OpenSans", sans-serif;
+    font-weight: normal;
+    word-wrap: break-word;
 }
 
-.side-bar {
-    height: 100%;
-    width: 20%;
-    background-color: purple;
-    float: right;
-}
-
-.header .path {
-    height: 100%;
-    width: 80%;
-    background-color: brown;
-}
-
-.header .counter {
-    height: 100%;
-    width: 20%;
-    background-color: pink;
+.logo {
+    width: inherit;
     text-align: center;
-    font-size: 250%;
-
+    font-size: 60px;
 }
 
+.info {
+    padding: 0px 15px;
+    font-size: 25px;
+}
+
+.wiki-window {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+/* -------- FONTS -------- */
+
+@font-face {
+    font-family: Gilroy;
+    font-weight: bold;
+    src: url("../fonts/Gilroy-Bold.ttf");
+}
+
+<<<<<<< HEAD
+@font-face {
+    font-family: Gilroy;
+    font-weight: normal;
+    src: url("../fonts/Gilroy-Medium.ttf");
+}
+
+@font-face {
+    font-family: OpenSans;
+    font-weight: bold;
+    src: url("../fonts/OpenSans-Semibold.ttf");
+=======
 .wiki-window {
 /*    margin-top: 20%;*/
     overflow-y: auto;
@@ -48,8 +63,19 @@ body {
     height: 80%;
     width: 80%;
     background-color: yellow;
+>>>>>>> 1159d6244aaea33df0c6ad3ed299ec3ac23708a9
 }
-.header .counter span {
-    /*    margin: 50%;
-        padding: 10px;*/
+
+@font-face {
+    font-family: OpenSans;
+    font-weight: bold;
+    font-style: italic;
+    src: url("../fonts/OpenSans-Semibold.ttf");
 }
+
+@font-face {
+    font-family: OpenSans;
+    font-weight: normal;
+    src: url("../fonts/OpenSans-Regular.ttf");
+}
+
