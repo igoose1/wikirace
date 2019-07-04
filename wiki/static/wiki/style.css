@@ -43,8 +43,6 @@ body {
     font-weight: bold;
     src: url("../fonts/Gilroy-Bold.ttf");
 }
-
-<<<<<<< HEAD
 @font-face {
     font-family: Gilroy;
     font-weight: normal;
@@ -55,16 +53,6 @@ body {
     font-family: OpenSans;
     font-weight: bold;
     src: url("../fonts/OpenSans-Semibold.ttf");
-=======
-.wiki-window {
-/*    margin-top: 20%;*/
-    overflow-y: auto;
-    float: left;
-    height: 80%;
-    width: 80%;
-    background-color: yellow;
->>>>>>> 1159d6244aaea33df0c6ad3ed299ec3ac23708a9
-}
 
 @font-face {
     font-family: OpenSans;
