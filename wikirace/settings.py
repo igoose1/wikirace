@@ -121,3 +121,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
+
+NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
