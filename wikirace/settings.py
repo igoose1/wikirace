@@ -65,6 +65,9 @@ TEMPLATES = [
     },
 ]
 
+WIKI_DATA = "../wikidump.zim"
+GRAPH_DIR = "graph"
+
 STATICFILES_DIRS = ['wiki/static']
 
 WSGI_APPLICATION = 'wikirace.wsgi.application'

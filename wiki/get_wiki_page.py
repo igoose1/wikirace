@@ -1,8 +1,6 @@
 from gevent import monkey
 monkey.patch_all = lambda *_: None
 
-import requests
-
 from django.http import HttpResponse, Http404
 from django.conf import settings
 
@@ -12,6 +10,7 @@ from django.template import loader
 from .ZIMFile import MyZIMFile
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
+from wiki.models import Game
 
 
 def get(request, title_name):
@@ -24,6 +23,10 @@ def get(request, title_name):
 
     if request.session.get('steps', None) is None:
         game_operator.initialize_game()
+        Game.objects.create(session_id=request.session.session_key,
+                            first=game_operator.current_page_id,
+                            last=game_operator.end_page_id,
+                            steps=0)
         request.session['steps'] = 0
         request.session['operator'] = game_operator.save()
         return HttpResponse('New game!')
@@ -41,6 +44,10 @@ def get(request, title_name):
     if namespace == 'A':
         request.session['steps'] += 1
         next_page_result = game_operator.next_page(f'/{title_name}')
+        curr_game = Game.objects.filter(session_id=request.session.session_key)[0]
+        curr_game.steps = request.session['steps']
+        curr_game.ended = next_page_result
+        curr_game.update()
         request.session['operator'] = game_operator.save()
 
         if next_page_result:
@@ -66,4 +73,3 @@ def get(request, title_name):
         data,
         content_type=mime_type
     )
- 

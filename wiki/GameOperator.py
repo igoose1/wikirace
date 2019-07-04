@@ -1,4 +1,5 @@
 from random import randrange
+from wiki.models import Game
 from wiki.GraphReader import GraphReader
 
 
@@ -36,6 +37,7 @@ class GameOperator:
         return article_id
 
     def initialize_game(self):
+
         self.game_finished = False
         self.current_page_id = self._get_random_article_id()
         self.start_page_id = self.current_page_id
@@ -50,7 +52,6 @@ class GameOperator:
                 break
             end_page_id_tmp = edges[next_id]
         self.end_page_id = end_page_id_tmp
-
     def next_page(self, relative_url: str):
         if self.game_finished:
             return True
