@@ -1,7 +1,9 @@
 db.sqlite3
 graph/
+__pycache__/
 .idea/
 wiki/__pycache__/
 wikirace/__pycache__/
 wiki/migrations/
 zimply.log
+local_settings.py

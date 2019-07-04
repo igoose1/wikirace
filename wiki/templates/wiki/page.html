@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
+    <link href="../../static/wiki/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="toolbar">
+    <div class="title">
+        WikiRace
+    </div>
+    <div class="button_bar">
+        <a href="/main" class="image_button">
+            <img src="../../static/wiki/baseline-home-24px.svg" alt="undo">
+        </a>
+        <a href="/game_start" class="image_button">
+            <img src="../../static/wiki/baseline-autorenew-24px.svg" alt="home">
+        </a>
+    </div>
+</div>
+<div class="block"></div>
+<div class="info_card">
+    <div>
+        <div class="start_page">
+            Старт: {{ from }}
+        </div>
+        <div class="finish_page">
+            Финиш: {{ to }}
+        </div>
+    </div>
+    <div class="block1"></div>
+    <div>
+        <div class="moves">
+            Ходы: {{ counter }}
+        </div>
+    </div>
+</div>
+<div class="body">
+    {{ wiki_content|safe }}
+</div>
+<div class="moves_list">
+
+</div>
+</body>
+</html>

@@ -15,48 +15,35 @@ import re
 
 
 def get(request, title_name):
+    print(title_name)
     zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
 
     content = zim_file.get_by_url('/' + title_name)
     if content is None:
-        return HttpResponse(Http404("NOT FOUND"))
+        return get_main_page(request)
 
     data, namespace, mime_type = content
 
     if namespace == 'A':
+        print("HELLO")
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
         if request.session.get('operator', None) is None:
-            # начало игры
-            game_operator.initialize_game()
-            request.session['operator'] = game_operator.save()
-
-            return HttpResponse('New game!')
+            print("HELLO")
+            return get_main_page(request)
         else:
             game_operator.load(request.session['operator'])
             print(request.session.session_key)
-            curr_game = Game.objects.update_or_create(
-                session_id=request.session.session_key,
-                first=game_operator.start_page_id,
-                ended=game_operator.game_finished,
-                last=game_operator.end_page_id,
-                steps=game_operator.steps,
-            )[0]
-            print(curr_game)
         next_page_result = game_operator.next_page('/' + title_name)
-        curr_game = Game.objects.filter(session_id=request.session.session_key)[0]
-        curr_game.steps = game_operator.steps
-        curr_game.ended = next_page_result
-        curr_game.save()
         request.session['operator'] = game_operator.save()
 
         if next_page_result:
-            return HttpResponse('You\'ve won!')
+            return winpage(request)
         elif next_page_result is None:
             return HttpResponse('Something went wrong...')
 
-        template = loader.get_template('wiki/frame.html')
+        template = loader.get_template('wiki/page.html')
         counter = game_operator.steps
         context = {
             'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
@@ -73,3 +60,54 @@ def get(request, title_name):
         data,
         content_type=mime_type
     )
+
+
+def get_start(request):
+    print("INIT")
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
+    game_operator = GameOperator(zim_file, graph)
+    game_operator.initialize_game()
+    request.session['operator'] = game_operator.save()
+    template = loader.get_template('wiki/page.html')
+    counter = game_operator.steps
+    context = {
+        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
+        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
+        'counter': counter,
+        'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
+    }
+    return HttpResponse(
+        template.render(context, request)
+    )
+
+
+def get_continue(request):
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
+    game_operator = GameOperator(zim_file, graph)
+    if request.session.get('operator', None) is None:
+        return start(request)
+    game_operator.load(request.session['operator'])
+    context = {
+        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
+        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
+        'counter': game_operator.steps,
+        'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
+    }
+    return HttpResponse(
+        loader.get_template("wiki/page.html").render(context, request),
+    )
+
+
+def winpage(request):
+    template = loader.get_template('wiki/win_page.html')
+    context = dict()
+    return HttpResponse(
+        template.render(context, request),
+    )
+
+
+def get_main_page(request) -> HttpResponse:
+    template = loader.get_template('wiki/start_page.html')
+    return HttpResponse(template.render({}, request))
