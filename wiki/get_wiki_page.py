@@ -15,7 +15,7 @@ import re
 
 
 def get(request, title_name):
-    zim_file = MyZIMFile(settings.WIKI_DATA)
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
 
     content = zim_file.get_by_url('/' + title_name)
     if content is None:
@@ -24,7 +24,7 @@ def get(request, title_name):
     data, namespace, mime_type = content
 
     if namespace == 'A':
-        graph = GraphReader(settings.GRAPH_DIR + '/offset_all', settings.GRAPH_DIR + '/edges_all')
+        graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
         if request.session.get('operator', None) is None:
@@ -62,7 +62,7 @@ def get(request, title_name):
             'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
             'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
             'counter': counter,
-            'wiki_content': data.decode('utf-8'),
+            'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
         }
         return HttpResponse(
             template.render(context, request),
@@ -73,9 +73,3 @@ def get(request, title_name):
         data,
         content_type=mime_type
     )
-
-
-def parse_article(article: str):
-    m = re.search(r"<body.*?>(.*?)</body>", article, re.S)
-    body = m.group(1) if m else ""
-    return body

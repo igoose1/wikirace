@@ -55,7 +55,7 @@ class GameOperator:
             end_page_id_tmp = edges[next_id]
         self.end_page_id = end_page_id_tmp
 
-    def next_page(self, relative_url: str):
+    def next_page(self, relative_url: str)->bool:
         if self.game_finished:
             return True
         _, namespace, *url_parts = relative_url.split('/')
