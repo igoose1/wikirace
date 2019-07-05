@@ -6,6 +6,9 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
     <link href="../../static/wiki/styles.css" rel="stylesheet">
+    <link href="" rel="script">
+    <script src="../../static/wiki/jquery.js"></script>
+    <script src="../../static/wiki/card_behaviour.js"></script>
 </head>
 <body>
 <div class="toolbar">
@@ -40,28 +43,31 @@
         </div>
     </div>
     <div class="block1"></div>
-    <div>
+    <div class="moves_box">
         <div class="moves">
             Ходы: {{ counter }}
+        </div>
+        <div class="expand">
+            <img src="../../static/wiki/baseline-expand_more-24px.svg" class="expand_icon">
         </div>
     </div>
 </div>
 <div class="body">
     {{ wiki_content|safe }}
-	<script src="../../static/wiki/jquery.js"></script>
 </div>
 <div class="moves_list">
 
 </div>
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	$(window).on("load",function () {
-		var anchors = $('a');
-		var comp = new RegExp(location.host);
-		for ( var i=0; i < anchors.length; i++ ) {
+	    onCardClick();
+		const anchors = $('a');
+		const comp = new RegExp(location.host);
+		for (let i=0; i < anchors.length; i++ ) {
 			if (! comp.test(anchors[i].href))
 			{
 
-				var span = $('<span>', {class: 'text'}).get(0);
+				const span = $('<span>', {class: 'text'}).get(0);
 				if ( anchors[i].id ) {
 					span.id = anchors[i].id;
 				}

@@ -98,10 +98,18 @@ def winpage(request):
     if session_operator is None:
         return HttpResponseRedirect('/')
     game_operator.load(session_operator)
+    ending = ''
+    if game_operator.steps % 10 == 1 and game_operator.steps % 100 != 11:
+        pass
+    elif game_operator.steps % 10 in [2, 3, 4] and game_operator.steps % 100 not in [12, 13, 14]:
+        ending = 'а'
+    else:
+        ending = 'ов'
     context = {
         'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
         'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
-        'counter': game_operator.steps
+        'counter': game_operator.steps,
+        'move_end': ending
     }
     template = loader.get_template('wiki/win_page.html')
     return HttpResponse(
