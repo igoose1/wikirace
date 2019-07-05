@@ -40,9 +40,28 @@
 </div>
 <div class="body">
     {{ wiki_content|safe }}
+	<script src="../../static/wiki/jquery.js"></script>
 </div>
 <div class="moves_list">
 
 </div>
+<script language="javascript" type="text/javascript">
+	$(window).on("load",function () {
+		var anchors = $('a');
+		
+		for ( var i=0; i < anchors.length; i++ ) {
+			if (anchors[i].className.includes("external"))
+			{
+				
+				var span = $('<span>', {class: 'text'}).get(0);
+				if ( anchors[i].id ) {
+					span.id = anchors[i].id;
+				}
+				span.innerHTML = anchors[i].innerHTML;
+				anchors[i].parentNode.replaceChild(span, anchors[i]);
+			}
+		}
+	});
+</script>
 </body>
 </html>
