@@ -1,6 +1,6 @@
 from random import randrange
 from wiki.models import Game
-from wiki.GraphReader import GraphReader
+from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
 from django.conf import settings
 
 
@@ -49,9 +49,11 @@ class GameOperator:
         pair_id = randrange(0, cnt - 1)
         file.seek(4 + pair_id * 8)
         self.start_page_id = _bytes_to_int(file.read(4))
+        print(self.start_page_id)
         self.current_page_id = self.start_page_id
         self.end_page_id = _bytes_to_int(file.read(4))
         file.close()
+        self.game_finished = False
 
     def next_page(self, relative_url: str)->bool:
         if self.game_finished:
@@ -82,7 +84,7 @@ class GameOperator:
                 return None
 
             valid_edges = list(self.reader.Edges(self.current_page_id))
-
+            valid_edges.append(self.current_page_id)
             if idx not in valid_edges and not self.load_testing:
                 if idx in self.history:
                     self.steps += max(0, self.history[::-1].index(idx) - 1)
@@ -93,8 +95,8 @@ class GameOperator:
             if self.current_page_id != idx:
                 self.steps += 1
                 self.current_page_id = idx
-            if not self.history or idx != self.history[-1]:
-                self.history.append(idx)
+                if not self.history or idx != self.history[-1]:
+                    self.history.append(idx)
 
                 
             self.current_page_id = idx
