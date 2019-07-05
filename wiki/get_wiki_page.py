@@ -91,8 +91,19 @@ def get_continue(request):
 
 
 def winpage(request):
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
+    game_operator = GameOperator(zim_file, graph)
+    session_operator = request.session.get('operator', None)
+    if session_operator is None:
+        return HttpResponseRedirect('/')
+    game_operator.load(session_operator)
+    context = {
+        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
+        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
+        'counter': game_operator.steps
+    }
     template = loader.get_template('wiki/win_page.html')
-    context = dict()
     return HttpResponse(
         template.render(context, request),
     )
