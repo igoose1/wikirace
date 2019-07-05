@@ -130,3 +130,7 @@ body, html {
 		width: 100% !important;
 	}
 }
+
+.navbox {
+	overflow: auto !important;
+}
