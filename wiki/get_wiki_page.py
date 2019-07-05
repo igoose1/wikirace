@@ -106,5 +106,16 @@ def winpage(request):
 
 
 def get_main_page(request) -> HttpResponse:
-    template = loader.get_template('wiki/start_page.html')
-    return HttpResponse(template.render({}, request))
+    template = loader.get_template(
+        'wiki/start_page.html'
+    )
+    is_playing = request.session.get('operator', None) is not None
+    context = {
+        'is_playing': is_playing
+    }
+    return HttpResponse(
+        template.render(
+            context,
+            request
+        )
+    )

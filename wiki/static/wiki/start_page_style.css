@@ -44,6 +44,16 @@
     background-color: #0055DD;
 }
 
+.disable_continue_button {
+    opacity: .2;
+    width: 15vh;
+    height: 15vh;
+    border-radius: 7.5vh;
+    border-width: 2px;
+    border-color: #0022AA;
+    background-color: #0055DD;
+}
+
 .play_button_image {
     width: 30vh;
     height: 30vh;
@@ -63,6 +73,14 @@
 }
 
 .continue_button_link {
+    float: left;
+    width: 15vh;
+    height: 15vh;
+    margin: 15vh 0 0 0;
+}
+
+.disable_continue_button_link {
+    pointer-events: none;
     float: left;
     width: 15vh;
     height: 15vh;

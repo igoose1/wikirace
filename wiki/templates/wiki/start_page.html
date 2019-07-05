@@ -15,8 +15,12 @@
             <img src="../../static/wiki/baseline-play_arrow-24px.svg" class="play_button_image">
         </div>
     </a>
+    {% if is_playing %}
     <a href="/continue" class="continue_button_link">
         <div class="continue_button">
+    {% else %}
+    <a href="#" class="disable_continue_button_link">
+        <div class="disable_continue_button">{% endif %}    
             <img src="../../static/wiki/baseline-arrow_forward_ios-24px.svg" class="continue_button_image">
         </div>
     </a>
