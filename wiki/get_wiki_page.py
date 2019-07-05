@@ -1,4 +1,4 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 
 from django.template import loader
@@ -82,9 +82,10 @@ def get_continue(request):
     zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
-    if request.session.get('operator', None) is None:
-        return start(request)
-    game_operator.load(request.session['operator'])
+    session_operator = request.session.get('operator', None)
+    if session_operator is None:
+        return HttpResponseRedirect('/')
+    game_operator.load(session_operator)
     context = {
         'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
         'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
