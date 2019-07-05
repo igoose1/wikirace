@@ -1,4 +1,5 @@
 from GraphReader import _bytes_to_int
+import sys
 
 N = 5054753
 NULL = 2 ** 32 - 1
@@ -22,8 +23,9 @@ def get_variants_for_vertex(v, input_filename, input_files_amount):
 
 
 files_amount = 1
-for v in range(N):
-    d = get_variants_for_vertex(v, 'data/good_end', files_amount)
+print(get_variants_for_vertex(int(sys.argv[1]), 'data/good_end', files_amount))
+#for v in range(N):
+#    d = get_variants_for_vertex(v, 'data/good_end', files_amount)
 
 
 
