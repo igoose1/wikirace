@@ -42,6 +42,7 @@ def get(request, title_name):
         template = loader.get_template('wiki/page.html')
         counter = game_operator.steps
         context = {
+            'title': zim_file.read_directory_entry_by_index(game_operator.current_page_id)['title'],
             'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
             'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
             'counter': counter,
@@ -68,6 +69,7 @@ def get_start(request):
     template = loader.get_template('wiki/page.html')
     counter = game_operator.steps
     context = {
+        'title': zim_file.read_directory_entry_by_index(game_operator.current_page_id)['title'],
         'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
         'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
         'counter': counter,
