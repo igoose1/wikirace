@@ -87,8 +87,10 @@ class GameOperator:
 
             if idx not in valid_edges:
                 return False
-            self.steps += 1
-            self.current_page_id = idx
+
+            if (self.current_page_id != idx):
+                self.steps += 1
+                self.current_page_id = idx
 
             finished = (self.current_page_id == self.end_page_id)
             self.game_finished = finished
