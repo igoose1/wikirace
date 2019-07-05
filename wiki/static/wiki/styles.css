@@ -45,6 +45,10 @@
 }
 
 .start_page, .finish_page {
+    display: none;
+}
+
+.start_page, .finish_page {
     text-align: left;
     margin-bottom: 1vh;
 }
