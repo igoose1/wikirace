@@ -66,17 +66,8 @@ def get_start(request):
     game_operator = GameOperator(zim_file, graph)
     game_operator.initialize_game()
     request.session['operator'] = game_operator.save()
-    template = loader.get_template('wiki/page.html')
-    counter = game_operator.steps
-    context = {
-        'title': zim_file.read_directory_entry_by_index(game_operator.current_page_id)['title'],
-        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
-        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
-        'counter': counter,
-        'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
-    }
-    return HttpResponse(
-        template.render(context, request)
+    return HttpResponseRedirect(
+        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     )
 
 
