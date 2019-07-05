@@ -55,8 +55,19 @@
     margin-right: auto;
 }
 
-.button_bar {
+.button_bar_right {
+	display: inline;
     float: right;
+    width: auto;
+    height: 5vh;
+    padding-bottom: 0.5vh;
+    padding-top: 0.5vh;
+    padding-right: 1vh;
+}
+
+.button_bar_left {
+	display: inline;
+    float: left;
     width: auto;
     height: 5vh;
     padding-bottom: 0.5vh;
@@ -111,8 +122,11 @@ body, html {
 }
 
 
-@media(max-device-width: 500px) {
-    div.infobox, div.tright, div.floatright, table.floatright, div.tleft, div.floatleft, table.floatleft {
+@media(max-device-width: 700px) {
+    .infobox, div.tright, div.floatright, table.floatright, div.tleft, div.floatleft, table.floatleft {
         float: none !important;
     }
+	.infobox {
+		width: 100% !important;
+	}
 }
