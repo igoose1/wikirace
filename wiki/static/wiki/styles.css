@@ -107,7 +107,7 @@
 .info_card {
     width: 90%;
     min-height: auto;
-    height: content-box;
+    height: auto;
     background-color: #ffffff;
     border-radius: 2vh;
     align-content: center;
@@ -149,6 +149,27 @@ body, html {
 
 .expand_icon {
     object-fit: contain;
+}
+
+.expand_icon_down {
+	transition: 0.5s;
+    object-fit: contain;
+	transform: rotateX(0deg)
+}
+
+.expand_icon_up {
+	transition: 0.5s;
+    transform: rotateX(180deg)
+}
+
+.small_box {
+	max-height: 0;
+    transition: max-height 0.15s ease-out;
+}
+
+.big_box {
+	max-height: 500px;
+    transition: max-height 0.25s ease-in;
 }
 
 .moves_box {

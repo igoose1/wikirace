@@ -34,7 +34,7 @@
 </div>
 <div class="block"></div>
 <div class="info_card">
-    <div>
+    <div class="box_id big_box">
         <div class="start_page">
             Старт: {{ from }}
         </div>
@@ -48,7 +48,7 @@
             Ходы: {{ counter }}
         </div>
         <div class="expand">
-            <img src="../../static/wiki/baseline-expand_more-24px.svg" class="expand_icon">
+            <img src="../../static/wiki/baseline-expand_more-24px.svg" class="expand_icon expand_icon_up">
         </div>
     </div>
 </div>
@@ -60,7 +60,6 @@
 </div>
 <script type="text/javascript">
 	$(window).on("load",function () {
-	    onCardClick();
 		const anchors = $('a');
 		const comp = new RegExp(location.host);
 		for (let i=0; i < anchors.length; i++ ) {

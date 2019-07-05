@@ -3,18 +3,15 @@ let current_state = true;
 $(document).ready(() => {
 
     function change_state() {
-        if (current_state) {
-            $(".start_page").hide();
-            $(".finish_page").hide();
-        } else {
-            $(".start_page").show();
-            $(".finish_page").show();
-        }
+		$(".expand_icon").toggleClass('expand_icon_down');
+		$(".expand_icon").toggleClass('expand_icon_up');
+		$(".box_id").toggleClass("big_box");
+		$(".box_id").toggleClass("small_box");
+		
         current_state = !current_state
     }
 
     $(".expand")
-        .toggleClass('rotated')
         .click(() => {
             change_state()
         });
