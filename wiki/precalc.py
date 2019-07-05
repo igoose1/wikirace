@@ -1,5 +1,8 @@
 from GraphReader import _int_to_bytes, GraphReader
-from random import shuffle
+from random import shuffle, randrange
+from time import time
+
+start_time = time()
 
 reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
 
@@ -28,32 +31,32 @@ for start_page_id in order:
 
 
 reader = GraphReader('data/offset', 'data/edges')
-out = open('data/good_end_1', 'wb')
+out = open('data/good_end_0', 'wb')
 
 NONE = 2**32 - 1
 good_end = [-1 for i in range(N)]
 
-def find_good_ends(max_dist, min_out_edges):
+def find_good_ends(min_dist, max_dist):
     for cur_vertex in range(N):
         made_steps = 0
-        out_edges = 0
+        steps = randrange(min_dist, max_dist)
         v = cur_vertex
         to = NONE
-        while v != -1 and out_edges < min_out_edges and made_steps <= max_dist:
-            out_edges += reader.edges_count(v)
+        while v != -1 and made_steps < steps:
             if go_to[v] == -1:
                 break
             v = go_to[v]
             made_steps += 1
-        if made_steps > 1:
+        if min_dist <= made_steps <= max_dist:
             to = v
         out.write(_int_to_bytes(to))
         
-max_dist = 3
-min_out_edges = 1000
+dist_right = 3
+dist_left = 2
 for i in range(3):
-    find_good_ends(max_dist, min_out_edges)
-    max_dist += 2
-    min_out_edges += 2000
+    find_good_ends(dist_left, dist_right)
+    dist_right += 2
+    dist_left += 2
 
 out.close()
+print(time() - start_time)
