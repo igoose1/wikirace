@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
 
 from django.template import loader
@@ -15,7 +15,7 @@ def get(request, title_name):
 
     content = zim_file.get_by_url('/' + title_name)
     if content is None:
-        return get_main_page(request)
+        raise Http404()
 
     data, namespace, mime_type = content
     if namespace == 'A':
@@ -25,16 +25,19 @@ def get(request, title_name):
         game_operator.load_testing = ("loadtesting" in request.GET
                                       and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
         if request.session.get('operator', None) is None:
-            return get_main_page(request)
+            return HttpResponseRedirect('/')
         else:
             game_operator.load(request.session['operator'])
+
         next_page_result = game_operator.next_page('/' + title_name)
         request.session['operator'] = game_operator.save()
 
         if next_page_result:
             return winpage(request)
         elif next_page_result is None:
-            return HttpResponse('Something went wrong...')
+            return HttpResponseRedirect(
+                zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+            )
 
         template = loader.get_template('wiki/page.html')
         context = {
