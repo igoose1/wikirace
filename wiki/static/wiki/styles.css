@@ -1,3 +1,8 @@
+
+* {
+	float:none !important;
+}
+
 .toolbar {
     width: 100%;
     height: 6vh;
@@ -9,7 +14,7 @@
     width: 100%;
     height: 80vh;
     background-color: #ffffff;
-    float: left;
+    float: left !important;
     overflow-y: auto;
     overflow-x: auto;
 }
@@ -18,11 +23,11 @@
     width: 0;
     height: 80vh;
     background-color: #fdfdfd;
-    float: left;
+    float: left !important;
 }
 
 .title {
-    float: left;
+    float: left !important;
     width: max-content;
     font-size: 5vh;
     font-family: Arial, serif;
@@ -35,7 +40,7 @@
 }
 
 .start_page, .moves, .finish_page, .time {
-    float: left;
+    float: left !important;
     width: 50%;
     height: max-content;
     font-family: Arial, serif;
@@ -60,7 +65,7 @@
 
 .button_bar_right {
 	display: inline;
-    float: right;
+    float: right !important;
     width: auto;
     height: 5vh;
     padding-bottom: 0.5vh;
@@ -70,7 +75,7 @@
 
 .button_bar_left {
 	display: inline;
-    float: left;
+    float: left !important;
     width: auto;
     height: 5vh;
     padding-bottom: 0.5vh;
@@ -81,7 +86,7 @@
 .image_button {
     width: 5vh;
     height: 5vh;
-    float: left;
+    float: left !important;
     box-sizing: content-box;
     margin-left: 1vh;
     object-fit: contain;
@@ -90,7 +95,7 @@
 .block {
     width: 100%;
     height: 0;
-    float: left;
+    float: left !important;
     clear: both;
     display: block;
 }
@@ -98,7 +103,7 @@
 .block1 {
     width: 100%;
     height: 0;
-    float: left;
+    float: left !important;
     display: block;
 }
 
