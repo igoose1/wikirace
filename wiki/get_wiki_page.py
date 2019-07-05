@@ -140,12 +140,8 @@ def get_hint_page(request):
 
     game_operator = GameOperator(zim_file, graph)
     if request.session.get('operator', None) is None:
-        print("HELLO")
-        return get_main_page(request)
-    else:
-        game_operator.load(request.session['operator'])
-        print(request.session.session_key)
-
+        return HttpResponseRedirect('/')
+    game_operator.load(request.session['operator'])
 
     content = zim_file.get_by_index(game_operator.end_page_id)
     data, namespace, mime_type = content
