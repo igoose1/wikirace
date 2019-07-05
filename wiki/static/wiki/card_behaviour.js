@@ -11,7 +11,7 @@ $(document).ready(() => {
         current_state = !current_state
     }
 
-    $(".expand")
+    $(".info_card")
         .click(() => {
             change_state()
         });
