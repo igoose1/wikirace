@@ -12,10 +12,12 @@ class GameOperator:
         self.reader = graph_reader
         self.start_page_id = None
         self.steps = 0
+        self.history = []
 
     def save(self):
         return [self.current_page_id, self.end_page_id,
-                self.game_finished, self.start_page_id, self.steps]
+                self.game_finished, self.start_page_id, 
+                self.steps, self.history]
 
     def load(self, saved):
         self.current_page_id = saved[0]
@@ -23,6 +25,7 @@ class GameOperator:
         self.game_finished = saved[2]
         self.start_page_id = saved[3]
         self.steps = saved[4]
+        self.history = saved[5]
 
     def _get_random_article_id(self):
         article_id = randrange(0, len(self.zim))
@@ -43,6 +46,7 @@ class GameOperator:
         self.game_finished = False
         self.current_page_id = self._get_random_article_id()
         self.start_page_id = self.current_page_id
+        self.history = [self.start_page_id]
         while self.reader.edges_count(self.current_page_id) == 0:
             self.current_page_id = self._get_random_article_id()
 
@@ -54,6 +58,19 @@ class GameOperator:
                 break
             end_page_id_tmp = edges[next_id]
         self.end_page_id = end_page_id_tmp
+    
+    def prev_page(self)->bool:
+        if len(self.history) >= 2:
+            self.history.pop()  # pop current page
+            self.current_page_id = self.history[-1]  # pop prev page (will be added in next_page)
+            # if len(self.history) >= 1:
+                # self.current_page_id = self.history.pop()
+            self.steps += 1
+            return True
+        return False
+    
+    def is_history_empty(self)->bool:
+        return (len(self.history) <= 1)
 
     def next_page(self, relative_url: str)->bool:
         if self.game_finished:
@@ -86,10 +103,15 @@ class GameOperator:
             valid_edges = list(self.reader.Edges(self.current_page_id))
 
             if idx not in valid_edges:
-                return False
+                if idx in self.history:
+                    self.steps += self.history[::-1].index(idx) - 1
+                    self.history = self.history[:len(self.history) - 1 - self.history[::-1].index(idx)]
+                else:
+                    return False  # not absolutly right!
             self.steps += 1
+            if not self.history or idx != self.history[-1]:
+                self.history.append(idx)
             self.current_page_id = idx
-
             finished = (self.current_page_id == self.end_page_id)
             self.game_finished = finished
             return finished
