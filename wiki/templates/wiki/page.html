@@ -9,11 +9,13 @@
 </head>
 <body>
 <div class="toolbar">
+	{% if not history_empty %}
 	<div class="button_bar_left">
 		<a href="/back" class="image_button">
 			 <img src="../../static/wiki/baseline-arrow_back_ios-24px.svg" alt="undo">
 		</a>
 	</div>
+	{% endif %}
     <div class="title">
         WikiRace
     </div>
