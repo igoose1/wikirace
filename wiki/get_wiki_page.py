@@ -75,18 +75,8 @@ def get_back(request):
     game_operator.load(session_operator)
     game_operator.prev_page()
     request.session['operator'] = game_operator.save()
-    template = loader.get_template('wiki/page.html')
-    context = {
-            'title': zim_file.read_directory_entry_by_index(game_operator.current_page_id)['title'],
-            'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
-            'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
-            'counter': game_operator.steps,
-            'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
-            'history_empty': game_operator.is_history_empty()
-        }
     return HttpResponseRedirect(
-        template.render(context, request),
-        content_type='text/html'
+        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     )
     
     

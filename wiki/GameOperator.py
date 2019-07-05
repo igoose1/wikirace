@@ -65,7 +65,6 @@ class GameOperator:
             self.current_page_id = self.history[-1]  # pop prev page (will be added in next_page)
             # if len(self.history) >= 1:
                 # self.current_page_id = self.history.pop()
-            self.steps += 1
             return True
         return False
     
