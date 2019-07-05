@@ -41,7 +41,7 @@ class GameOperator:
     def is_history_empty(self)->bool:
         return (len(self.history) <= 1)
 
-    def initialize_game(self, level=2):
+    def initialize_game(self, level=0):
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
