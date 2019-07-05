@@ -100,7 +100,11 @@ def winpage(request):
 
 def get_main_page(request) -> HttpResponse:
     template = loader.get_template('wiki/start_page.html')
-    return HttpResponse(template.render({}, request))
+    session_operator = request.session.get('operator', None)
+    is_playing = False
+    if (session_operator and not session_operator[2]):
+        is_playing = True
+    return HttpResponse(template.render({'is_playing': is_playing}, request))
 
 
 def get_hint_page(request):
