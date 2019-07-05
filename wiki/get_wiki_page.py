@@ -26,8 +26,7 @@ def get(request, title_name):
                                       and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
         if request.session.get('operator', None) is None:
             return HttpResponseRedirect('/')
-        else:
-            game_operator.load(request.session['operator'])
+        game_operator.load(request.session['operator'])
 
         next_page_result = game_operator.next_page('/' + title_name)
         request.session['operator'] = game_operator.save()
