@@ -10,20 +10,25 @@
     WikiRace
 </div>
 <div class="button_block">
-    <a href="/game_start" class="play_button_link">
+	{% if is_playing %}
+    <a href="/continue" class="play_button_link">
+        <div class="play_button">		
+			<img src="../../static/wiki/baseline-play_arrow-24px.svg" alt="play" class="play_button_image">
+			{% else %}
+	<a href="/game_start" class="play_button_link">
         <div class="play_button">
-            <img src="../../static/wiki/baseline-play_arrow-24px.svg" class="play_button_image">
+			<img src="../../static/wiki/baseline-play_arrow-24px.svg" alt="play" class="play_button_image">
+			{% endif %}
         </div>
     </a>
     {% if is_playing %}
-    <a href="/continue" class="continue_button_link">
+    <a href="/game_start" class="continue_button_link">
         <div class="continue_button">
-    {% else %}
-    <a href="#" class="disable_continue_button_link">
-        <div class="disable_continue_button">{% endif %}    
-            <img src="../../static/wiki/baseline-arrow_forward_ios-24px.svg" class="continue_button_image">
-        </div>
-    </a>
+			<img src="../../static/wiki/baseline-autorenew-24px_blue.svg" alt="again" class="play_again_button_image">
+		</div>
+	</a>
+    {% endif %}
+        
 </div>
 <div class="description_block">
     Поучаствуйте в WikiRace.

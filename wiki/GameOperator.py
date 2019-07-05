@@ -106,8 +106,10 @@ class GameOperator:
                     self.steps += self.history[::-1].index(idx) - 1
                     self.history = self.history[:len(self.history) - 1 - self.history[::-1].index(idx)]
                 else:
-                    return False  # not absolutly right!
-            self.steps += 1
+                    return False 
+             if (self.current_page_id != idx):
+                self.steps += 1
+                self.current_page_id = idx
             if not self.history or idx != self.history[-1]:
                 self.history.append(idx)
             self.current_page_id = idx

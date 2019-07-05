@@ -1,108 +1,140 @@
-body {
-	background: #ffffff;
-	padding: 0;
-	margin: 0;
-	font-family: "OpenSans", sans-serif;
-}
-.win_text {
-	width: 50vmin;
-	height: 20vmin;
-	position: absolute;
-	font-size: 12vmin;
-	color: rgb(0,64,0);
-	background: rgb(0,128,0);
-	border-radius: 40px;
-	padding: 20px;
-	padding-top: 0px;
-	left: 50%;
-	top: 20%;
-	transform: translateX(-50%);
-	text-align: center;
-	box-shadow: 2px 4px 20px 3px rgba(0,128,0, 0.6);
-	
+body, html {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
 }
 
-.statistic {
-	width: 50vmin;
-	height: 12vmin;
-	position: absolute;
-	font-size: 3vmin;
-	color: rgb(0,0,0);
-	border: 3px solid rgb(236,236,236);
-	border-color: rgb(236,236,236);
-	border-top: none;
-	background: #ffffff;
-	padding: 20px;
-	padding-top: 0px;
-	padding-bottom: 0px;
-	margin: 0px;
-	left: 50%;
-	transform: translateX(-50%);
-	text-align: left;
-	
-	box-shadow: 2px 4px 20px 3px rgba(64,64,64, 0.6);
-}
-.statistic p {
-	display: inline;
+.win_title {
+    text-align: center;
 }
 
-.statistic .endstate {
-	float: right;
-	width: 70%;
-	padding-left: 10px;
-	height: 100%;
-	border-left: 3px solid rgb(236,236,236);
-	
+.move_time_block, .from_to_block, .win_title {
+    width: 100vw;
 }
 
-.play_again {
-	
-	transition: 0.3s;
-	
-	width: 20vmin;
-	height: 20vmin;
-	position: absolute;
-	font-size: 8vmin;
-	border-radius: 50%;
-	padding: 20px;
-	padding-top: 20px;
-	left: 50%;
-	top: 60%;
-	transform: translateX(-50%);
-	text-align: center;
-	color: rgb(64,64,64);
-	background: rgb(128,128,128);
-	box-shadow: 0px 0px 20px 3px rgba(156,156,156, 1);
+.from_block, .to_block {
+    text-overflow: ellipsis;
+    word-break: break-all;
 }
 
-.play_again img {
-	
-	width: 20vmin;
-	height: 20vmin;
-	filter: drop-shadow(16px 16px 25px black);
-	
+.play_block {
+    margin-left: auto;
+    margin-right: auto;
+    background: #00AA22;
 }
 
-.play_again img:hover {
-	animation: rotate360 0.7s ease 0.7s;
-	animation-play-state: running;
-}
-.play_again:hover {
-	transition: 0.3s;
-	
-	color: rgb(32,32,32);
-	background: rgb(100,100,100);
-	box-shadow: 0px 0px 20px 10px rgba(128,128,128, 0.7)
-	
-}
-p {
-	top: 50%;
-	transform: translateY(-43%);
+@media (max-height: 980px) {
+    .win_title {
+        height: 15vh;
+        font-size: 15vh;
+        margin-top: 5vh;
+        margin-bottom: 10vh;
+    }
+
+    .move_time_block {
+        height: 15vh;
+    }
+
+    .from_to_block {
+        height: 20vh;
+    }
+
+    .play_block, .play_block_icon {
+        height: 25vh;
+        width: 25vh;
+    }
+
+    .play_block {
+        border-radius: 12.5vh;
+    }
+
+    .move_block, .time_block {
+        font-size: 5vh;
+    }
+
+    .time_block {
+        float: right;
+        margin-right: 10vw;
+    }
+
+    .move_block {
+        float: left;
+        margin-left: 10vw;
+    }
+
+    .from_block, .to_block, .arrow_block {
+        font-size: 5vh;
+        float: left;
+        max-height: 15vh;
+        max-width: calc(45vw - 2.5vh);
+        overflow: hidden;
+        line-height: 5vh;
+    }
+
+    .arrow_block {
+        height: 5vh;
+        width: 5vh;
+        margin-top: 0.7vh;
+        margin-left: 1vh;
+        margin-right: 1vh;
+    }
+
+    .from_to_block {
+        width: max-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
-@keyframes rotate360 {
-  to { 
-		transform: rotate(360deg);
-		
-	 }           
+@media (min-height: 980px) {
+    .win_title {
+        height: 10vh;
+        font-size: 10vh;
+        margin-top: 5vh;
+        margin-bottom: 5vh;
+    }
+
+    .move_time_block {
+        height: 20vh;
+    }
+
+    .from_to_block {
+        max-height: 30vh;
+        margin-bottom: 5vh;
+    }
+
+    .play_block, .play_block_icon {
+        height: 25vh;
+        width: 25vh;
+    }
+
+    .play_block {
+        border-radius: 12.5vh;
+    }
+
+    .move_block, .time_block {
+        font-size: 5vh;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        margin-bottom: 5vh;
+        height: 5vh;
+    }
+
+    .from_block, .to_block, .arrow_block {
+        font-size: 5vh;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        max-height: 10vh;
+        max-width: 90vw;
+        overflow: hidden;
+        line-height: 5vh;
+    }
+
+    .arrow_block {
+        width: 5vh;
+        transform: rotate(90deg);
+        margin-left: calc(50vw - 2.5vh);
+    }
 }

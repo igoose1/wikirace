@@ -59,11 +59,18 @@
     height: 30vh;
 }
 
-.continue_button_image {
-    width: 10vh;
-    height: 10vh;
-    margin-left: 3vh;
+.play_again_button_image {
+	margin-left: 2.45vh;
     margin-top: 2.5vh;
+	width: 10vh;
+    height: 10vh;
+}
+
+.continue_button_image {
+    width: 30vh;
+    height: 30vh;
+	margin-left: 1.6vh;
+    margin-top: 0vh;
 }
 
 .play_button_link {

@@ -100,24 +100,52 @@ def get_continue(request):
 
 
 def winpage(request):
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
+    game_operator = GameOperator(zim_file, graph)
+    session_operator = request.session.get('operator', None)
+    if session_operator is None:
+        return HttpResponseRedirect('/')
+    game_operator.load(session_operator)
+    context = {
+        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
+        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
+        'counter': game_operator.steps
+    }
     template = loader.get_template('wiki/win_page.html')
-    context = dict()
     return HttpResponse(
         template.render(context, request),
     )
 
 
 def get_main_page(request) -> HttpResponse:
-    template = loader.get_template(
-        'wiki/start_page.html'
-    )
-    is_playing = request.session.get('operator', None) is not None
+    template = loader.get_template('wiki/start_page.html')
+    session_operator = request.session.get('operator', None)
+    is_playing = False
+    if (session_operator and not session_operator[2]):
+        is_playing = True
+    return HttpResponse(template.render({'is_playing': is_playing}, request))
+
+
+def get_hint_page(request):
+    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
+
+    game_operator = GameOperator(zim_file, graph)
+    if request.session.get('operator', None) is None:
+        print("HELLO")
+        return get_main_page(request)
+    else:
+        game_operator.load(request.session['operator'])
+        print(request.session.session_key)
+
+
+    content = zim_file.get_by_index(game_operator.end_page_id)
+    data, namespace, mime_type = content
+
     context = {
-        'is_playing': is_playing
+        'content': data.decode('utf-8'),
     }
-    return HttpResponse(
-        template.render(
-            context,
-            request
-        )
-    )
+
+    template = loader.get_template('wiki/hint_page.html')
+    return HttpResponse(template.render(context, request))

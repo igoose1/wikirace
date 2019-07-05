@@ -36,7 +36,7 @@
             Старт: {{ from }}
         </div>
         <div class="finish_page">
-            Финиш: {{ to }}
+            Финиш: <a href="/hint_page" target="_blank">{{ to }}</a>
         </div>
     </div>
     <div class="block1"></div>
@@ -56,11 +56,11 @@
 <script language="javascript" type="text/javascript">
 	$(window).on("load",function () {
 		var anchors = $('a');
-		
+		var comp = new RegExp(location.host);
 		for ( var i=0; i < anchors.length; i++ ) {
-			if (anchors[i].className.includes("external"))
+			if (! comp.test(anchors[i].href))
 			{
-				
+
 				var span = $('<span>', {class: 'text'}).get(0);
 				if ( anchors[i].id ) {
 					span.id = anchors[i].id;
