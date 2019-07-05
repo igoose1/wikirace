@@ -22,6 +22,8 @@ def get(request, title_name):
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
+        game_operator.load_testing = ("loadtesting" in request.GET
+                                      and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
         if request.session.get('operator', None) is None:
             return get_main_page(request)
         else:

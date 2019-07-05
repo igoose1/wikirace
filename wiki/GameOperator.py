@@ -13,6 +13,7 @@ class GameOperator:
         self.start_page_id = None
         self.steps = 0
         self.history = []
+        self.load_testing = False
 
     def save(self):
         return [self.current_page_id, self.end_page_id,
@@ -101,12 +102,13 @@ class GameOperator:
 
             valid_edges = list(self.reader.Edges(self.current_page_id))
 
-            if idx not in valid_edges:
+            if idx not in valid_edges and not self.load_testing:
                 if idx in self.history:
                     self.steps += self.history[::-1].index(idx) - 1
                     self.history = self.history[:len(self.history) - 1 - self.history[::-1].index(idx)]
                 else:
                     return False 
+
             if (self.current_page_id != idx):
                 self.steps += 1
                 self.current_page_id = idx
