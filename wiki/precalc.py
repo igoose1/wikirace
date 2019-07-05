@@ -41,6 +41,8 @@ def find_good_ends(max_dist, min_out_edges):
         to = NONE
         while v != -1 and out_edges < min_out_edges and made_steps <= max_dist:
             out_edges += reader.edges_count(v)
+            if go_to[v] == -1:
+                break
             v = go_to[v]
             made_steps += 1
         if made_steps > 1:
@@ -48,10 +50,10 @@ def find_good_ends(max_dist, min_out_edges):
         out.write(_int_to_bytes(to))
         
 max_dist = 3
-min_out_edges = 400
+min_out_edges = 1000
 for i in range(3):
     find_good_ends(max_dist, min_out_edges)
     max_dist += 2
-    min_out_edges += 500
+    min_out_edges += 2000
 
 out.close()
