@@ -17,3 +17,8 @@ WIKI_ZIMFILE_PATH = '/srv/wikirace/data/wikipedia_ru.zim'
 GRAPH_DIR = '/srv/wikirace/data/'
 GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
 GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
+LEVEL_FILE_NAMES = [
+    GRAPH_DIR + d for d in [
+        'easy', 'medium', 'hard'
+    ]
+]
