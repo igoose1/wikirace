@@ -43,8 +43,8 @@ class Feedback(models.Model):
     Model containing data of feedback
     """
 
-    text = models.CharField(null=True, max_length=100)
-    time = models.TimeField(null=True)
+    text = models.TextField(null=True, max_length=500)
+    time = models.DateTimeField(null=True)
 
     def __str__(self):
         return '({text} at {time})'.format(
