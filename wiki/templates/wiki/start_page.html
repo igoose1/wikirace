@@ -18,22 +18,24 @@
 		<p>Сложность:</p>
 	</div>
 	<div class="right-half">
-		<input type="text" value="{{ settings.name }}" maxlength="16" id="name_field"></input>
-		<select id="difficulty_field">
+		<input type="text" value="{{ settings.name }}" maxlength="16" id="name_field" onkeyup="checkState()"></input>
+		<select id="difficulty_field" onchange="checkState()">
 			<option value="random" {% if settings.difficulty == -1 %} selected="selected" {% endif %}>Случайно</option>
 			<option value="easy" {% if settings.difficulty == 0 %} selected="selected" {% endif %}>Просто</option>
 			<option value="medium" {% if settings.difficulty == 1 %} selected="selected" {% endif %}>Нормально</option>
 			<option value="hard" {% if settings.difficulty == 2 %} selected="selected" {% endif %}>Сложно</option>
 		</select>
 	</div>
-	<div class="settings_submit display submit" id="submit_settings" style="display: none;">
+	<div class="settings_submit submit display" id="close_settings" style="display: none;">
+		Закрыть
+	</div>
+	<div class="settings_submit submit" id="submit_settings" style="display: none;">
 		Сохранить
 	</div>
 	{% csrf_token %}
 	<div class="settings_waiting submit" id="submit_waiting" style="display: none;">
 		Подождите...
 	</div>
-	
 </div>
 <div class="top_block">
     WikiRace
