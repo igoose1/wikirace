@@ -45,7 +45,7 @@ for cur_vertex in range(N):
     while len(visited) < max_steps:
         if len(go_to[v]) == 0:
             break
-        next_ = go_to[randrange(0, len(go_to[v]))]
+        next_ = go_to[v][randrange(0, len(go_to[v]))]
         visited.append(next_)
     easy_steps = min(randrange(dists[0][0], dists[0][1] + 1), len(visited))
     medium_steps = min(randrange(dists[1][0], dists[1][1] + 1), len(visited))
