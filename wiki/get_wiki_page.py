@@ -175,6 +175,6 @@ def get_feedback_page(request):
     context = {
         'form': form,
     }
-    template = loader.get_template('wiki/feedback_form.html')
+    template = loader.get_template('wiki/feedback_page.html')
     # Send response
     return HttpResponse(template.render(context=context, request=request))
