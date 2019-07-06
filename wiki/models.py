@@ -19,7 +19,7 @@ class Game(models.Model):
         )
         return s
 
-
+        
 class GameStat(models.Model):
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
