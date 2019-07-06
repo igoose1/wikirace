@@ -45,11 +45,11 @@ for cur_vertex in range(N):
     while len(visited) < max_steps:
         if len(go_to[v]) == 0:
             break
-        next_ = go_to[randrange(0, len(go_to[v]) - 1)]
+        next_ = go_to[randrange(0, len(go_to[v]))]
         visited.append(next_)
-    easy_steps = min(randrange(dists[0][0], dists[0][1]), len(visited))
-    medium_steps = min(randrange(dists[1][0], dists[1][1]), len(visited))
-    hard_steps = min(randrange(dists[2][0], dists[2][1]), len(visited))
+    easy_steps = min(randrange(dists[0][0], dists[0][1] + 1), len(visited))
+    medium_steps = min(randrange(dists[1][0], dists[1][1] + 1), len(visited))
+    hard_steps = min(randrange(dists[2][0], dists[2][1] + 1), len(visited))
     if easy_steps >= dists[0][0]:
         easy_steps.append([cur_vertex, visited[easy_steps - 1]])
     if medium_steps >= dists[1][0]:
