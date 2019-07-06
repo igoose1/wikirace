@@ -1,14 +1,14 @@
-from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
-
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import redirect
 from django.template import loader
+from django.utils import timezone
 
-from .ZIMFile import MyZIMFile
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
-from wiki.models import Game
-import re
- 
+from .ZIMFile import MyZIMFile
+from .form import FeedbackForm
+
 
 def get(request, title_name):
     zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
@@ -151,3 +151,30 @@ def get_hint_page(request):
 
     template = loader.get_template('wiki/hint_page.html')
     return HttpResponse(template.render(context, request))
+
+
+def get_feedback_page(request):
+    """
+        Creates feedback page and handles post request from it
+        :param request: HTTP request
+        :return: HTTPResponse with rendered page on GET request and redirect to start page on POST response
+        """
+    # On POST request
+    if request.method == "POST":
+        # Get data from form
+        form = FeedbackForm(request.POST)
+        post = form.save()
+        # Add time to model
+        post.time = timezone.now()
+        post.save()
+        return redirect('/')
+    else:
+        # Create new form
+        form = FeedbackForm()
+
+    context = {
+        'form': form,
+    }
+    template = loader.get_template('wiki/feedback_form.html')
+    # Send response
+    return HttpResponse(template.render(context=context, request=request))

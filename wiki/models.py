@@ -15,11 +15,11 @@ class Game(models.Model):
             sid=self.session_id,
             steps=self.steps,
             fr=self.first,
-        ls=self.last
+            ls=self.last
         )
         return s
 
-        
+
 class GameStat(models.Model):
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
@@ -35,4 +35,19 @@ class GameStat(models.Model):
             sp=self.start_page_id,
             ep=self.end_page_id,
             la=self.last_action_time
+        )
+
+
+class Feedback(models.Model):
+    """
+    Model containing data of feedback
+    """
+
+    text = models.CharField(null=True, max_length=100)
+    time = models.TimeField(null=True)
+
+    def __str__(self):
+        return '({text} at {time})'.format(
+            text=self.text,
+            time=self.time
         )
