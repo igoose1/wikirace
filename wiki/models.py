@@ -18,3 +18,21 @@ class Game(models.Model):
         ls=self.last
         )
         return s
+
+
+class GameStat(models.Model):
+    game_id = models.AutoField(primary_key=True)
+    start_page_id = models.IntegerField(default=0)
+    end_page_id = models.IntegerField(default=0)
+    steps = models.IntegerField(default=0)
+    finished = models.BooleanField(default=False)
+    start_time = models.DateTimeField(null=True)
+    last_action_time = models.DateTimeField()
+
+    def __str__(self):
+        return '{id}: {sp} -> {ep} ({la})'.format(
+            id=self.game_id,
+            sp=self.start_page_id,
+            ep=self.end_page_id,
+            la=self.last_action_time
+        )
