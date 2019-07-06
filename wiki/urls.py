@@ -7,7 +7,6 @@ from . import get_wiki_page
 
 urlpatterns = [
     path('admin', admin.site.urls),
-    path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('game_start', get_wiki_page.get_start),
     url('continue', get_wiki_page.get_continue),
