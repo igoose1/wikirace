@@ -4,11 +4,11 @@ from time import time
 
 start_time = time()
 
-reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
+reader = GraphReader('data/offset', 'data/edges')
 
 N = 5054753
 dist = [-1 for i in range(N)]
-go_to = [-1 for i in range(N)]
+go_to = [[] for i in range(N)]
 order = list(range(N))
 shuffle(order)
 
@@ -27,36 +27,53 @@ for start_page_id in order:
             if dist[next_] == -1:
                 dist[next_] = dist[cur_vertex] + 1
                 queue.append(next_)
-                go_to[next_] = cur_vertex
+                go_to[next_].append(cur_vertex)
 
-
-reader = GraphReader('data/offset', 'data/edges')
-out = open('data/good_end_0', 'wb')
+easy_pairs = []
+medium_pairs = []
+hard_pairs = []
 
 NONE = 2**32 - 1
-good_end = [-1 for i in range(N)]
 
-def find_good_ends(min_dist, max_dist):
-    for cur_vertex in range(N):
-        made_steps = 0
-        steps = randrange(min_dist, max_dist)
-        v = cur_vertex
-        to = NONE
-        while v != -1 and made_steps < steps:
-            if go_to[v] == -1:
-                break
-            v = go_to[v]
-            made_steps += 1
-        if min_dist <= made_steps <= max_dist:
-            to = v
-        out.write(_int_to_bytes(to))
-        
-dist_right = 3
-dist_left = 2
-for i in range(3):
-    find_good_ends(dist_left, dist_right)
-    dist_right += 2
-    dist_left += 2
+dists = [[3, 4], [5, 7], [8, 11]]
+for cur_vertex in range(N):
+    v = cur_vertex
+    visited = []
+    max_steps = randrange(dists[2][0], dists[2][1])
+    while len(visited) < max_steps:
+        if len(go_to[v]) == 0:
+            break
+        next_ = go_to[randrange(0, len(go_to[v]) - 1)]
+        visited.append(next_)
+    easy_steps = min(randrange(dists[0][0], dists[0][1]), len(visited))
+    medium_steps = min(randrange(dists[1][0], dists[1][1]), len(visited))
+    hard_steps = min(randrange(dists[2][0], dists[2][1]), len(visited))
+    if easy_steps >= dists[0][0]:
+        easy_steps.append([cur_vertex, visisted[easy_steps - 1]])
+    if medium_steps >= dists[1][0]:
+        medium_steps.append([cur_vertex, visisted[medium_steps - 1]])
+    if hard_steps >= dists[2][0]:
+        hard_steps.append([cur_vertex, visisted[hard_steps - 1]])
 
-out.close()
+hard = open('data/hard', 'wb')
+hard.write(_int_to_bytes(len(hard_pairs)))
+for p in hard_pairs:
+    hard.write(_int_to_bytes(p[0]))
+    hard.write(_int_to_bytes(p[1]))
+hard.close()
+
+medium = open('data/medium', 'wb')
+medium.write(_int_to_bytes(len(medium_pairs)))
+for p in medium_pairs:
+    medium.write(_int_to_bytes(p[0]))
+    medium.write(_int_to_bytes(p[1]))
+medium.close()
+
+easy = open('data/easy', 'wb')
+easy.write(_int_to_bytes(len(easy_pairs)))
+for p in easy_pairs:
+    easy.write(_int_to_bytes(p[0]))
+    easy.write(_int_to_bytes(p[1]))
+easy.close()
+
 print(time() - start_time)
