@@ -3,6 +3,7 @@ BIN=/srv/wikirace/env/bin
 
 case $(hostname) in
 wikirace|wikirace.*) BRANCH=prod;;
+qa-wikirace|qa-wikirace.*) BRANCH=qa;;
 *) BRANCH=master;;
 esac
 
