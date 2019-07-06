@@ -51,11 +51,11 @@ for cur_vertex in range(N):
     medium_steps = min(randrange(dists[1][0], dists[1][1] + 1), len(visited))
     hard_steps = min(randrange(dists[2][0], dists[2][1] + 1), len(visited))
     if easy_steps >= dists[0][0]:
-        easy_steps.append([cur_vertex, visited[easy_steps - 1]])
+        easy_pairs.append([cur_vertex, visited[easy_steps - 1]])
     if medium_steps >= dists[1][0]:
-        medium_steps.append([cur_vertex, visited[medium_steps - 1]])
+        medium_pairs.append([cur_vertex, visited[medium_steps - 1]])
     if hard_steps >= dists[2][0]:
-        hard_steps.append([cur_vertex, visited[hard_steps - 1]])
+        hard_pairs.append([cur_vertex, visited[hard_steps - 1]])
 
 hard = open('data/hard', 'wb')
 hard.write(_int_to_bytes(len(hard_pairs)))
