@@ -3,16 +3,14 @@ from .models import Feedback
 
 
 class FeedbackForm(ModelForm):
-    """
-        Class represents feedback form
-        Uses to rendering and getting data from form
-    """
     class Meta:
         model = Feedback
-        fields = ['text']
+        fields = ['name', 'text']
         widgets = {
+            'name': Textarea(attrs={'cols': 80, 'rows': 1}),
             'text': Textarea(attrs={'cols': 80, 'rows': 10}),
         }
         labels = {
+            'name': 'Имя',
             'text': 'Отзыв'
         }

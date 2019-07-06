@@ -9,7 +9,7 @@ class GameStatAdmin(admin.ModelAdmin):
 
 
 class FeedbackAdmin(admin.ModelAdmin):
-	list_display = ['text', 'time']
+	list_display = ['name', 'text', 'time']
 	ordering = ['time']
 
 

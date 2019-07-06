@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Feedback</title>
+    <title>WikiRace: Feedback</title>
     <link rel="stylesheet" href="../../static/wiki/feedback_page_style.css">
 </head>
 <body>
@@ -11,9 +11,20 @@
 </h1>
 <form action="" method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <div class="fieldWrapper">
+        <label for="name">Имя:</label>
+        <p>
+            {{ form.name }}
+        </p>
+    </div>
+    <div class="fieldWrapper">
+        <label for="text">Текст:</label>
+        <p>
+            {{ form.text }}
+        </p>
+    </div>
     <input type="submit" value="Отправить">
-    <input type="reset" value="Очистить">
 </form>
 </body>
 </html>
