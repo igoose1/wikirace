@@ -172,8 +172,8 @@ def get_difficulty_level_by_name(name):
 def change_settings(request):
     val = request.POST.get('difficulty', None)
     diff_id = get_difficulty_level_by_name(val)
-    if (not diff_id):
-        print(val)
+    if diff_id is None:
+        print("+"+val+"+", diff_id)
         return HttpResponseServerError();
     request.session['difficulty'] = diff_id
     print(diff_id)
