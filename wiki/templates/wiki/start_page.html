@@ -14,10 +14,12 @@
 </div>
 <div class="settings_window" style="display: none">
 	<div class="left-half">
+		<p>Твоё имя:</p>
 		<p>Сложность:</p>
 	</div>
 	<div class="right-half">
-		<select id="difficulty">
+		<input type="text" value="{{ settings.name }}" maxlength="16" id="name_field"></input>
+		<select id="difficulty_field">
 			<option value="random" {% if settings.difficulty == -1 %} selected="selected" {% endif %}>Случайно</option>
 			<option value="easy" {% if settings.difficulty == 0 %} selected="selected" {% endif %}>Просто</option>
 			<option value="medium" {% if settings.difficulty == 1 %} selected="selected" {% endif %}>Нормально</option>

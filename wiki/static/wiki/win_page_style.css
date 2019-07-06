@@ -86,6 +86,17 @@ body, html {
     }
 }
 
+.name_field {
+	position: absolute;
+	right: 4vh;
+	bottom: 2vh;
+	height: 5vh;
+	width: auto;
+	font-family: Comic Sans MS;
+	font-size: 5vh;
+	color: rgb(158,158,158);
+}
+
 @media (min-height: 980px) {
     .win_title {
         height: 10vh;

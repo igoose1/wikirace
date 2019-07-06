@@ -156,7 +156,15 @@ html, body {
 	width: 99%;
 	font-size: 3vh;
 	margin-block-start: 1vh !important;
-	margin-block-end: 1vh !important;
+	margin-block-end: 0.5vh !important;
+}
+
+.settings_window input {
+	height: 5vh;
+	width: 99%;
+	font-size: 3vh;
+	margin-block-start: 1vh !important;
+	margin-block-end: 0.5vh !important;
 }
 
 .settings_window .settings_submit {
@@ -172,6 +180,7 @@ html, body {
 	height: 5vh;
 	font-size: 4vh;
 }
+
 
 .settings_window .settings_waiting {
 	background: rgb(128,128,128);
