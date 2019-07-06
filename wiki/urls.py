@@ -9,5 +9,6 @@ urlpatterns = [
     url('continue', get_wiki_page.get_continue),
     url('back', get_wiki_page.get_back),
     url('hint_page', get_wiki_page.get_hint_page),
+    url('set_settings', get_wiki_page.change_settings),
     url('(.*)', get_wiki_page.get)
 ]
