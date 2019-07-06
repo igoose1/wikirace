@@ -60,6 +60,11 @@
 </div>
 <script type="text/javascript">
 	$(window).on("load",function () {
+        if(!!window.performance && window.performance.navigation.type === 2)
+        {
+            window.location.reload();
+        }
+	    onCardClick();
 		const anchors = $('a');
 		const comp = new RegExp(location.host);
 		for (let i=0; i < anchors.length; i++ ) {
