@@ -33,14 +33,50 @@ class GameOperator:
         if len(self.history) >= 2:
             self.history.pop()  # pop current page
             self.current_page_id = self.history[-1]  # pop prev page (will be added in next_page)
-            self.steps += 1
+            # if len(self.history) >= 1:
+                # self.current_page_id = self.history.pop()
             return True
         return False
     
     def is_history_empty(self)->bool:
         return (len(self.history) <= 1)
 
+    def _get_random_article_id(self):
+        article_id = randrange(0, len(self.zim))
+        article = self.zim.get_by_index(article_id)
+        while (article is None) or article.namespace != "A":
+            article_id = randrange(0, len(self.zim))
+            article = self.zim._get_article_by_index(article_id)
+
+        entry = self.zim.read_directory_entry_by_index(article_id)
+        while 'redirectIndex' in entry.keys():
+            article_id = entry['redirectIndex']
+            entry = self.zim.read_directory_entry_by_index(article_id)
+
+        return article_id
+
+    def initialize_game_random(self):
+        self.steps = 0
+        self.game_finished = False
+        self.current_page_id = self._get_random_article_id()
+        self.start_page_id = self.current_page_id
+        self.history = [self.start_page_id]
+        while self.reader.edges_count(self.current_page_id) == 0:
+            self.current_page_id = self._get_random_article_id()
+
+        end_page_id_tmp = self.current_page_id
+        for step in range(5):
+            edges = list(self.reader.Edges(end_page_id_tmp))
+            next_id = randrange(0, len(edges))
+            if edges[next_id] == self.current_page_id:
+                break
+            end_page_id_tmp = edges[next_id]
+        self.end_page_id = end_page_id_tmp
+    
     def initialize_game(self, level=0):
+        if (level == -1):
+            self.initialize_game_random()
+            return
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
