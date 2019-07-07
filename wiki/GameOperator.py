@@ -1,7 +1,7 @@
 from random import randrange
 import datetime
 
-from .models import GameStat
+from .models import GameStat, Turn
 from wiki.GraphReader import GraphReader
 
 
@@ -137,12 +137,17 @@ class GameOperator:
                 
             if self.current_page_id != idx:
                 self.steps += 1
+                Turn.objects.create(
+                    from_page_id=self.current_page_id,
+                    to_page_id=idx,
+                    game_id=self.game.game_id,
+                    time=datetime.datetime.now(),
+                )
                 self.current_page_id = idx
+
             if not self.history or idx != self.history[-1]:
                 self.history.append(idx)
 
-                
-            self.current_page_id = idx
             finished = (self.current_page_id == self.end_page_id)
             self.game_finished = finished
             return finished
