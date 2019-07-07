@@ -1,15 +1,18 @@
 from django.conf import settings
-from django.db.models import  F, ExpressionWrapper, fields
+from django.db.models import F, ExpressionWrapper, fields
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import redirect
 from django.template import loader
 from django.contrib.auth.decorators import login_required
-from wiki.models import GameStat
 from datetime import datetime, timedelta
 from django.utils import timezone
 
+from wiki.models import GameStat
+
+
 def get_date_str(date):
     return date.strftime('%d %H:%M')
+
 
 def get_period_str(period):
     days = ''
@@ -18,6 +21,7 @@ def get_period_str(period):
     hours  = period.seconds // 3600
     mins = (period.seconds % 3600) // 60
     return days + ' {:02}:{:02}'.format(hours,mins)
+
 
 def g_activity_in_time(period, now_time):
     activity_in_time = []
@@ -44,6 +48,7 @@ def g_activity_in_time(period, now_time):
                 'g': activity_in_time
             }
 
+
 def g_steps_in_time(period, now_time):
     steps_in_time = []
     max_total = 1
@@ -69,6 +74,7 @@ def g_steps_in_time(period, now_time):
                 'g': steps_in_time
             }
 
+
 def g_finished_in_time(period, now_time):
     finished_in_time = []
     max_finished = 1
@@ -93,6 +99,7 @@ def g_finished_in_time(period, now_time):
                 'max': max_finished,
                 'g': finished_in_time
             }
+
 
 def g_steps_chart(period, now_time):
     sel_time = now_time - period
@@ -125,6 +132,7 @@ def g_steps_chart(period, now_time):
                 'max': max_steps,
                 'g': steps
             }
+
 
 def g_finished_time_chart(period, period_start):
     duration = ExpressionWrapper(F('last_action_time')-F('start_time'), output_field=fields.DurationField())
@@ -162,6 +170,7 @@ def g_finished_time_chart(period, period_start):
                 'g': games
             }
 
+
 def g_unfinished_time_chart(period, period_start):
     duration = ExpressionWrapper(F('last_action_time')-F('start_time'), output_field=fields.DurationField())
     all_of = GameStat.objects.filter(finished=False,steps__gte=1).annotate(period=duration)
@@ -197,6 +206,7 @@ def g_unfinished_time_chart(period, period_start):
                 'max': max_games,
                 'g': games
             }
+
 
 @login_required
 def statisticOverview(request):
