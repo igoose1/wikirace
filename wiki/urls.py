@@ -3,9 +3,10 @@ from django.contrib import admin
 from django.urls import include, path
 
 from . import get_wiki_page
-
+from . import admin_pages
 
 urlpatterns = [
+    url('adminstat', admin_pages.statisticOverview),
     path('admin', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
