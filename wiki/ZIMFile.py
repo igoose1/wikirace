@@ -1,7 +1,7 @@
 # "this ugly hack" is needed for django working:
 # Zimply tryes to log in our directory; lib also impements own settings
-# that crashes Django.  The 'monkey.patch_all' and 'logging.baseConfig'
-# is  thecause of  problems,  so we just override them, before  import
+# that crashes Django. The 'monkey.patch_all' and 'logging.baseConfig'
+# is the cause of problems, so we just override them, before import
 # zimply
 from gevent import monkey
 monkey.patch_all = lambda *_: None
@@ -18,6 +18,8 @@ from django.conf import settings
 from random import randrange
 from byte_convert import bytes_to_int
 import os
+
+BLOCK_SIZE = 4
 
 def parse_url(url):
     namespace, *url_parts = url.split("/")
@@ -86,22 +88,21 @@ class ZIMFile:
     def __init__(self, filename, encoding='utf-8'):
         self._impl = zimply.zimply.ZIMFile(filename, encoding)
         self._article_indexes = open(settings.WIKI_ARTICLES_INDEX_FILE_PATH, 'rb')
-        self._good_article_count = os.path.getsize(settings.WIKI_ARTICLES_INDEX_FILE_PATH) // 4
+        self._good_article_count = os.path.getsize(settings.WIKI_ARTICLES_INDEX_FILE_PATH) // BLOCK_SIZE
 
     def random_article(self):
-        offset = randrange(0, self._good_article_count) * 4
+        offset = randrange(0, self._good_article_count) * BLOCK_SIZE
         self._article_indexes.seek(offset)
-        index = bytes_to_int(self._article_indexes.read(4))
+        index = bytes_to_int(self._article_indexes.read(BLOCK_SIZE))
         return self[index]
 
     def __getitem__(self, key):
         if isinstance(key, int):
             entry = self._impl.read_directory_entry_by_index(key)
-            return Article(entry, self._impl)
         else:
             namespace, url = parse_url(key)
             entry, idx = self._impl._get_entry_by_url(namespace, url)
-            return Article(entry, self._impl)
+        return Article(entry, self._impl)
 
     def __len__(self):
         return len(self._impl)
