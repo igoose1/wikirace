@@ -1,13 +1,11 @@
-from django.conf import settings
 from django.db.models import F, ExpressionWrapper, fields
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import redirect
+from django.http import HttpResponse, Http404
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 from django.utils import timezone
 
-from wiki.models import GameStat
+from wiki.models import GameStat, Turn
 
 
 def get_date_str(date):
@@ -49,7 +47,7 @@ def g_activity_in_time(period, now_time):
             }
 
 
-def g_steps_in_time(period, now_time):
+def g_steps_in_start_time(period, now_time):
     steps_in_time = []
     max_total = 1
     for i in range(24):
@@ -70,6 +68,32 @@ def g_steps_in_time(period, now_time):
                 'title': 'Steps in time',
                 'name': 'Steps in started games',
                 'tip': 'time',
+                'max': max_total,
+                'g': steps_in_time
+            }
+
+def g_steps_in_time(period, now_time):
+    title = ' in period of '+ get_period_str(period*100) +' back of ' + get_date_str(now_time)
+    steps_in_time = []
+    max_total = 1
+    for i in range(24):
+        sel_time = now_time - period
+        all_of = Turn.objects.filter(time__gte=sel_time).filter(time__lte=now_time).all()
+        total = len(all_of)
+        max_total = max(max_total, total)
+        steps_in_time.append(
+                {
+                    'total': total,
+                    'tip': get_date_str(now_time)
+                }
+            )
+
+        now_time = sel_time
+    steps_in_time = list(reversed(steps_in_time))
+    return {
+                'title': 'Steps by their real time' + title,
+                'name': 'Steps in time',
+                'tip': '--',
                 'max': max_total,
                 'g': steps_in_time
             }
@@ -234,6 +258,7 @@ def statisticOverview(request):
         charts = [
                g_activity_in_time(period,now_time),
                g_finished_in_time(period,now_time),
+               g_steps_in_start_time(period,now_time),
                g_steps_in_time(period,now_time),
                g_steps_chart(period,now_time),
                g_finished_time_chart(period,period_start),
