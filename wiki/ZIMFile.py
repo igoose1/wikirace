@@ -36,17 +36,13 @@ class Article:
 
     def follow_redirect(self, max_redirects_count=10):
         self._article_cashed = None
-        redirect_id = 0
+        redirect_counter = 0
         while self.is_redirecting:
             redirect_index = self._entry['redirectIndex']
             self._entry = self._zim_file.read_directory_entry_by_index(redirect_index)
-            redirect_id += 1
-            if redirect_id == max_redirects_count:
+            redirect_counter += 1
+            if redirect_counter == max_redirects_count:
                 break
-            
-    def check_and_follow_redirect(self, max_redirects_count=10):
-        self.follow_redirect(max_redirects_count)
-        return self.is_redirecting
         
     @property
     def is_redirecting(self):
