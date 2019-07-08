@@ -55,9 +55,6 @@ class Feedback(models.Model):
 
 
 class Turn(models.Model):
-    """
-    Model with data by turnes
-    """
 
     game_id = models.IntegerField()
     from_page_id = models.IntegerField(null=True)
