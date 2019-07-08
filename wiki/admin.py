@@ -15,6 +15,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 class TurnAdmin(admin.ModelAdmin):
 	list_display = ['game_id', 'from_page_id', 'to_page_id', 'time']
+	ordering = ['time']
 
 
 admin.site.register(GameStat, GameStatAdmin)
