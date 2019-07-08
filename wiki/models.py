@@ -24,6 +24,7 @@ class GameStat(models.Model):
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
+    current_page_id = models.IntegerField(null=True, default=None)
     steps = models.IntegerField(default=0)
     finished = models.BooleanField(default=False)
     start_time = models.DateTimeField(null=True)

@@ -1,4 +1,4 @@
-def _bytes_to_int(byte_array:bytes):
+def _bytes_to_int(byte_array: bytes):
     ret = 0
     ret |= byte_array[0] << 24
     ret |= byte_array[1] << 16
@@ -20,6 +20,7 @@ class GraphReader:
         self.edges = open(edges_file, 'rb')
         self.offset_block = 4
         self.edge_b_count = 4
+
     def edges_count(self, parent_id:int):
         self.offset.seek(self.offset_block*parent_id)
         offset_begin = self.offset.read(4)
@@ -28,6 +29,7 @@ class GraphReader:
         offset_end = _bytes_to_int(offset_end)
         edges_count = (offset_end - offset_begin) // self.edge_b_count
         return edges_count
+
     def Edges(self, parent_id:int):
         self.offset.seek(self.offset_block*parent_id)
         offset_begin = self.offset.read(4)

@@ -1,4 +1,4 @@
-from random import randrange
+import random
 from wiki.models import Game
 from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
 from django.conf import settings
@@ -8,22 +8,18 @@ from .models import GameStat
 from wiki.GraphReader import GraphReader
 
 
+
+
+
 class GameOperator:
-    def __init__(self, zim_file, graph_reader: GraphReader):
-        self.current_page_id = None
-        self.end_page_id = None
-        self.game_finished = True
+    def __init__(self, game, history, graph_reader, zim_file):
         self.zim = zim_file
         self.reader = graph_reader
-        self.start_page_id = None
-        self.steps = 0
-        self.history = []
+        self.history = history
         self.load_testing = False
-        self.game = None
+        self.game = game
 
     def save(self):
-        self.game.finished = self.game_finished
-        self.game.steps = self.steps
         self.game.last_action_time = datetime.datetime.now()
         self.game.save()
         return [self.current_page_id, self.end_page_id,
@@ -168,3 +164,30 @@ class GameOperator:
             return finished
         else:
             return None
+
+
+def create_random_game(zim_file, graph_reader) -> GameOperator:
+    steps = 0
+    start_page_id = random.choice(zim_file).id
+    current_page_id = start_page_id
+    history = [start_page_id]
+
+    for _ in range
+    while graph_reader.edges_count(current_page_id) == 0:
+        current_page_id = random.choice(zim_file).id
+
+    end_page_id_tmp = self.current_page_id
+    for step in range(5):
+        edges = list(self.reader.Edges(end_page_id_tmp))
+        next_id = randrange(0, len(edges))
+        if edges[next_id] == self.current_page_id:
+            break
+        end_page_id_tmp = edges[next_id]
+    self.end_page_id = end_page_id_tmp
+
+    game = GameStat.objects.create(
+        start_page_id=self.start_page_id,
+        end_page_id=self.end_page_id,
+        start_time=datetime.datetime.now(),
+        last_action_time=datetime.datetime.now()
+    )
