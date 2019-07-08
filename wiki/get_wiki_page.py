@@ -1,14 +1,14 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseServerError
 from django.conf import settings
-
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
+from django.utils import timezone
 
-from .ZIMFile import MyZIMFile
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
-from wiki.models import Game
-import re
- 
+from .ZIMFile import MyZIMFile
+from .form import FeedbackForm
+
 
 def get(request, title_name):
     zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
@@ -187,7 +187,22 @@ def change_settings(request):
     name = request.POST.get('name', 'no name')
     diff_id = get_difficulty_level_by_name(val)
     if diff_id is None or len(name) > 16:
-        return HttpResponseServerError();
+        return HttpResponseServerError()
     request.session['settings'] = {'difficulty': diff_id, 'name': name}
-    return HttpResponse("OK");
+    return HttpResponse("OK")
 
+def get_feedback_page(request):
+    if request.method == "POST":
+        form = FeedbackForm(request.POST)
+        post = form.save()
+        post.time = timezone.now()
+        post.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = FeedbackForm()
+
+    context = {
+        'form': form,
+    }
+    template = loader.get_template('wiki/feedback_page.html')
+    return HttpResponse(template.render(context=context, request=request))

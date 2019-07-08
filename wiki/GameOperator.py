@@ -2,6 +2,10 @@ from random import randrange
 from wiki.models import Game
 from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
 from django.conf import settings
+import datetime
+
+from .models import GameStat
+from wiki.GraphReader import GraphReader
 
 
 class GameOperator:
@@ -15,11 +19,17 @@ class GameOperator:
         self.steps = 0
         self.history = []
         self.load_testing = False
+        self.game = None
 
     def save(self):
+        self.game.finished = self.game_finished
+        self.game.steps = self.steps
+        self.game.last_action_time = datetime.datetime.now()
+        self.game.save()
         return [self.current_page_id, self.end_page_id,
                 self.game_finished, self.start_page_id, 
-                self.steps, self.history]
+                self.steps, self.history,
+                self.game.game_id]
 
     def load(self, saved):
         self.current_page_id = saved[0]
@@ -28,6 +38,17 @@ class GameOperator:
         self.start_page_id = saved[3]
         self.steps = saved[4]
         self.history = saved[5]
+        if len(saved) <= 6:
+            self.game = GameStat.objects.create(
+                start_page_id=self.start_page_id,
+                end_page_id=self.end_page_id,
+                start_time=None,
+                last_action_time=datetime.datetime.now()
+            )
+        else:
+            self.game = GameStat.objects.get(
+                game_id=saved[6]
+            )
     
     def prev_page(self)->bool:
         if len(self.history) >= 2:
@@ -72,6 +93,13 @@ class GameOperator:
                 break
             end_page_id_tmp = edges[next_id]
         self.end_page_id = end_page_id_tmp
+
+        self.game = GameStat.objects.create(
+            start_page_id=self.start_page_id,
+            end_page_id=self.end_page_id,
+            start_time=datetime.datetime.now(),
+            last_action_time=datetime.datetime.now()
+        )
     
     def initialize_game(self, level=0):
         if (level == -1):
