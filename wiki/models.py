@@ -52,3 +52,12 @@ class Feedback(models.Model):
             name=self.name,
             time=self.time
         )
+
+
+class Turn(models.Model):
+
+    game_id = models.IntegerField()
+    from_page_id = models.IntegerField()
+    to_page_id = models.IntegerField()
+    time = models.DateTimeField()
+    turn_id = models.AutoField(primary_key=True)
