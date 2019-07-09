@@ -1,193 +1,164 @@
-import random
-from wiki.models import Game
-from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
+from wiki.ZIMFile import ZIMFile
+from random import randrange
 from django.conf import settings
 import datetime
 
-from .models import GameStat
+from byte_convert import bytes_to_int
+from .models import GameStat, Turn
 from wiki.GraphReader import GraphReader
 
+DIFFICULT_EASY = "easy"
+DIFFICULT_MEDIUM = "medium"
+DIFFICULT_HARD = "hard"
 
-
+RANDOM_GAME_TYPE = "random"
+DIFFICULT_GAME_TYPE = "difficult"
 
 
 class GameOperator:
-    def __init__(self, game, history, graph_reader, zim_file):
-        self.zim = zim_file
-        self.reader = graph_reader
-        self.history = history
-        self.load_testing = False
-        self.game = game
+	def __init__(self, game: GameStat, history: list, graph_reader: GraphReader, zim_file: ZIMFile):
+		self._zim = zim_file
+		self._reader = graph_reader
+		self._history = history
+		self._load_testing = False
+		self._game = game
 
-    def save(self):
-        self.game.last_action_time = datetime.datetime.now()
-        self.game.save()
-        return [self.current_page_id, self.end_page_id,
-                self.game_finished, self.start_page_id, 
-                self.steps, self.history,
-                self.game.game_id]
+	def prev_page(self):
+		if len(self._history) >= 2:
+			self._history.pop()  # pop current page
+			self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
-    def load(self, saved):
-        self.current_page_id = saved[0]
-        self.end_page_id = saved[1]
-        self.game_finished = saved[2]
-        self.start_page_id = saved[3]
-        self.steps = saved[4]
-        self.history = saved[5]
-        if len(saved) <= 6:
-            self.game = GameStat.objects.create(
-                start_page_id=self.start_page_id,
-                end_page_id=self.end_page_id,
-                start_time=None,
-                last_action_time=datetime.datetime.now()
-            )
-        else:
-            self.game = GameStat.objects.get(
-                game_id=saved[6]
-            )
-    
-    def prev_page(self)->bool:
-        if len(self.history) >= 2:
-            self.history.pop()  # pop current page
-            self.current_page_id = self.history[-1]  # pop prev page (will be added in next_page)
-            # if len(self.history) >= 1:
-                # self.current_page_id = self.history.pop()
-            return True
-        return False
-    
-    def is_history_empty(self)->bool:
-        return (len(self.history) <= 1)
+	@property
+	def finished(self):
+		return self._game.current_page_id == self._game.end_page_id
 
-    def _get_random_article_id(self):
-        article_id = randrange(0, len(self.zim))
-        article = self.zim.get_by_index(article_id)
-        while (article is None) or article.namespace != "A":
-            article_id = randrange(0, len(self.zim))
-            article = self.zim._get_article_by_index(article_id)
+	@property
+	def is_history_empty(self) -> bool:
+		return len(self._history) <= 1
 
-        entry = self.zim.read_directory_entry_by_index(article_id)
-        while 'redirectIndex' in entry.keys():
-            article_id = entry['redirectIndex']
-            entry = self.zim.read_directory_entry_by_index(article_id)
+	# return True if next page correct
+	# return False if next page not correct
+	def next_page(self, url: str) -> bool:
+		article = self._zim[url]
 
-        return article_id
+		if article.is_empty:
+			return False
 
-    def initialize_game_random(self):
-        self.steps = 0
-        self.game_finished = False
-        self.current_page_id = self._get_random_article_id()
-        self.start_page_id = self.current_page_id
-        self.history = [self.start_page_id]
-        while self.reader.edges_count(self.current_page_id) == 0:
-            self.current_page_id = self._get_random_article_id()
+		article.follow_redirect()
 
-        end_page_id_tmp = self.current_page_id
-        for step in range(5):
-            edges = list(self.reader.Edges(end_page_id_tmp))
-            next_id = randrange(0, len(edges))
-            if edges[next_id] == self.current_page_id:
-                break
-            end_page_id_tmp = edges[next_id]
-        self.end_page_id = end_page_id_tmp
+		if article.is_redirecting or article.namespace != "A":
+			return False
 
-        self.game = GameStat.objects.create(
-            start_page_id=self.start_page_id,
-            end_page_id=self.end_page_id,
-            start_time=datetime.datetime.now(),
-            last_action_time=datetime.datetime.now()
-        )
-    
-    def initialize_game(self, level=0):
-        if (level == -1):
-            self.initialize_game_random()
-            return
-        file_names = settings.LEVEL_FILE_NAMES
-        #file_names = ['data/easy', 'data/medium', 'data/hard']
-        file = open(file_names[level], 'rb')
-        cnt = _bytes_to_int(file.read(4))
-        pair_id = randrange(0, cnt - 1)
-        file.seek(4 + pair_id * 8)
-        self.start_page_id = _bytes_to_int(file.read(4))
-        print(self.start_page_id)
-        self.current_page_id = self.start_page_id
-        self.end_page_id = _bytes_to_int(file.read(4))
-        file.close()
-        self.game_finished = False
+		valid_edges = list(self._reader.edges(self._game.current_page_id))
+		valid_edges.append(self._game.current_page_id)
+		if article.index not in valid_edges and not self._load_testing:
+			if article.index in self._history:
+				self._game.steps += max(0, self._history[::-1].index(article.index) - 1)
+				self._history = self._history[:len(self._history) - 1 - self._history[::-1].index(article.index)]
+			else:
+				return False
 
-    def next_page(self, relative_url: str)->bool:
-        if self.game_finished:
-            return True
-        _, namespace, *url_parts = relative_url.split('/')
+		if self._game.current_page_id != article.index:
+			self._game.steps += 1
+			Turn.objects.create(
+				from_page_id=self._game.current_page_id,
+				to_page_id=article.index,
+				game_id=self._game.game_id,
+				time=datetime.datetime.now(),
+			)
+			self._game.current_page_id = article.index
 
-        url = None
-        if namespace == 'A':
-            url = "/".join(url_parts)
-        if len(namespace) > 1:
-            url = namespace
+		if not self._history or article.index != self._history[-1]:
+			self._history.append(article.index)
+		return True
 
-        already_finish = (self.current_page_id == self.end_page_id);
-        self.game_finished = already_finish
-        if already_finish:
-            return True
+	@staticmethod
+	def _create_random_game(zim_file: ZIMFile, graph_reader: GraphReader):
+		start_page_id = zim_file.random_article()
+		current_page_id = start_page_id
+		history = [start_page_id]
+		end_page_id = current_page_id
 
-        if url:
-            entry, idx = self.zim._get_entry_by_url("A", url)
-            article = self.zim.get_by_index(idx)
-            if article is None:
-                return None
+		for step in range(5):
+			edges = list(graph_reader.edges(end_page_id))
+			next_id = randrange(0, len(edges))
+			if edges[next_id] == current_page_id:
+				continue
+			end_page_id = edges[next_id]
 
-            while 'redirectIndex' in entry.keys():
-                idx = entry['redirectIndex']
-                entry = self.zim.read_directory_entry_by_index(idx)
-            if entry['namespace'] != 'A':
-                return None
+		game = GameStat.objects.create(
+			start_page_id=start_page_id,
+			end_page_id=end_page_id,
+			current_page_id=current_page_id,
+			start_time=datetime.datetime.now(),
+			last_action_time=datetime.datetime.now()
+		)
+		return GameOperator(game, history, graph_reader, zim_file)
 
-            valid_edges = list(self.reader.Edges(self.current_page_id))
-            valid_edges.append(self.current_page_id)
-            if idx not in valid_edges and not self.load_testing:
-                if idx in self.history:
-                    self.steps += max(0, self.history[::-1].index(idx) - 1)
-                    self.history = self.history[:len(self.history) - 1 - self.history[::-1].index(idx)]
-                else:
-                    return None
-                
-            if self.current_page_id != idx:
-                self.steps += 1
-                self.current_page_id = idx
-                if not self.history or idx != self.history[-1]:
-                    self.history.append(idx)
+	@staticmethod
+	def _create_game_with_difficult(zim_file: ZIMFile, graph_reader: GraphReader, difficult=DIFFICULT_EASY):
+		file_names = settings.LEVEL_FILE_NAMES
+		file = open(file_names[difficult], 'rb')
+		cnt = bytes_to_int(file.read(4))
+		pair_id = randrange(0, cnt - 1)
+		file.seek(4 + pair_id * 8)
+		start_page_id = bytes_to_int(file.read(4))
+		current_page_id = start_page_id
+		end_page_id = bytes_to_int(file.read(4))
+		file.close()
+		history = [start_page_id]
+		game = GameStat.objects.create(
+			start_page_id=start_page_id,
+			end_page_id=end_page_id,
+			current_page_id=current_page_id,
+			start_time=datetime.datetime.now(),
+			last_action_time=datetime.datetime.now()
+		)
+		return GameOperator(game, history, graph_reader, zim_file)
 
-                
-            self.current_page_id = idx
-            finished = (self.current_page_id == self.end_page_id)
-            self.game_finished = finished
-            return finished
-        else:
-            return None
+	_game_dict = {
+		RANDOM_GAME_TYPE: _create_random_game,
+		DIFFICULT_GAME_TYPE: _create_game_with_difficult
+	}
 
+	@classmethod
+	def create_game(cls, game_type: str, *args):
+		return cls._game_dict[game_type](args)
 
-def create_random_game(zim_file, graph_reader) -> GameOperator:
-    steps = 0
-    start_page_id = random.choice(zim_file).id
-    current_page_id = start_page_id
-    history = [start_page_id]
+	def serialize_game_operator(self) -> dict:
+		self._game.finished = self.finished
+		self._game.save()
+		return {
+			"history": self._history,
+			"game_id": self._game.game_id
+		}
 
-    for _ in range
-    while graph_reader.edges_count(current_page_id) == 0:
-        current_page_id = random.choice(zim_file).id
-
-    end_page_id_tmp = self.current_page_id
-    for step in range(5):
-        edges = list(self.reader.Edges(end_page_id_tmp))
-        next_id = randrange(0, len(edges))
-        if edges[next_id] == self.current_page_id:
-            break
-        end_page_id_tmp = edges[next_id]
-    self.end_page_id = end_page_id_tmp
-
-    game = GameStat.objects.create(
-        start_page_id=self.start_page_id,
-        end_page_id=self.end_page_id,
-        start_time=datetime.datetime.now(),
-        last_action_time=datetime.datetime.now()
-    )
+	@staticmethod
+	def deserialize_game_operator(data: dict, zim_file: ZIMFile, graph_reader: GraphReader):
+		# this ugly if for backward compatibility
+		if len(data) > 2:
+			current_page_id = data[0]
+			end_page_id = data[1]
+			game_finished = data[2]
+			start_page_id = data[3]
+			steps = data[4]
+			history = data[5]
+			if len(data) <= 6:
+				game = GameStat.objects.create(
+					start_page_id=start_page_id,
+					end_page_id=end_page_id,
+					steps=steps,
+					start_time=None,
+					current_page_id=current_page_id,
+					finished=game_finished,
+					last_action_time=datetime.datetime.now()
+				)
+			else:
+				game = GameStat.objects.get(
+					game_id=data[6]
+				)
+				game.current_page_id = current_page_id
+		else:
+			game = GameStat.objects.get(game_id=data["game_id"])
+			history = data['history']
+		return GameOperator(game, history, graph_reader, zim_file)

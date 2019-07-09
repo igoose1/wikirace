@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
-from .ZIMFile import MyZIMFile
+from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 
 
