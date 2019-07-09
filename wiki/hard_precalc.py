@@ -50,7 +50,7 @@ for walk in range(7):
         if rev_dist[v] == 7:
             seven.append(v)
     for fr in seven:
-        to = ok_two[randrage(0, len(ok_two))]
+        to = ok_two[randrange(0, len(ok_two))]
         path = []
         v = rev_go_to[fr]
         ready = False
