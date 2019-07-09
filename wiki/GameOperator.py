@@ -45,15 +45,16 @@ class GameOperator:
 	def _valide_article(self, article):
 		if article.is_empty:
 			return False
-		article.follow_redirect()
-		return not (article.is_redirecting or article.namespace != "A")
+		article = article.follow_redirect()
+		return not (article.is_redirecting or article.namespace != "A"), article
 
 	# return True if next page correct
 	def next_page(self, url: str) -> bool:
 
 		article = self._zim[url]
 
-		if not self._valide_article(article):
+		status, article = self._valide_article(article)
+		if not status:
 			return False
 
 		if article.index == self._game.current_page_id:
