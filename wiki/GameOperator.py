@@ -1,6 +1,7 @@
 from wiki.ZIMFile import ZIMFile
 from random import randrange
 from django.conf import settings
+
 import datetime
 from struct import unpack
 
@@ -137,6 +138,8 @@ class GameOperator:
 
 	@staticmethod
 	def deserialize_game_operator(data: dict, zim_file: ZIMFile, graph_reader: GraphReader):
+		if data is None:
+			return None
 		# this ugly if for backward compatibility
 		if len(data) > 2:
 			current_page_id = data[0]
