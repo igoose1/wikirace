@@ -10,6 +10,12 @@ from .ZIMFile import MyZIMFile
 from .form import FeedbackForm
 
 
+def log(s):
+    log_file = open('log.txt', 'a')  # doesn't exist - 'w'
+    log_file.write(str(s) + '\n')
+    log_file.close()
+
+
 def get(request, title_name):
     zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
 
@@ -22,8 +28,6 @@ def get(request, title_name):
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
-        game_operator.load_testing = ("loadtesting" in request.GET
-                                      and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
         if request.session.get('operator', None) is None:
             return HttpResponseRedirect('/')
         game_operator.load(request.session['operator'])
@@ -98,6 +102,33 @@ def get_continue(request):
     )
 
 
+def draw_history_graph(zim_file, game_operator):
+    import networkx as nx
+    import matplotlib.pyplot as plt
+
+    G = nx.DiGraph()
+    prev_title = None
+    print('FULL ', game_operator.full_history)
+    print('HISTORY ', game_operator.history)
+    for curr_title in game_operator.full_history:
+        curr_title = zim_file.read_directory_entry_by_index(curr_title)['title']
+        if prev_title is not None:
+            G.add_edge('{0:.11}{1}'.format(prev_title, '...' if len(prev_title) > 11 else ''),
+                       '{0:.11}{1}'.format(curr_title, '...' if len(curr_title) > 11 else ''))
+        prev_title = curr_title
+    pos = nx.circular_layout(G)
+    plt.figure(None, figsize=[10, 8], dpi=100)
+    for e in G.edges():
+        start = pos[e[0]]
+        finish = pos[e[1]]
+        plt.arrow(start[0], start[1], (finish[0] - start[0]) / 2.0, (finish[1] - start[1]) / 2.0, width=0,
+                  head_width=0.03, color='black')
+    plt.title('Ваш путь:')
+    nx.draw(G, pos=pos, node_color='lightblue', edges_color='blue', node_size=3800, with_labels=True, font_size=8,
+            arrows=False)
+    plt.savefig("path2.png")
+
+
 def winpage(request):
     zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
@@ -106,6 +137,7 @@ def winpage(request):
     if session_operator is None:
         return HttpResponseRedirect('/')
     game_operator.load(session_operator)
+    draw_history_graph(zim_file, game_operator)
     ending = ''
     if game_operator.steps % 10 == 1 and game_operator.steps % 100 != 11:
         pass
@@ -182,6 +214,7 @@ def get_settings(request):
             settings_user[key] = default[key]
     return settings_user
 
+
 def change_settings(request):
     val = request.POST.get('difficulty', None)
     name = request.POST.get('name', 'no name')
@@ -190,6 +223,7 @@ def change_settings(request):
         return HttpResponseServerError()
     request.session['settings'] = {'difficulty': diff_id, 'name': name}
     return HttpResponse("OK")
+
 
 def get_feedback_page(request):
     if request.method == "POST":

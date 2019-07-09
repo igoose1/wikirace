@@ -18,18 +18,14 @@ class GameOperator:
         self.start_page_id = None
         self.steps = 0
         self.history = []
+        self.full_history = []
         self.load_testing = False
-        self.game = None
 
     def save(self):
-        self.game.finished = self.game_finished
-        self.game.steps = self.steps
-        self.game.last_action_time = datetime.datetime.now()
-        self.game.save()
         return [self.current_page_id, self.end_page_id,
-                self.game_finished, self.start_page_id, 
-                self.steps, self.history,
-                self.game.game_id]
+                    self.game_finished, self.start_page_id,
+                    self.steps, self.history,
+                    self.full_history]
 
     def load(self, saved):
         self.current_page_id = saved[0]
@@ -38,17 +34,8 @@ class GameOperator:
         self.start_page_id = saved[3]
         self.steps = saved[4]
         self.history = saved[5]
-        if len(saved) <= 6:
-            self.game = GameStat.objects.create(
-                start_page_id=self.start_page_id,
-                end_page_id=self.end_page_id,
-                start_time=None,
-                last_action_time=datetime.datetime.now()
-            )
-        else:
-            self.game = GameStat.objects.get(
-                game_id=saved[6]
-            )
+        self.full_history = saved[5]
+
     
     def prev_page(self)->bool:
         if len(self.history) >= 2:
@@ -82,6 +69,7 @@ class GameOperator:
         self.current_page_id = self._get_random_article_id()
         self.start_page_id = self.current_page_id
         self.history = [self.start_page_id]
+        self.full_history = [self.start_page_id]
         while self.reader.edges_count(self.current_page_id) == 0:
             self.current_page_id = self._get_random_article_id()
 
@@ -119,8 +107,6 @@ class GameOperator:
         self.game_finished = False
 
     def next_page(self, relative_url: str)->bool:
-        if self.game_finished:
-            return True
         _, namespace, *url_parts = relative_url.split('/')
 
         url = None
@@ -157,17 +143,12 @@ class GameOperator:
                 
             if self.current_page_id != idx:
                 self.steps += 1
-                Turn.objects.create(
-                    from_page_id=self.current_page_id,
-                    to_page_id=idx,
-                    game_id=self.game.game_id,
-                    time=datetime.datetime.now(),
-                )
                 self.current_page_id = idx
 
             if not self.history or idx != self.history[-1]:
                 self.history.append(idx)
-
+                self.full_history.append(idx)
+                print('APPEND')
             finished = (self.current_page_id == self.end_page_id)
             self.game_finished = finished
             return finished
