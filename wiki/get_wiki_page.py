@@ -83,8 +83,8 @@ def get_back(request):
     return HttpResponseRedirect(
         zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     )
-    
-    
+
+
 def get_continue(request):
     session_operator = request.session.get('operator', None)
     if session_operator is None:
@@ -134,7 +134,7 @@ def get_main_page(request) -> HttpResponse:
     is_playing = False
     if (session_operator and not session_operator[2]):
         is_playing = True
-        
+
     context = {'is_playing': is_playing,
                'settings': get_settings(request)
                 }
@@ -159,6 +159,10 @@ def get_hint_page(request):
 
     template = loader.get_template('wiki/hint_page.html')
     return HttpResponse(template.render(context, request))
+
+def show_path_page(request):
+    template = loader.get_template('wiki/show_path_page.html')
+    return HttpResponse(template.render({}, request))
 
 def get_difficulty_level_by_name(name):
     if (name == 'random'):
