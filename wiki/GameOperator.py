@@ -2,8 +2,8 @@ from random import randrange
 
 from django.conf import settings
 import datetime
+from struct import unpack
 
-from byte_convert import bytes_to_int
 from .models import GameStat, Turn
 from wiki.GraphReader import GraphReader
 
@@ -108,13 +108,13 @@ class GameOperator:
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
-        cnt = bytes_to_int(file.read(4))
+        cnt = unpack('>I', file.read(4))
         pair_id = randrange(0, cnt - 1)
         file.seek(4 + pair_id * 8)
-        self.start_page_id = bytes_to_int(file.read(4))
+        self.start_page_id = unpack('>I', file.read(4))
         print(self.start_page_id)
         self.current_page_id = self.start_page_id
-        self.end_page_id = bytes_to_int(file.read(4))
+        self.end_page_id = unpack('>I', file.read(4))
         file.close()
         self.game_finished = False
 
