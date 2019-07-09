@@ -2,10 +2,10 @@ from wiki.ZIMFile import ZIMFile
 from random import randrange
 from django.conf import settings
 import datetime
+from struct import unpack
 
-from byte_convert import bytes_to_int
 from .models import GameStat, Turn
-from wiki.GraphReader import GraphReader
+from wiki.GraphReader import *
 
 DIFFICULT_EASY = "easy"
 DIFFICULT_MEDIUM = "medium"
@@ -23,9 +23,14 @@ class GameOperator:
 		self._load_testing = False
 		self._game = game
 
+	@property
+	def game(self):
+		return self._game
+
 	def prev_page(self):
 		if len(self._history) >= 2:
 			self._history.pop()  # pop current page
+			self.game.steps+=1
 			self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
 	@property
@@ -36,40 +41,38 @@ class GameOperator:
 	def is_history_empty(self) -> bool:
 		return len(self._history) <= 1
 
-	# return True if next page correct
-	# return False if next page not correct
-	def next_page(self, url: str) -> bool:
-		article = self._zim[url]
-
+	def _valide_article(self, article):
 		if article.is_empty:
 			return False
-
 		article.follow_redirect()
+		return not (article.is_redirecting or article.namespace != "A")
 
-		if article.is_redirecting or article.namespace != "A":
+	# return True if next page correct
+	def next_page(self, url: str) -> bool:
+
+		article = self._zim[url]
+
+		if not self._valide_article(article):
 			return False
 
+		if article.index == self._game.current_page_id:
+			return True
+
 		valid_edges = list(self._reader.edges(self._game.current_page_id))
-		valid_edges.append(self._game.current_page_id)
+
 		if article.index not in valid_edges and not self._load_testing:
-			if article.index in self._history:
-				self._game.steps += max(0, self._history[::-1].index(article.index) - 1)
-				self._history = self._history[:len(self._history) - 1 - self._history[::-1].index(article.index)]
-			else:
-				return False
+			return False
 
-		if self._game.current_page_id != article.index:
-			self._game.steps += 1
-			Turn.objects.create(
-				from_page_id=self._game.current_page_id,
-				to_page_id=article.index,
-				game_id=self._game.game_id,
-				time=datetime.datetime.now(),
-			)
-			self._game.current_page_id = article.index
+		self._game.steps += 1
+		Turn.objects.create(
+			from_page_id=self._game.current_page_id,
+			to_page_id=article.index,
+			game_id=self._game.game_id,
+			time=datetime.datetime.now(),
+		)
+		self._game.current_page_id = article.index
 
-		if not self._history or article.index != self._history[-1]:
-			self._history.append(article.index)
+		self._history.append(article.index)
 		return True
 
 	@staticmethod
@@ -96,15 +99,15 @@ class GameOperator:
 		return GameOperator(game, history, graph_reader, zim_file)
 
 	@staticmethod
-	def _create_game_with_difficult(zim_file: ZIMFile, graph_reader: GraphReader, difficult=DIFFICULT_EASY):
+	def _create_game_with_difficult(difficult, zim_file: ZIMFile, graph_reader: GraphReader):
 		file_names = settings.LEVEL_FILE_NAMES
 		file = open(file_names[difficult], 'rb')
-		cnt = bytes_to_int(file.read(4))
+		cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
 		pair_id = randrange(0, cnt - 1)
-		file.seek(4 + pair_id * 8)
-		start_page_id = bytes_to_int(file.read(4))
+		file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE*2)
+		start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
 		current_page_id = start_page_id
-		end_page_id = bytes_to_int(file.read(4))
+		end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
 		file.close()
 		history = [start_page_id]
 		game = GameStat.objects.create(
@@ -116,14 +119,13 @@ class GameOperator:
 		)
 		return GameOperator(game, history, graph_reader, zim_file)
 
-	_game_dict = {
-		RANDOM_GAME_TYPE: _create_random_game,
-		DIFFICULT_GAME_TYPE: _create_game_with_difficult
-	}
-
 	@classmethod
 	def create_game(cls, game_type: str, *args):
-		return cls._game_dict[game_type](args)
+		game_dict = {
+			DIFFICULT_GAME_TYPE: cls._create_game_with_difficult,
+			RANDOM_GAME_TYPE: cls._create_random_game
+		}
+		return game_dict[game_type](*args)
 
 	def serialize_game_operator(self) -> dict:
 		self._game.finished = self.finished
