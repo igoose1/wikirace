@@ -43,17 +43,13 @@ class GameOperator:
 
     def _get_random_article_id(self):
         article_id = randrange(0, len(self.zim))
-        article = self.zim.get_by_index(article_id)
-        while (article is None) or article.namespace != "A":
+        article = self.zim[article_id]
+        article.follow_redirect()
+        while article.is_empty or article.is_redirecting or article.namespace != "A":
             article_id = randrange(0, len(self.zim))
-            article = self.zim._get_article_by_index(article_id)
-
-        entry = self.zim.read_directory_entry_by_index(article_id)
-        while 'redirectIndex' in entry.keys():
-            article_id = entry['redirectIndex']
-            entry = self.zim.read_directory_entry_by_index(article_id)
-
-        return article_id
+            article = self.zim[article_id]
+            article.follow_redirect()
+        return article.index
 
     def initialize_game_random(self):
         self.steps = 0
@@ -107,17 +103,14 @@ class GameOperator:
             return True
 
         if url:
-            entry, idx = self.zim._get_entry_by_url("A", url)
-            article = self.zim.get_by_index(idx)
-            if article is None:
+            article = self.zim[url]
+            article.follow_redirect()
+            if article.is_empty or article.is_redirecting:
                 return None
 
-            while 'redirectIndex' in entry.keys():
-                idx = entry['redirectIndex']
-                entry = self.zim.read_directory_entry_by_index(idx)
-            if entry['namespace'] != 'A':
+            if article.namespace != 'A':
                 return None
-
+            idx = article.index
             valid_edges = list(self.reader.Edges(self.current_page_id))
             valid_edges.append(self.current_page_id)
             if idx not in valid_edges and not self.load_testing:
