@@ -33,6 +33,8 @@ class Article:
         self._zim_file = zim_file
         self._entry = entry
         self._article_cashed = None
+        if self._entry is None:
+            self._entry = dict()
 
     def follow_redirect(self, max_redirects_count=10):
         self._article_cashed = None
@@ -43,6 +45,10 @@ class Article:
             redirect_counter += 1
             if redirect_counter == max_redirects_count:
                 break
+            
+    @property
+    def is_empty(self):
+        return self.index == -1
         
     @property
     def is_redirecting(self):
@@ -57,7 +63,7 @@ class Article:
 
     @property
     def index(self):
-        return self._entry['index']
+        return self._entry.get('index', -1)
 
     @property
     def content(self):
@@ -65,19 +71,19 @@ class Article:
 
     @property
     def namespace(self):
-        return self._entry['namespace']
+        return self._entry.get('namespace', '')
 
     @property
     def mimetype(self):
-        return self._zim_file.mimetype_list[self._entry['mimetype']]
+        return self._zim_file.mimetype_list[self._entry.get('mimetype', 0)]
 
     @property
     def title(self):
-        return self._entry['title']
+        return self._entry.get('title', '')
 
     @property
     def url(self):
-        return self._entry['url']
+        return self._entry.get('url', '')
 
 
 class ZIMFile:
