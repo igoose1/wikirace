@@ -1,12 +1,13 @@
 from random import randrange
 
 from django.conf import settings
+
 import datetime
 from struct import unpack
 
 from .models import GameStat, Turn
 from wiki.GraphReader import GraphReader
-
+from wiki.ZIMFile import ZIMFile
 
 class GameOperator:
     def __init__(self, zim_file, graph_reader: GraphReader):
@@ -63,18 +64,8 @@ class GameOperator:
         return (len(self.history) <= 1)
 
     def _get_random_article_id(self):
-        article_id = randrange(0, len(self.zim))
-        article = self.zim.get_by_index(article_id)
-        while (article is None) or article.namespace != "A":
-            article_id = randrange(0, len(self.zim))
-            article = self.zim._get_article_by_index(article_id)
-
-        entry = self.zim.read_directory_entry_by_index(article_id)
-        while 'redirectIndex' in entry.keys():
-            article_id = entry['redirectIndex']
-            entry = self.zim.read_directory_entry_by_index(article_id)
-
-        return article_id
+        article = self.zim.random_article()
+        return article.index
 
     def initialize_game_random(self):
         self.steps = 0
@@ -124,7 +115,7 @@ class GameOperator:
         _, namespace, *url_parts = relative_url.split('/')
 
         url = None
-        if namespace == 'A':
+        if namespace == ZIMFile.NAMESPACE_ARTICLE:
             url = "/".join(url_parts)
         if len(namespace) > 1:
             url = namespace
@@ -135,17 +126,14 @@ class GameOperator:
             return True
 
         if url:
-            entry, idx = self.zim._get_entry_by_url("A", url)
-            article = self.zim.get_by_index(idx)
-            if article is None:
+            article = self.zim[url]
+            article = article.follow_redirect()
+            if article.is_empty or article.is_redirecting:
                 return None
 
-            while 'redirectIndex' in entry.keys():
-                idx = entry['redirectIndex']
-                entry = self.zim.read_directory_entry_by_index(idx)
-            if entry['namespace'] != 'A':
+            if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
                 return None
-
+            idx = article.index
             valid_edges = list(self.reader.edges(self.current_page_id))
             valid_edges.append(self.current_page_id)
             if idx not in valid_edges and not self.load_testing:

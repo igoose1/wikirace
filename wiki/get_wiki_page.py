@@ -4,21 +4,23 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.utils import timezone
 
+
+from .ZIMFile import ZIMFile
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
-from .ZIMFile import MyZIMFile
 from .form import FeedbackForm
 
 
 def get(request, title_name):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
-    content = zim_file.get_by_url('/' + title_name)
-    if content is None:
+    article = zim_file[title_name]
+    article = article.follow_redirect()
+    if article.is_empty or article.is_redirecting:
         raise Http404()
 
-    data, namespace, mime_type = content
-    if namespace == 'A':
+    
+    if article.namespace == ZIMFile.NAMESPACE_ARTICLE:
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
@@ -35,43 +37,43 @@ def get(request, title_name):
             return winpage(request)
         elif next_page_result is None:
             return HttpResponseRedirect(
-                zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+                zim_file[game_operator.current_page_id].url
             )
 
         template = loader.get_template('wiki/page.html')
         context = {
-            'title': zim_file.read_directory_entry_by_index(game_operator.current_page_id)['title'],
-            'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
-            'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
+            'title': zim_file[game_operator.current_page_id].title,
+            'from': zim_file[game_operator.start_page_id].title,
+            'to': zim_file[game_operator.end_page_id].title,
             'counter': game_operator.steps,
-            'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
+            'wiki_content': zim_file[game_operator.current_page_id].content.decode('utf-8'),
             'history_empty': game_operator.is_history_empty()
         }
         return HttpResponse(
             template.render(context, request),
-            content_type=mime_type
+            content_type = article.mimetype
         )
 
     return HttpResponse(
-        data,
-        content_type=mime_type
+        article.content,
+        content_type=article.mimetype
     )
 
 
 def get_start(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH,  settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     difficulty = get_settings(request)['difficulty']
     game_operator.initialize_game(difficulty)
     request.session['operator'] = game_operator.save()
     return HttpResponseRedirect(
-        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+        zim_file[game_operator.current_page_id].url
     )
 
 
 def get_back(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     session_operator = request.session.get('operator', None)
@@ -81,7 +83,7 @@ def get_back(request):
     game_operator.prev_page()
     request.session['operator'] = game_operator.save()
     return HttpResponseRedirect(
-        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+        zim_file[game_operator.current_page_id].url
     )
     
     
@@ -89,17 +91,17 @@ def get_continue(request):
     session_operator = request.session.get('operator', None)
     if session_operator is None:
         return HttpResponseRedirect('/')
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     game_operator.load(session_operator)
     return HttpResponseRedirect(
-        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+        zim_file[game_operator.current_page_id].url
     )
 
 
 def winpage(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     session_operator = request.session.get('operator', None)
@@ -115,8 +117,8 @@ def winpage(request):
         ending = 'ов'
     settings_user = get_settings(request)
     context = {
-        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
-        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
+        'from': zim_file[game_operator.start_page_id].title,
+        'to': zim_file[game_operator.end_page_id].title,
         'counter': game_operator.steps,
         'move_end': ending,
         'name': settings_user['name']
@@ -142,7 +144,7 @@ def get_main_page(request) -> HttpResponse:
 
 
 def get_hint_page(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
     game_operator = GameOperator(zim_file, graph)
@@ -150,11 +152,10 @@ def get_hint_page(request):
         return HttpResponseRedirect('/')
     game_operator.load(request.session['operator'])
 
-    content = zim_file.get_by_index(game_operator.end_page_id)
-    data, namespace, mime_type = content
+    article = zim_file[game_operator.end_page_id]
 
     context = {
-        'content': data.decode('utf-8'),
+        'content': article.content.decode('utf-8'),
     }
 
     template = loader.get_template('wiki/hint_page.html')
