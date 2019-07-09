@@ -28,10 +28,10 @@ class GameOperator:
 	def game(self):
 		return self._game
 
-	def prev_page(self):
+	def navigate_previous_page(self):
 		if len(self._history) >= 2:
 			self._history.pop()  # pop current page
-			self.game.steps+=1
+			self.game.steps += 1
 			self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
 	@property
@@ -42,19 +42,17 @@ class GameOperator:
 	def is_history_empty(self) -> bool:
 		return len(self._history) <= 1
 
-	def _valide_article(self, article):
-		if article.is_empty:
-			return False
-		article = article.follow_redirect()
-		return not (article.is_redirecting or article.namespace != "A"), article
-
 	# return True if next page correct
-	def next_page(self, url: str) -> bool:
+	def try_navigate_next_page(self, url: str) -> bool:
 
 		article = self._zim[url]
 
-		status, article = self._valide_article(article)
-		if not status:
+		if article.is_empty:
+			return False
+
+		article = article.follow_redirect()
+
+		if article.is_redirecting or article.namespace != "A":
 			return False
 
 		if article.index == self._game.current_page_id:

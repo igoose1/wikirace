@@ -30,7 +30,7 @@ def get(request, title_name):
         game_operator._load_testing = ("loadtesting" in request.GET
                                       and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
 
-        next_page_result = game_operator.next_page(title_name)
+        next_page_result = game_operator.try_navigate_next_page(title_name)
         request.session['operator'] = game_operator.serialize_game_operator()
 
         if not next_page_result:
@@ -42,12 +42,13 @@ def get(request, title_name):
             return winpage(request)
 
         template = loader.get_template('wiki/page.html')
+        current_article = zim_file[game_operator.game.current_page_id]
         context = {
-            'title': zim_file[game_operator.game.current_page_id].title,
+            'title': current_article.title,
             'from': zim_file[game_operator.game.start_page_id].title,
             'to': zim_file[game_operator.game.end_page_id].title,
             'counter': game_operator.game.steps,
-            'wiki_content': zim_file[game_operator.game.current_page_id].content.decode('utf-8'),
+            'wiki_content': current_article.content.decode('utf-8'),
             'history_empty': game_operator.is_history_empty
         }
         return HttpResponse(
@@ -78,7 +79,7 @@ def get_back(request):
     if session_operator is None:
         return HttpResponseRedirect('/')
     game_operator = GameOperator.deserialize_game_operator(session_operator, zim_file, graph)
-    game_operator.prev_page()
+    game_operator.navigate_previous_page()
     request.session['operator'] = game_operator.serialize_game_operator()
     return HttpResponseRedirect(
         zim_file[game_operator.game.current_page_id].url
@@ -151,11 +152,10 @@ def get_hint_page(request):
         return HttpResponseRedirect('/')
     game_operator = GameOperator.deserialize_game_operator(request.session['operator'], zim_file, graph)
 
-    content = zim_file[game_operator.game.end_page_id]
-    data, namespace, mime_type = content.article
+    content = zim_file[game_operator.game.end_page_id].content
 
     context = {
-        'content': data.decode('utf-8'),
+        'content': content.decode('utf-8'),
     }
 
     template = loader.get_template('wiki/hint_page.html')
