@@ -27,7 +27,7 @@ class GameOperator:
         self.game.last_action_time = datetime.datetime.now()
         self.game.save()
         return [self.current_page_id, self.end_page_id,
-                self.game_finished, self.start_page_id, 
+                self.game_finished, self.start_page_id,
                 self.steps, self.history,
                 self.game.game_id]
 
@@ -49,7 +49,7 @@ class GameOperator:
             self.game = GameStat.objects.get(
                 game_id=saved[6]
             )
-    
+
     def prev_page(self)->bool:
         if len(self.history) >= 2:
             self.history.pop()  # pop current page
@@ -58,7 +58,7 @@ class GameOperator:
                 # self.current_page_id = self.history.pop()
             return True
         return False
-    
+
     def is_history_empty(self)->bool:
         return (len(self.history) <= 1)
 
@@ -100,7 +100,7 @@ class GameOperator:
             start_time=datetime.datetime.now(),
             last_action_time=datetime.datetime.now()
         )
-    
+
     def initialize_game(self, level=0):
         if (level == -1):
             self.initialize_game_random()
@@ -117,6 +117,12 @@ class GameOperator:
         self.end_page_id = _bytes_to_int(file.read(4))
         file.close()
         self.game_finished = False
+        self.game = GameStat.objects.create(
+            start_page_id=self.start_page_id,
+            end_page_id=self.end_page_id,
+            start_time=datetime.datetime.now(),
+            last_action_time=datetime.datetime.now()
+        )
 
     def next_page(self, relative_url: str)->bool:
         if self.game_finished:
@@ -154,7 +160,7 @@ class GameOperator:
                     self.history = self.history[:len(self.history) - 1 - self.history[::-1].index(idx)]
                 else:
                     return None
-                
+
             if self.current_page_id != idx:
                 self.steps += 1
                 Turn.objects.create(
