@@ -9,40 +9,111 @@
 </head>
 <body>
 <div class="toolbar">
+    <div class="menu_container mobile">
+        <div id="menuToggle">
+            <input type="checkbox" id="checkbox" onchange="move_left_bar()"/>
+            <span></span>
+            <span></span>
+            <span></span>
+            <div> {# НЕ УБИРАТЬ, ДЕРЖИТ КРЕСТИК #}
+            </div>
+        </div>
+    </div>
     <div class="title">
-        WikiRace
+        <div class="logo">
+            <span>WikiRace</span>
+        </div>
     </div>
     <div class="button_bar">
-        <a href="/main" class="image_button">
-            <img src="../../static/wiki/baseline-home-24px.svg" alt="undo">
-        </a>
-        <a href="/game_start" class="image_button">
-            <img src="../../static/wiki/baseline-autorenew-24px.svg" alt="home">
-        </a>
+        <div class="button">
+            <a href="/main" class="image_button">
+                <img src="../../static/wiki/baseline-home-24px.svg" alt="undo">
+            </a>
+        </div>
+        <div class="button">
+            <a href="/game_start" class="image_button">
+                <img src="../../static/wiki/baseline-autorenew-24px.svg" alt="home">
+            </a>
+        </div>
     </div>
 </div>
-<div class="block"></div>
-<div class="info_card">
-    <div>
-        <div class="start_page">
-            Старт: {{ from }}
+<div class="left-bar" id="menu">
+    <div class="directions">
+        <div class="outline">
+            <div class="start_page">
+                <span>{{ from }}</span>
+            </div>
         </div>
-        <div class="finish_page">
-            Финиш: {{ to }}
+        <div class="dots">
+            <img src="../../static/wiki/down-arrow.png" alt="down_arrow">
+        </div>
+        <div class="outline">
+            <div class="finish_page">
+                <span><a href="/hint_page" target="_blank">{{ to }}</a></span>
+            </div>
         </div>
     </div>
-    <div class="block1"></div>
-    <div>
+    <div class="extra_info">
         <div class="moves">
-            Ходы: {{ counter }}
+            <span>Ходов:&nbsp;{{ counter }}</span>
         </div>
     </div>
 </div>
-<div class="body">
-    {{ wiki_content|safe }}
+<div id="menu-background">
+</div>
+<div class="target mobile">
+    <span>Цель:&nbsp;<a href="/hint_page" target="_blank">{{ to }}</a></span>
+    <span>Ходов:&nbsp;{{ counter }}</span>
+</div>
+<div class="wiki-container">
+    <div class="wiki-content">
+        {{ wiki_content|safe }}
+    </div>
 </div>
 <div class="moves_list">
-
 </div>
+<script>
+    function move_left_bar() {
+        let checkbox;
+        let transform_block;
+        let background;
+        checkbox = document.getElementById("checkbox");
+        transform_block = document.getElementById("menu");
+        background = document.getElementById("menu-background");
+        if (checkbox.checked) {
+            transform_block.style.transform = "translate(0, 0)";
+            background.style.opacity = "0.6";
+        } else {
+            transform_block.style.transform = "translate(-100%, 0)";
+            background.style.opacity = "0";
+        }
+    }
+
+    $(document).ready(function set_height_for_wiki_container() {
+        let head_height = document.getElementsByClassName("toolbar")[0].offsetHeight + document.getElementsByClassName("target")[0].offsetHeight;
+        console.log(head_height);
+        document.getElementsByClassName("wiki-container")[0].style.height = "calc(100vh - " + head_height + "px)";
+    });
+
+    $(window).on("load", function () {
+        if (!!window.performance && window.performance.navigation.type === 2) {
+            window.location.reload();
+        }
+        const anchors = $('a');
+        const comp = new RegExp(location.host);
+        for (let i = 0; i < anchors.length; i++) {
+            if (!comp.test(anchors[i].href)) {
+
+                const span = $('<span>', {class: 'text'}).get(0);
+                if (anchors[i].id) {
+                    span.id = anchors[i].id;
+                }
+                span.innerHTML = anchors[i].innerHTML;
+                anchors[i].parentNode.replaceChild(span, anchors[i]);
+            }
+        }
+    });
+
+</script>
 </body>
 </html>
