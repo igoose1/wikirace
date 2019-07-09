@@ -1,7 +1,12 @@
 from random import randrange
-from wiki.models import Game
-from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
+
 from django.conf import settings
+
+import datetime
+from struct import unpack
+
+from .models import GameStat, Turn
+from wiki.GraphReader import GraphReader
 from wiki.ZIMFile import ZIMFile
 
 class GameOperator:
@@ -15,11 +20,17 @@ class GameOperator:
         self.steps = 0
         self.history = []
         self.load_testing = False
+        self.game = None
 
     def save(self):
+        self.game.finished = self.game_finished
+        self.game.steps = self.steps
+        self.game.last_action_time = datetime.datetime.now()
+        self.game.save()
         return [self.current_page_id, self.end_page_id,
                 self.game_finished, self.start_page_id, 
-                self.steps, self.history]
+                self.steps, self.history,
+                self.game.game_id]
 
     def load(self, saved):
         self.current_page_id = saved[0]
@@ -28,6 +39,17 @@ class GameOperator:
         self.start_page_id = saved[3]
         self.steps = saved[4]
         self.history = saved[5]
+        if len(saved) <= 6:
+            self.game = GameStat.objects.create(
+                start_page_id=self.start_page_id,
+                end_page_id=self.end_page_id,
+                start_time=None,
+                last_action_time=datetime.datetime.now()
+            )
+        else:
+            self.game = GameStat.objects.get(
+                game_id=saved[6]
+            )
     
     def prev_page(self)->bool:
         if len(self.history) >= 2:
@@ -56,12 +78,19 @@ class GameOperator:
 
         end_page_id_tmp = self.current_page_id
         for step in range(5):
-            edges = list(self.reader.Edges(end_page_id_tmp))
+            edges = list(self.reader.edges(end_page_id_tmp))
             next_id = randrange(0, len(edges))
             if edges[next_id] == self.current_page_id:
                 break
             end_page_id_tmp = edges[next_id]
         self.end_page_id = end_page_id_tmp
+
+        self.game = GameStat.objects.create(
+            start_page_id=self.start_page_id,
+            end_page_id=self.end_page_id,
+            start_time=datetime.datetime.now(),
+            last_action_time=datetime.datetime.now()
+        )
     
     def initialize_game(self, level=0):
         if (level == -1):
@@ -70,13 +99,13 @@ class GameOperator:
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
-        cnt = _bytes_to_int(file.read(4))
+        cnt = unpack('>I', file.read(4))
         pair_id = randrange(0, cnt - 1)
         file.seek(4 + pair_id * 8)
-        self.start_page_id = _bytes_to_int(file.read(4))
+        self.start_page_id = unpack('>I', file.read(4))
         print(self.start_page_id)
         self.current_page_id = self.start_page_id
-        self.end_page_id = _bytes_to_int(file.read(4))
+        self.end_page_id = unpack('>I', file.read(4))
         file.close()
         self.game_finished = False
 
@@ -105,7 +134,7 @@ class GameOperator:
             if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
                 return None
             idx = article.index
-            valid_edges = list(self.reader.Edges(self.current_page_id))
+            valid_edges = list(self.reader.edges(self.current_page_id))
             valid_edges.append(self.current_page_id)
             if idx not in valid_edges and not self.load_testing:
                 if idx in self.history:
@@ -116,12 +145,17 @@ class GameOperator:
                 
             if self.current_page_id != idx:
                 self.steps += 1
+                Turn.objects.create(
+                    from_page_id=self.current_page_id,
+                    to_page_id=idx,
+                    game_id=self.game.game_id,
+                    time=datetime.datetime.now(),
+                )
                 self.current_page_id = idx
-                if not self.history or idx != self.history[-1]:
-                    self.history.append(idx)
 
-                
-            self.current_page_id = idx
+            if not self.history or idx != self.history[-1]:
+                self.history.append(idx)
+
             finished = (self.current_page_id == self.end_page_id)
             self.game_finished = finished
             return finished
