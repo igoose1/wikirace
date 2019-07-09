@@ -77,48 +77,42 @@ class GameOperator:
 		return True
 
 	@staticmethod
-	def _create_random_game(zim_file: ZIMFile, graph_reader: GraphReader):
-		start_page_id = zim_file.random_article()
-		current_page_id = start_page_id
-		history = [start_page_id]
-		end_page_id = current_page_id
-
-		for step in range(5):
-			edges = list(graph_reader.edges(end_page_id))
-			next_id = randrange(0, len(edges))
-			if edges[next_id] == current_page_id:
-				continue
-			end_page_id = edges[next_id]
-
+	def init_game(start_page_id, end_page_id, *args):
 		game = GameStat.objects.create(
 			start_page_id=start_page_id,
 			end_page_id=end_page_id,
-			current_page_id=current_page_id,
+			current_page_id=start_page_id,
 			start_time=datetime.datetime.now(),
 			last_action_time=datetime.datetime.now()
 		)
-		return GameOperator(game, history, graph_reader, zim_file)
+		return GameOperator(game, [start_page_id], *args)
 
-	@staticmethod
-	def _create_game_with_difficult(difficult, zim_file: ZIMFile, graph_reader: GraphReader):
+	@classmethod
+	def _create_random_game(cls, zim_file: ZIMFile, graph_reader: GraphReader):
+		start_page_id = zim_file.random_article()
+		end_page_id = start_page_id
+		for step in range(5):
+			edges = list(graph_reader.edges(end_page_id))
+			next_id = randrange(0, len(edges))
+			if edges[next_id] == start_page_id:
+				continue
+			end_page_id = edges[next_id]
+
+		return cls.init_game(start_page_id, end_page_id, graph_reader, zim_file)
+
+	@classmethod
+	def _create_game_with_difficult(cls, difficult, zim_file: ZIMFile, graph_reader: GraphReader):
+
 		file_names = settings.LEVEL_FILE_NAMES
 		file = open(file_names[difficult], 'rb')
 		cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
 		pair_id = randrange(0, cnt - 1)
 		file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE*2)
 		start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-		current_page_id = start_page_id
 		end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
 		file.close()
-		history = [start_page_id]
-		game = GameStat.objects.create(
-			start_page_id=start_page_id,
-			end_page_id=end_page_id,
-			current_page_id=current_page_id,
-			start_time=datetime.datetime.now(),
-			last_action_time=datetime.datetime.now()
-		)
-		return GameOperator(game, history, graph_reader, zim_file)
+
+		return cls.init_game(start_page_id, end_page_id, graph_reader, zim_file)
 
 	@classmethod
 	def create_game(cls, game_type: str, *args):
