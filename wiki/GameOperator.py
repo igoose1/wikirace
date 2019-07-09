@@ -1,8 +1,8 @@
 from random import randrange
-from wiki.models import Game
-from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
+
 from django.conf import settings
 import datetime
+from struct import unpack
 
 from .models import GameStat, Turn
 from wiki.GraphReader import GraphReader
@@ -87,7 +87,7 @@ class GameOperator:
 
         end_page_id_tmp = self.current_page_id
         for step in range(5):
-            edges = list(self.reader.Edges(end_page_id_tmp))
+            edges = list(self.reader.edges(end_page_id_tmp))
             next_id = randrange(0, len(edges))
             if edges[next_id] == self.current_page_id:
                 break
@@ -108,13 +108,13 @@ class GameOperator:
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
-        cnt = _bytes_to_int(file.read(4))
+        cnt = unpack('>I', file.read(4))
         pair_id = randrange(0, cnt - 1)
         file.seek(4 + pair_id * 8)
-        self.start_page_id = _bytes_to_int(file.read(4))
+        self.start_page_id = unpack('>I', file.read(4))
         print(self.start_page_id)
         self.current_page_id = self.start_page_id
-        self.end_page_id = _bytes_to_int(file.read(4))
+        self.end_page_id = unpack('>I', file.read(4))
         file.close()
         self.game_finished = False
 
@@ -146,7 +146,7 @@ class GameOperator:
             if entry['namespace'] != 'A':
                 return None
 
-            valid_edges = list(self.reader.Edges(self.current_page_id))
+            valid_edges = list(self.reader.edges(self.current_page_id))
             valid_edges.append(self.current_page_id)
             if idx not in valid_edges and not self.load_testing:
                 if idx in self.history:
