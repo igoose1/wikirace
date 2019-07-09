@@ -37,6 +37,7 @@ class Article:
             self._entry = dict()
 
     def follow_redirect(self, max_redirects_count=10):
+        self._article_cashed = None
         redirect_counter = 0
         while self.is_redirecting:
             redirect_index = self._entry['redirectIndex']
