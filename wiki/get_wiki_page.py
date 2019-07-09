@@ -11,15 +11,15 @@ import re
  
 
 def get(request, title_name):
-    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
     article = zim_file[title_name]
-    article.follow_redirect()
+    article = article.follow_redirect()
     if article.is_empty or article.is_redirecting:
         raise Http404()
 
-    data, namespace, mime_type = article.article
-    if namespace == 'A':
+    
+    if article.namespace == ZIMFile.NAMESPACE_ARTICLE:
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
@@ -50,17 +50,17 @@ def get(request, title_name):
         }
         return HttpResponse(
             template.render(context, request),
-            content_type=mime_type
+            content_type = article.mimetype
         )
 
     return HttpResponse(
-        data,
-        content_type=mime_type
+        article.content,
+        content_type=article.mimetype
     )
 
 
 def get_start(request):
-    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH,  settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     difficulty = get_settings(request)['difficulty']
@@ -72,7 +72,7 @@ def get_start(request):
 
 
 def get_back(request):
-    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     session_operator = request.session.get('operator', None)
@@ -90,7 +90,7 @@ def get_continue(request):
     session_operator = request.session.get('operator', None)
     if session_operator is None:
         return HttpResponseRedirect('/')
-    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     game_operator.load(session_operator)
@@ -100,7 +100,7 @@ def get_continue(request):
 
 
 def winpage(request):
-    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     session_operator = request.session.get('operator', None)
@@ -143,7 +143,7 @@ def get_main_page(request) -> HttpResponse:
 
 
 def get_hint_page(request):
-    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH)
+    zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
     game_operator = GameOperator(zim_file, graph)
@@ -151,11 +151,10 @@ def get_hint_page(request):
         return HttpResponseRedirect('/')
     game_operator.load(request.session['operator'])
 
-    content = zim_file[game_operator.end_page_id]
-    data, namespace, mime_type = content.article
+    article = zim_file[game_operator.end_page_id]
 
     context = {
-        'content': data.decode('utf-8'),
+        'content': article.content.decode('utf-8'),
     }
 
     template = loader.get_template('wiki/hint_page.html')

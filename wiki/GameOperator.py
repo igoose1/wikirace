@@ -2,7 +2,7 @@ from random import randrange
 from wiki.models import Game
 from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
 from django.conf import settings
-
+from wiki.ZIMFile import ZIMFile
 
 class GameOperator:
     def __init__(self, zim_file, graph_reader: GraphReader):
@@ -42,13 +42,7 @@ class GameOperator:
         return (len(self.history) <= 1)
 
     def _get_random_article_id(self):
-        article_id = randrange(0, len(self.zim))
-        article = self.zim[article_id]
-        article.follow_redirect()
-        while article.is_empty or article.is_redirecting or article.namespace != "A":
-            article_id = randrange(0, len(self.zim))
-            article = self.zim[article_id]
-            article.follow_redirect()
+        article = self.zim.random_article()
         return article.index
 
     def initialize_game_random(self):
@@ -92,7 +86,7 @@ class GameOperator:
         _, namespace, *url_parts = relative_url.split('/')
 
         url = None
-        if namespace == 'A':
+        if namespace == ZIMFile.NAMESPACE_ARTICLE:
             url = "/".join(url_parts)
         if len(namespace) > 1:
             url = namespace
@@ -104,11 +98,11 @@ class GameOperator:
 
         if url:
             article = self.zim[url]
-            article.follow_redirect()
+            article = article.follow_redirect()
             if article.is_empty or article.is_redirecting:
                 return None
 
-            if article.namespace != 'A':
+            if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
                 return None
             idx = article.index
             valid_edges = list(self.reader.Edges(self.current_page_id))
