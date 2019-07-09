@@ -19,16 +19,19 @@ def get(request, title_name):
     if article.is_empty or article.is_redirecting:
         raise Http404()
 
-    
     if article.namespace == ZIMFile.NAMESPACE_ARTICLE:
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         if request.session.get('operator', None) is None:
             return HttpResponseRedirect('/')
 
-        game_operator = GameOperator.deserialize_game_operator(request.session['operator'], zim_file, graph)
-        game_operator._load_testing = ("loadtesting" in request.GET
-                                      and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
+        game_operator = GameOperator.deserialize_game_operator(
+            request.session['operator'],
+            zim_file,
+            graph,
+            "loadtesting" in request.GET
+            and request.META["REMOTE_ADDR"].startswith("127.0.0.1")
+        )
 
         next_page_result = game_operator.try_navigate_next_page(title_name)
         request.session['operator'] = game_operator.serialize_game_operator()
@@ -161,20 +164,21 @@ def get_hint_page(request):
     template = loader.get_template('wiki/hint_page.html')
     return HttpResponse(template.render(context, request))
 
+
 def get_difficulty_level_by_name(name):
-    if (name == 'random'):
-        return -1
-    if (name == 'easy'):
+    if name == 'random':
+        return RANDOM_GAME_TYPE
+    if name == 'easy':
         return DIFFICULT_EASY
-    if (name == 'medium'):
+    if name == 'medium':
         return DIFFICULT_MEDIUM
-    if (name == 'hard'):
+    if name == 'hard':
         return DIFFICULT_HARD
     return None
 
 
 def get_game_args(diff):
-    if diff == -1:
+    if diff == RANDOM_GAME_TYPE:
         return RANDOM_GAME_TYPE
     else:
         return DIFFICULT_GAME_TYPE, diff

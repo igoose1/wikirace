@@ -17,11 +17,11 @@ DIFFICULT_GAME_TYPE = "difficult"
 
 
 class GameOperator:
-	def __init__(self, game: GameStat, history: list, graph_reader: GraphReader, zim_file: ZIMFile):
+	def __init__(self, game: GameStat, history: list, graph_reader: GraphReader, zim_file: ZIMFile, load_testing=False):
 		self._zim = zim_file
 		self._reader = graph_reader
 		self._history = history
-		self._load_testing = False
+		self._load_testing = load_testing
 		self._game = game
 
 	@property
@@ -130,7 +130,7 @@ class GameOperator:
 		}
 
 	@staticmethod
-	def deserialize_game_operator(data: dict, zim_file: ZIMFile, graph_reader: GraphReader):
+	def deserialize_game_operator(data: dict, zim_file: ZIMFile, graph_reader: GraphReader, load_testing=False):
 		if data is None:
 			return None
 		# this ugly if for backward compatibility
@@ -159,4 +159,4 @@ class GameOperator:
 		else:
 			game = GameStat.objects.get(game_id=data["game_id"])
 			history = data['history']
-		return GameOperator(game, history, graph_reader, zim_file)
+		return GameOperator(game, history, graph_reader, zim_file, load_testing)
