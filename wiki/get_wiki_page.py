@@ -49,7 +49,7 @@ def requires_game(func):
         prevars.game_operator.load(prevars.session_operator)
         return func(prevars, *args, **kwargs)
 
-    return wrapper
+    return load_prevars(wrapper)
 
 
 def get_settings(settings_user):
@@ -100,7 +100,6 @@ def get_start(prevars):
     )
 
 
-@load_prevars
 @requires_game
 def get_continue(prevars):
     return HttpResponseRedirect(
@@ -108,7 +107,6 @@ def get_continue(prevars):
     )
 
 
-@load_prevars
 @requires_game
 def get_back(prevars):
     prevars.game_operator.prev_page()
@@ -117,7 +115,6 @@ def get_back(prevars):
     )
 
 
-@load_prevars
 @requires_game
 def get_hint_page(prevars):
     article = prevars.zim_file[prevars.game_operator.end_page_id]
@@ -129,7 +126,6 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@load_prevars
 @requires_game
 def winpage(prevars):
     settings_user = get_settings(
@@ -155,7 +151,6 @@ def winpage(prevars):
     )
 
 
-@load_prevars
 @requires_game
 def get(prevars, title_name):
     article = prevars.zim_file[title_name].follow_redirect()
