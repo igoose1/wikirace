@@ -31,7 +31,7 @@ class PreVariables:
 def requires_graph(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
-        prevars.session_operator = prevars.request.session['operator']
+        prevars.session_operator = prevars.request.session.get('operator')
         res = func(prevars, *args, **kwargs)
         if prevars.game_operator.game is not None:
             prevars.request.session['operator'] = prevars.game_operator.save()
@@ -44,10 +44,9 @@ def requires_graph(func):
 
 def requires_game(func):
     def wrapper(prevars, *args, **kwargs):
-        session_operator = prevars.request.session.get('operator', None)
-        if session_operator is None:
+        if prevars.session_operator is None:
             return HttpResponseRedirect('/')
-        prevars.game_operator.load(session_operator)
+        prevars.game_operator.load(prevars.session_operator)
         return func(prevars, *args, **kwargs)
 
     return wrapper
