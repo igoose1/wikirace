@@ -1,11 +1,8 @@
-import sys
-from GraphReader import GraphReader
-from random import shuffle, randrange
-from time import time
-from zimply.zimply import ZIMFile
+from random import randrange
 import struct
 
 N = 5054753
+
 
 def write_to_files(pair_file_name, path_file_name, pairs, paths):
     file = open(pair_file_name, 'wb')
@@ -26,7 +23,7 @@ def write_to_files(pair_file_name, path_file_name, pairs, paths):
     path_file.close()
 
 
-def choose_start_vert(reader):
+def choose_start_vertex(reader):
     page_id = randrange(0, N)
     while reader.edges_count(page_id) < 5:
         page_id = randrange(0, N)
