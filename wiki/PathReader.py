@@ -29,7 +29,7 @@ def get_path(pair_id, complexity, bytes_count=4):
 def page_names_in_path(pair_id, complexity, bytes_count=4):
     path = get_path(pair_id, complexity, bytes_count)
     zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH,
-                      settings.WIKI_ARTICLES_INDEX_FILE_PATH)
+                       settings.WIKI_ARTICLES_INDEX_FILE_PATH)
     for i in range(len(path)):
         path[i] = zim_file[path[i]].title
     return path
