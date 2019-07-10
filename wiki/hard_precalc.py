@@ -6,6 +6,7 @@ from zimply.zimply import ZIMFile
 import struct
 from precalc_methods import write_to_files, choose_start_vert, only_digits
 
+
 def bfs(start_page_id, reader, walk=-1):
     dist = [-1 for i in range(N)]
     dist_cnt = dict()
@@ -31,6 +32,7 @@ def bfs(start_page_id, reader, walk=-1):
                 go_to[next_] = cur_vertex
     print(dist_cnt)
     return dist, go_to
+
 
 N = 5054753
 pairs = []
