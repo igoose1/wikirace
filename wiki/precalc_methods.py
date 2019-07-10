@@ -36,3 +36,7 @@ def only_digits(name):
         if ord(c) < ord('0') or ord(c) > ord('9'):
             return False
     return True
+
+
+def includes_a_year(name):
+    return ('год' in name) or ('Год' in name)
