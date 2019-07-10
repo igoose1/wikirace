@@ -13,11 +13,9 @@ def get(request, title_name):
     zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
     article = zim_file[title_name]
-    article = article.follow_redirect()
-    if article.is_empty or article.is_redirecting:
-        raise Http404()
 
     if article.namespace == ZIMFile.NAMESPACE_ARTICLE:
+        article = article.follow_redirect()
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         if request.session.get('operator', None) is None:
@@ -30,25 +28,27 @@ def get(request, title_name):
             "loadtesting" in request.GET and request.META["REMOTE_ADDR"].startswith("127.0.0.1")
         )
 
-        next_page_result = game_operator.try_navigate_next_page(title_name)
-        request.session['operator'] = game_operator.serialize_game_operator()
+        if game_operator is None:
+            return HttpResponseRedirect('/')
 
-        if not next_page_result:
+        if not game_operator.is_jump_allowed(article):
             return HttpResponseRedirect(
-                zim_file[game_operator.game.current_page_id].url
+                game_operator.current_page.url
             )
+
+        game_operator.jump_to(article)
+        request.session['operator'] = game_operator.serialize_game_operator()
 
         if game_operator.finished:
             return winpage(request)
 
         template = loader.get_template('wiki/page.html')
-        current_article = zim_file[game_operator.game.current_page_id]
         context = {
-            'title': current_article.title,
-            'from': zim_file[game_operator.game.start_page_id].title,
-            'to': zim_file[game_operator.game.end_page_id].title,
+            'title': article.title,
+            'from': game_operator.first_page.title,
+            'to': game_operator.last_page.title,
             'counter': game_operator.game.steps,
-            'wiki_content': current_article.content.decode('utf-8'),
+            'wiki_content': article.content.decode('utf-8'),
             'history_empty': game_operator.is_history_empty
         }
         return HttpResponse(
@@ -80,7 +80,7 @@ def get_back(request):
     if session_operator is None:
         return HttpResponseRedirect('/')
     game_operator = GameOperator.deserialize_game_operator(session_operator, zim_file, graph)
-    game_operator.navigate_previous_page()
+    game_operator.jump_back()
     request.session['operator'] = game_operator.serialize_game_operator()
     return HttpResponseRedirect(
         zim_file[game_operator.game.current_page_id].url
