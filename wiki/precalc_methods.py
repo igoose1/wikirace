@@ -28,7 +28,7 @@ def write_to_files(pair_file_name, path_file_name, pairs, paths):
 
 def choose_start_vert(reader):
     page_id = randrange(0, N)
-    while reader.edges_count(page_id) == 0:
+    while reader.edges_count(page_id) < 5:
         page_id = randrange(0, N)
     print('start vertex', page_id, flush=True)
     return page_id

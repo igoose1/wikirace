@@ -1,6 +1,6 @@
 import sys
 from GraphReader import GraphReader
-from random import shuffle, randrange
+from random import shuffle, randrange, choice
 from time import time
 from zimply.zimply import ZIMFile
 import struct
@@ -13,7 +13,7 @@ def bfs(start_page_id, reader, walk=-1):
     queue = [start_page_id]
     idx = 0
     dist[start_page_id] = 0
-    dist_cnt[0] = 1
+    dist_cnt[0] = 0
     while idx < len(queue):
         cur_vertex = queue[idx]
         if dist[queue[idx]] > dist[queue[idx - 1]]:
@@ -21,8 +21,8 @@ def bfs(start_page_id, reader, walk=-1):
             dist_cnt[dist[cur_vertex]] = 0
             if dist[cur_vertex] == 10:
                 break
-        dist_cnt[dist[cur_vertex]] += 1
         idx += 1
+        dist_cnt[dist[cur_vertex]] += 1
         edges = reader.edges(cur_vertex)
         for next_ in edges:
             if dist[next_] == -1:
@@ -38,19 +38,19 @@ paths = []
 for walk in range(1):
     reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
     start_page_id = choose_start_vert(reader)
-    print(start_page_id)    
+    print(start_page_id)
     rev_dist, rev_go_to = bfs(start_page_id, reader, walk=walk)
     reader = GraphReader('data/offset', 'data/edges')
     dir_dist, dir_go_to = bfs(start_page_id, reader, walk=walk)
     ok_two = []
     seven = []
     for v in range(N):
-        if dir_dist[v] != -1 and dir_dist[v] < 10 and rev_dist[v] <= 2 and rev_dist[v] != -1:
+        if dir_dist[v] != -1 and dir_dist[v] < 10 and rev_dist[v] == 2:
             ok_two.append(v)
         if rev_dist[v] == 7:
             seven.append(v)
     for fr in seven:
-        to = ok_two[randrange(0, len(ok_two))]
+        to = choice(ok_two)
         path = []
         v = rev_go_to[fr]
         ready = False
@@ -58,7 +58,6 @@ for walk in range(1):
             path.append(v)
             v = rev_go_to[v]
             if v == to:
-                path.pop()
                 ready = True
                 break
         if ready:
@@ -73,6 +72,6 @@ for walk in range(1):
         sec_part.pop()
         path += sec_part[::-1]
         pairs.append([fr, to])
-        paths.append(sec_part)
+        paths.append(path)
 
 write_to_files('data/hard', 'data/hard_paths', pairs, paths)
