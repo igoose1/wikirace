@@ -95,7 +95,7 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty):
+def get_game_task_generator(difficulty, prevars):
     if difficulty == RANDOM_GAME_TYPE:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     else:
@@ -108,7 +108,8 @@ def get_start(prevars):
         get_game_task_generator(
             get_settings(
                 prevars.request.session.get('settings', dict())
-            )['difficulty']
+            )['difficulty'],
+            prevars
         ),
         prevars.zim_file,
         prevars.graph
