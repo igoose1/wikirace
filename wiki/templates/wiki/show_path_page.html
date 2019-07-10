@@ -2,19 +2,33 @@
 {% load static %}
 <html>
 <head>
-    <title>Right path</title>
+    <title>Paths</title>
     <link rel="stylesheet" type="text/css" href="{% static 'wiki/show_path_page.css' %}">
 </head>
-<body>
-    <p>Right path is:</p>
-    <div class='path'>
-        <p>{{ form }}</p>
-        {% for article in path %}
-            <img src="../../static/wiki/arrow.png" alt='undo'>
-            <p>{{ article }}</p>
-        {% endfor %}
-        <img src="../../static/wiki/arrow.png" alt='undo'>
-        <p>{{ to }}</p>
+<body class='body'>
+    <div class='our_path'>
+        <div class='head'>
+            <b>Возможный путь</b>
+        </div>
+        <div class='path'>
+            <p>{{ from }}</p>
+            {% for article in our_path %}
+                <img src="../../static/wiki/arrow.png" alt='undo'>
+                <p>{{ article }}</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class='user_path'>
+        <div class='head'>
+            <b>Ваш путь</b>
+        </div>
+        <div class='path'>
+            <p>{{ from }}</p>
+            {% for article in user_path %}
+                <img src="../../static/wiki/arrow.png" alt='undo'>
+                <p>{{ article }}</p>
+            {% endfor %}
+        </div>
     </div>
 </body>
 </html>
