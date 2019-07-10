@@ -6,53 +6,129 @@
     text-align: center;
 }
 
-img {
-    width: 30px;
-    height: 30px;
+@media (min-device-width: 900px) {
+
+    img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .body {
+        height: 100%;
+        width: 100%;
+    }
+
+    .body .our_path {
+        height: 100%;
+        width: 50%;
+        float: left;
+    }
+
+    .body .user_path {
+        height: 100%;
+        width: 50%;
+        float: right;
+    }
+
+    .body .our_path .head {
+        height: 10%;
+        width: 100%;
+        background-color: blue;
+    }
+
+    .body .our_path .path {
+        height: 90%;
+        width: 100%;
+        background-color: green;
+        overflow-y: auto;
+    }
+
+    .body .user_path .head {
+        height: 10%;
+        width: 100%;
+        background-color: red;
+    }
+
+    .body .user_path .path {
+        height: 90%;
+        width: 100%;
+        background-color: yellow;
+        overflow-y: auto;
+    }
+
+    .div {
+        height: auto;
+    }
+
+    .div span {
+        font-size: 25px;
+    }
+
+    b {
+        font-size: 50px;
+    }
 }
 
-.body {
-    height: 100%;
-    width: 100%;
+
+@media (max-device-width: 900px) {
+        img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .body {
+        height: 100%;
+        width: 100%;
+    }
+
+    .body .our_path {
+        height: 50%;
+        width: 100%;
+        float: top;
+    }
+
+    .body .user_path {
+        height: 50%;
+        width: 100%;
+        float: bottom;
+    }
+
+    .body .our_path .head {
+        height: 10%;
+        width: 100%;
+        background-color: blue;
+    }
+
+    .body .our_path .path {
+        height: 90%;
+        width: 100%;
+        background-color: green;
+        overflow-y: auto;
+    }
+
+    .body .user_path .head {
+        height: 10%;
+        width: 100%;
+        background-color: red;
+    }
+
+    .body .user_path .path {
+        height: 90%;
+        width: 100%;
+        background-color: yellow;
+        overflow-y: auto;
+    }
+
+    .div {
+        height: auto;
+    }
+
+    .div span {
+        font-size: 50px;
+    }
+
+    b {
+        font-size: 60px;
+    }
 }
 
-.body .our_path {
-    height: 100%;
-    width: 50%;
-    float: left;
-}
-
-.body .user_path {
-    height: 100%;
-    width: 50%;
-    float: right;
-}
-
-.body .our_path .head {
-    height: 10%;
-    width: 100%;
-    background-color: blue;
-}
-
-.body .our_path .path {
-    height: 90%;
-    width: 100%;
-    background-color: green;
-    overflow-y: auto;
-}
-
-.body .user_path .head {
-    height: 10%;
-    width: 100%;
-    background-color: red;
-}
-
-.body .user_path .path {
-    height: 90%;
-    width: 100%;
-    background-color: yellow;
-    overflow-y: auto;
-}
-.div {
-    height: auto;
-}

@@ -161,9 +161,10 @@ def get_hint_page(request):
     template = loader.get_template('wiki/hint_page.html')
     return HttpResponse(template.render(context, request))
 
+
 def show_path_page(request):
     our_path = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-    user_path = ['A', 'B', 'C', 'D', 'E', 'sddfdfiluwwbBFIUbbWDILVUBwdlhvbLIHDV Fkjhdfvgahaoiowudh vf;oikdjbfvflYujdfylIUW HDHFIUASHSJF; OUIWB;OFNWB AIRUFHLIAUUEBFE;OIHFHLIAIFIL U', 'G', 'H', 'I', 'J']
+    user_path = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
     context = {
         'from': our_path[0],
         'our_path': our_path[1:],
@@ -171,6 +172,7 @@ def show_path_page(request):
     }
     template = loader.get_template('wiki/show_path_page.html')
     return HttpResponse(template.render(context, request))
+
 
 def get_difficulty_level_by_name(name):
     if (name == 'random'):
@@ -183,8 +185,10 @@ def get_difficulty_level_by_name(name):
         return 2
     return None
 
+
 def default_settings():
     return {'difficulty': -1, 'name': 'no name'}
+
 
 def get_settings(request):
     default = default_settings()
