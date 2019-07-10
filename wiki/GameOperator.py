@@ -1,8 +1,8 @@
 from random import randrange
 
+from django.utils import timezone
 from django.conf import settings
 
-import datetime
 from struct import unpack
 
 from .models import GameStat, Turn
@@ -25,7 +25,7 @@ class GameOperator:
     def save(self):
         self.game.finished = self.game_finished
         self.game.steps = self.steps
-        self.game.last_action_time = datetime.datetime.now()
+        self.game.last_action_time = timezone.now()
         self.game.save()
         return [self.current_page_id, self.end_page_id,
                 self.game_finished, self.start_page_id, 
@@ -44,7 +44,7 @@ class GameOperator:
                 start_page_id=self.start_page_id,
                 end_page_id=self.end_page_id,
                 start_time=None,
-                last_action_time=datetime.datetime.now()
+                last_action_time=timezone.now()
             )
         else:
             self.game = GameStat.objects.get(
@@ -88,8 +88,8 @@ class GameOperator:
         self.game = GameStat.objects.create(
             start_page_id=self.start_page_id,
             end_page_id=self.end_page_id,
-            start_time=datetime.datetime.now(),
-            last_action_time=datetime.datetime.now()
+            start_time=timezone.now(),
+            last_action_time=timezone.now()
         )
     
     def initialize_game(self, level=0):
@@ -149,7 +149,7 @@ class GameOperator:
                     from_page_id=self.current_page_id,
                     to_page_id=idx,
                     game_id=self.game.game_id,
-                    time=datetime.datetime.now(),
+                    time=timezone.now(),
                 )
                 self.current_page_id = idx
 
