@@ -118,8 +118,9 @@ class GameOperator:
         self._history.append(article.index)
         return True
 
-    @staticmethod
-    def init_game(start_page_id, end_page_id, zim_file: ZIMFile, graph_reader: GraphReader):
+    @classmethod
+    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
+        start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
         game = GameStat.objects.create(
             start_page_id=start_page_id,
             end_page_id=end_page_id,
@@ -128,10 +129,6 @@ class GameOperator:
             last_action_time=datetime.datetime.now()
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)
-
-    @classmethod
-    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        return cls.init_game(*game_task_generator.choose_start_and_end_pages(), zim_file, graph_reader)
 
     def serialize_game_operator(self) -> dict:
         self._game.finished = self.finished

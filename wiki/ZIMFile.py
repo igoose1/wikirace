@@ -4,9 +4,11 @@
 # is the cause of problems, so we just override them, before import
 # zimply
 from gevent import monkey
+
 monkey.patch_all = lambda *_: None
 
 import logging
+
 saved_basicConfig = logging.basicConfig
 logging.basicConfig = lambda *_, **__: None
 
@@ -21,12 +23,14 @@ import os
 
 BLOCK_SIZE = 4
 
+
 def parse_url(url):
     namespace, *url_parts = url.split("/")
     if len(namespace) > 1:
         return ZIMFile.NAMESPACE_ARTICLE, namespace
     else:
         return namespace, "/".join(url_parts)
+
 
 class Article:
     def __init__(self, entry, zim_file):
@@ -47,15 +51,15 @@ class Article:
             if redirect_counter == max_redirects_count:
                 break
         return Article(entry, self._zim_file)
-            
+
     @property
     def is_empty(self):
         return self.index == -1
-        
+
     @property
     def is_redirecting(self):
         return 'redirectIndex' in self._entry.keys()
-            
+
     @property
     def _article(self):
         if self._article_cached is None:
@@ -90,9 +94,10 @@ class Article:
 
 class ZIMFile:
     NAMESPACE_ARTICLE = "A"
-    def __init__(self, filename, index_filename ,encoding='utf-8'):
+
+    def __init__(self, filename, index_filename, encoding='utf-8'):
         self._impl = zimply.zimply.ZIMFile(filename, encoding)
-        self._article_indexes = os.open(index_filename, os.O_RDONLY) 
+        self._article_indexes = os.open(index_filename, os.O_RDONLY)
         self._good_article_count = os.fstat(self._article_indexes).st_size // BLOCK_SIZE
 
     def random_article(self):
