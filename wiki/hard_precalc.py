@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 import sys
-from .GraphReader import GraphReader
+from GraphReader import GraphReader
 from random import choice
-from .precalc_methods import write_to_files, choose_start_vertex
+from precalc_methods import write_to_files, choose_start_vertex
+from time import time
 
 
 def bfs(start_page_id, reader, walk=-1):
@@ -41,6 +42,7 @@ except IndexError:
     exit(1)
 
 pairs, paths = [], []
+start_time = time()
 
 for walk in range(walks):
     reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
@@ -55,7 +57,7 @@ for walk in range(walks):
     dist_from_root_is_2, dist_from_root_is_7 = [], []
 
     for v in range(N):
-        if dir_dist[v] != -1 and dir_dist[v] < 10 and rev_dist[v] == 2:
+        if dir_dist[v] != -1 and dir_dist[v] < 5 and rev_dist[v] == 2:
             dist_from_root_is_2.append(v)
         if rev_dist[v] == 7:
             dist_from_root_is_7.append(v)
@@ -91,3 +93,4 @@ for walk in range(walks):
         paths.append(path)
 
 write_to_files('data/hard', 'data/hard_paths', pairs, paths)
+print(time() - start_time)

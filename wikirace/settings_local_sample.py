@@ -23,3 +23,14 @@ LEVEL_FILE_NAMES = [
         'easy', 'medium', 'hard'
     ]
 ]
+DATA_DIR = GRAPH_DIR
+LEVEL_PATH_FILE_NAMES = [
+    DATA_DIR + 'ok1/' + d for d in [
+        'easy_paths', 'medium_paths', 'hard_paths'
+    ]
+]
+LEVEL_FILE_NAMES_NEW = [
+    DATA_DIR + 'ok1/' + d for d in [
+        'easy', 'medium', 'hard'
+    ]
+]
