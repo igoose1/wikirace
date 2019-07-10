@@ -35,7 +35,7 @@ def bfs(start_page_id, reader, walk=-1):
 N = 5054753
 pairs = []
 paths = []
-for walk in range(7):
+for walk in range(1):
     reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
     start_page_id = choose_start_vert(reader)
     print(start_page_id)    
@@ -45,7 +45,7 @@ for walk in range(7):
     ok_two = []
     seven = []
     for v in range(N):
-        if dir_dist[v] != -1 and dir_dist[v] < 10 and rev_dist[v] <= 2:
+        if dir_dist[v] != -1 and dir_dist[v] < 10 and rev_dist[v] <= 2 and rev_dist[v] != -1:
             ok_two.append(v)
         if rev_dist[v] == 7:
             seven.append(v)
