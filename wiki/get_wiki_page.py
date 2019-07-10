@@ -19,7 +19,7 @@ def get(request, title_name):
     if article.is_empty or article.is_redirecting:
         raise Http404()
 
-    
+
     if article.namespace == ZIMFile.NAMESPACE_ARTICLE:
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
@@ -162,10 +162,12 @@ def get_hint_page(request):
     return HttpResponse(template.render(context, request))
 
 def show_path_page(request):
+    our_path = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    user_path = ['A', 'B', 'C', 'D', 'E', 'sddfdfiluwwbBFIUbbWDILVUBwdlhvbLIHDV Fkjhdfvgahaoiowudh vf;oikdjbfvflYujdfylIUW HDHFIUASHSJF; OUIWB;OFNWB AIRUFHLIAUUEBFE;OIHFHLIAIFIL U', 'G', 'H', 'I', 'J']
     context = {
-        'from': 'A',
-        'to': 'J',
-        'path': ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+        'from': our_path[0],
+        'our_path': our_path[1:],
+        'user_path': user_path[1:],
     }
     template = loader.get_template('wiki/show_path_page.html')
     return HttpResponse(template.render(context, request))

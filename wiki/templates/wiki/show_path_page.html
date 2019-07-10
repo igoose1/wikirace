@@ -11,10 +11,14 @@
             <b>Возможный путь</b>
         </div>
         <div class='path'>
-            <p>{{ from }}</p>
+            <div class='div'>
+                <span>{{ from }}</span>
+            </div>
             {% for article in our_path %}
                 <img src="../../static/wiki/arrow.png" alt='undo'>
-                <p>{{ article }}</p>
+                <div class="div">
+                    <span>{{ article }}</span>
+                </div>
             {% endfor %}
         </div>
     </div>
@@ -23,10 +27,14 @@
             <b>Ваш путь</b>
         </div>
         <div class='path'>
-            <p>{{ from }}</p>
+            <div class='div'>
+                <span>{{ from }}</span>
+            </div>
             {% for article in user_path %}
                 <img src="../../static/wiki/arrow.png" alt='undo'>
-                <p>{{ article }}</p>
+                <div class="div">
+                    <span>{{ article }}</span>
+                </div>
             {% endfor %}
         </div>
     </div>
