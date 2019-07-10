@@ -1,0 +1,8 @@
+.path {
+    height: 100%;
+    width: 80%;
+    text-align: center;
+    float: right;
+    overflow-y: auto;
+    background-color: green;
+}

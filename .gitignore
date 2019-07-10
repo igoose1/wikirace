@@ -1,5 +1,8 @@
 db.sqlite3
 graph/
+__pycache__/
 .idea/
 wiki/__pycache__/
 wikirace/__pycache__/
+zimply.log
+settings_local.py

@@ -1,0 +1,151 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+}
+
+.win_title {
+    text-align: center;
+}
+
+.move_time_block, .from_to_block, .win_title {
+    width: 100vw;
+}
+
+.from_block, .to_block {
+    text-overflow: ellipsis;
+    word-break: break-all;
+}
+
+.play_block {
+    margin-left: auto;
+    margin-right: auto;
+    background: #00AA22;
+}
+
+@media (max-height: 980px) {
+    .win_title {
+        height: 15vh;
+        font-size: 15vh;
+        margin-top: 5vh;
+        margin-bottom: 10vh;
+    }
+
+    .move_time_block {
+        height: 15vh;
+    }
+
+    .from_to_block {
+        height: 20vh;
+    }
+
+    .play_block, .play_block_icon {
+        height: 25vh;
+        width: 25vh;
+    }
+
+    .play_block {
+        border-radius: 12.5vh;
+    }
+
+    .move_block, .time_block {
+        font-size: 5vh;
+    }
+
+    .time_block {
+        float: right;
+        margin-right: 10vw;
+    }
+
+    .move_block {
+        float: left;
+        margin-left: 10vw;
+    }
+
+    .from_block, .to_block, .arrow_block {
+        font-size: 5vh;
+        float: left;
+        max-height: 15vh;
+        max-width: calc(45vw - 2.5vh);
+        overflow: hidden;
+        line-height: 5vh;
+    }
+
+    .arrow_block {
+        height: 5vh;
+        width: 5vh;
+        margin-top: 0.7vh;
+        margin-left: 1vh;
+        margin-right: 1vh;
+    }
+
+    .from_to_block {
+        width: max-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.name_field {
+	position: absolute;
+	right: 4vh;
+	bottom: 2vh;
+	height: 5vh;
+	width: auto;
+	font-family: Comic Sans MS;
+	font-size: 5vh;
+	color: rgb(158,158,158);
+}
+
+@media (min-height: 980px) {
+    .win_title {
+        height: 10vh;
+        font-size: 10vh;
+        margin-top: 5vh;
+        margin-bottom: 5vh;
+    }
+
+    .move_time_block {
+        height: 20vh;
+    }
+
+    .from_to_block {
+        max-height: 30vh;
+        margin-bottom: 5vh;
+    }
+
+    .play_block, .play_block_icon {
+        height: 25vh;
+        width: 25vh;
+    }
+
+    .play_block {
+        border-radius: 12.5vh;
+    }
+
+    .move_block, .time_block {
+        font-size: 5vh;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        margin-bottom: 5vh;
+        height: 5vh;
+    }
+
+    .from_block, .to_block, .arrow_block {
+        font-size: 5vh;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        max-height: 10vh;
+        max-width: 90vw;
+        overflow: hidden;
+        line-height: 5vh;
+    }
+
+    .arrow_block {
+        width: 5vh;
+        transform: rotate(90deg);
+        margin-left: calc(50vw - 2.5vh);
+    }
+}
