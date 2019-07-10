@@ -4,9 +4,11 @@
 # is the cause of problems, so we just override them, before import
 # zimply
 from gevent import monkey
+
 monkey.patch_all = lambda *_: None
 
 import logging
+
 saved_basicConfig = logging.basicConfig
 logging.basicConfig = lambda *_, **__: None
 
