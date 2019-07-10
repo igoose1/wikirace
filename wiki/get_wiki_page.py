@@ -54,7 +54,6 @@ def requires_game(func):
     def wrapper(prevars, *args, **kwargs):
         if prevars.session_operator is None:
             return HttpResponseRedirect('/')
-        prevars.game_operator.load(prevars.session_operator)
         return func(prevars, *args, **kwargs)
 
     return load_prevars(wrapper)
@@ -119,13 +118,13 @@ def get_start(prevars):
 
 @requires_game
 def get_continue(prevars):
-    return HttpResponseRedirect(prevars.game_operator.current_page_id.url)
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
 
 @requires_game
 def get_back(prevars):
     prevars.game_operator.jump_back()
-    return HttpResponseRedirect(prevars.game_operator.current_page_id.url)
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -147,9 +146,9 @@ def winpage(prevars):
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
-        'counter': prevars.game.steps,
+        'counter': prevars.game_operator.game.steps,
         'move_end': inflection.mupltiple_suffix(
-            prevars.game.steps
+            prevars.game_operator.game.steps
         ),
         'name': settings_user['name']
     }
@@ -179,7 +178,7 @@ def get(prevars, title_name):
         'title': article.title,
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
-        'counter': prevars.game.steps,
+        'counter': prevars.game_operator.game.steps,
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty
     }
