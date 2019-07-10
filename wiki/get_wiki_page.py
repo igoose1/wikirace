@@ -161,6 +161,8 @@ def winpage(prevars):
 @requires_game
 def get(prevars, title_name):
     article = prevars.zim_file[title_name].follow_redirect()
+    if article.is_empty or article.is_redirecting:
+        return HttpResponseNotFound()
 
     if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
         return HttpResponse(article.content, content_type=article.mimetype)
