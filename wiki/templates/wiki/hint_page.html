@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Hint</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles.css' %}">
+    <link href="../../static/wiki/hint_page.css" rel="stylesheet">
+</head>
+<body>
+    <div class="content">
+        {{ content |safe}}
+        <script src="../../static/wiki/jquery.js"></script>
+    </div>
+    <script language="javascript" type="text/javascript">
+    $(window).on("load",function () {
+        var anchors = $('a');
+
+        for ( var i=0; i < anchors.length; i++ ) {
+            var span = $('<span>', {class: 'text'}).get(0);
+            if ( anchors[i].id ) {
+                span.id = anchors[i].id;
+            }
+            span.innerHTML = anchors[i].innerHTML;
+            anchors[i].parentNode.replaceChild(span, anchors[i]);
+        }
+    });
+</script>
+</body>
+</html>

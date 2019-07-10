@@ -1,16 +1,39 @@
-<html>
-	<head>
-		<meta charset="utf-8">
-		<link href="../../static/wiki/win_page_style.css" rel="stylesheet">
-	</head>
-	<body>
-		<div class="win_text">
-			<p>You Win<p>
-		</div>
-		<a href="/game_start">
-			<div class="play_again">
-				<p>Again</p>
-			</div>
-		</a>
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WikiRace - Победа</title>
+    <link href="../../static/wiki/win_page_style.css" rel="stylesheet">
+    <script src="../../static/wiki/clear_state.js"></script>
+</head>
+<body>
+<div class="win_title">
+    Победа!
+</div>
+<div class="move_time_block">
+    <div class="move_block">
+        {{ counter }} ход{{move_end}}
+    </div>
+    <div class="time_block">
+        {{ time }}
+    </div>
+</div>
+<div class="from_to_block">
+    <div class="from_block">
+        {{ from }}
+    </div>
+    <img src="../../static/wiki/baseline-arrow_forward_ios-24px.svg" class="arrow_block">
+    <div class="to_block">
+        {{ to }}
+    </div>
+</div>
+<a href="/game_start">
+    <div class="play_block">
+        <img src="../../static/wiki/baseline-play_arrow-24px.svg" class="play_block_icon"/>
+    </div>
+</a>
+<div class="name_field">
+@{{ name }}
+</div>
+</body>
 </html>
