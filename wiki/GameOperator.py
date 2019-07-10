@@ -126,7 +126,7 @@ class GameOperator:
         if len(namespace) > 1:
             url = namespace
 
-        already_finish = (self.current_page_id == self.end_page_id);
+        already_finish = (self.current_page_id == self.end_page_id)
         self.game_finished = already_finish
         if already_finish:
             return True
