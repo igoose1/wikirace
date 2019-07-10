@@ -21,12 +21,14 @@ import os
 
 BLOCK_SIZE = 4
 
+
 def parse_url(url):
     namespace, *url_parts = url.split("/")
     if len(namespace) > 1:
         return ZIMFile.NAMESPACE_ARTICLE, namespace
     else:
         return namespace, "/".join(url_parts)
+
 
 class Article:
     def __init__(self, entry, zim_file):
@@ -42,24 +44,26 @@ class Article:
         entry = self._entry
         while 'redirectIndex' in entry.keys():
             redirect_index = entry['redirectIndex']
-            entry = self._zim_file.read_directory_entry_by_index(redirect_index)
+            entry = self._zim_file.read_directory_entry_by_index(
+                redirect_index)
             redirect_counter += 1
             if redirect_counter == max_redirects_count:
                 break
         return Article(entry, self._zim_file)
-            
+
     @property
     def is_empty(self):
         return self.index == -1
-        
+
     @property
     def is_redirecting(self):
         return 'redirectIndex' in self._entry.keys()
-            
+
     @property
     def _article(self):
         if self._article_cached is None:
-            article = self._zim_file._get_article_by_index(self.index, follow_redirect=False)
+            article = self._zim_file._get_article_by_index(
+                self.index, follow_redirect=False)
             self._article_cached = article
         return self._article_cached
 
@@ -90,10 +94,12 @@ class Article:
 
 class ZIMFile:
     NAMESPACE_ARTICLE = "A"
-    def __init__(self, filename, index_filename,encoding='utf-8'):
+
+    def __init__(self, filename, index_filename, encoding='utf-8'):
         self._impl = zimply.zimply.ZIMFile(filename, encoding)
-        self._article_indexes = os.open(index_filename, os.O_RDONLY) 
-        self._good_article_count = os.fstat(self._article_indexes).st_size // BLOCK_SIZE
+        self._article_indexes = os.open(index_filename, os.O_RDONLY)
+        self._good_article_count = os.fstat(
+            self._article_indexes).st_size // BLOCK_SIZE
 
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
