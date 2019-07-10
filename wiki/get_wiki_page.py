@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template import loader
 from django.utils import timezone
 
-from . import declension
+from . import inflection
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
@@ -144,7 +144,7 @@ def winpage(prevars):
             prevars.game_operator.end_page_id
         ].title,
         'counter': prevars.game_operator.steps,
-        'move_end': declension.mupltiple_suffix(
+        'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.steps
         ),
         'name': settings_user['name']
