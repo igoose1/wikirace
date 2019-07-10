@@ -7,7 +7,10 @@ from django.template import loader
 from django.utils import timezone
 
 from . import inflection
-from .GameOperator import GameOperator
+from .GameOperator import GameOperator,\
+    DifficultGameTaskGenerator,\
+    RandomGameTaskGenerator,\
+    RANDOM_GAME_TYPE
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -23,7 +26,12 @@ class PreVariables:
             settings.GRAPH_OFFSET_PATH,
             settings.GRAPH_EDGES_PATH
         )
-        self.game_operator = GameOperator(self.zim_file, self.graph)
+        self.game_operator = GameOperator.deserialize_game_operator(
+            request.session['operator'],
+            self.zim_file,
+            self.graph,
+            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
+        )
         self.session_operator = None
         self.request = request
 
@@ -34,7 +42,7 @@ def load_prevars(func):
         prevars.session_operator = prevars.request.session.get('operator')
         res = func(prevars, *args, **kwargs)
         if prevars.game_operator.game is not None:
-            prevars.request.session['operator'] = prevars.game_operator.save()
+            prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
         else:
             prevars.request.session['operator'] = None
         return res
@@ -63,7 +71,7 @@ def get_settings(settings_user):
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
     context = {
-        'is_playing': prevars.session_operator and not prevars.session_operator[2],
+        'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
         'settings': get_settings(
             prevars.request.session.get('settings')
         )
@@ -88,36 +96,41 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
+def get_game_task_generator(difficulty):
+    if difficulty == RANDOM_GAME_TYPE:
+        return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
+    else:
+        return DifficultGameTaskGenerator(difficulty)
+
+
 @load_prevars
 def get_start(prevars):
-    prevars.game_operator.initialize_game(
-        get_settings(
-            prevars.request.session.get('settings', dict())
-        )['difficulty']
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            get_settings(
+                prevars.request.session.get('settings', dict())
+            )['difficulty']
+        ),
+        prevars.zim_file,
+        prevars.graph
     )
-    return HttpResponseRedirect(
-        prevars.zim_file[prevars.game_operator.current_page_id].url
-    )
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
 
 @requires_game
 def get_continue(prevars):
-    return HttpResponseRedirect(
-        prevars.zim_file[prevars.game_operator.current_page_id].url
-    )
+    return HttpResponseRedirect(prevars.game_operator.current_page_id.url)
 
 
 @requires_game
 def get_back(prevars):
-    prevars.game_operator.prev_page()
-    return HttpResponseRedirect(
-        prevars.zim_file[prevars.game_operator.current_page_id].url
-    )
+    prevars.game_operator.jump_back()
+    return HttpResponseRedirect(prevars.game_operator.current_page_id.url)
 
 
 @requires_game
 def get_hint_page(prevars):
-    article = prevars.zim_file[prevars.game_operator.end_page_id]
+    article = prevars.game_operator.last_page
 
     template = loader.get_template('wiki/hint_page.html')
     context = {
@@ -132,63 +145,43 @@ def winpage(prevars):
         prevars.request.session.get('settings', dict())
     )
     context = {
-        'from': prevars.zim_file[
-            prevars.game_operator.start_page_id
-        ].title,
-        'to': prevars.zim_file[
-            prevars.game_operator.end_page_id
-        ].title,
-        'counter': prevars.game_operator.steps,
+        'from': prevars.game_operator.first_page.title,
+        'to': prevars.game_operator.last_page.title,
+        'counter': prevars.game.steps,
         'move_end': inflection.mupltiple_suffix(
-            prevars.game_operator.steps
+            prevars.game.steps
         ),
         'name': settings_user['name']
     }
     template = loader.get_template('wiki/win_page.html')
     prevars.game_operator.game = None
-    return HttpResponse(
-        template.render(context, prevars.request),
-    )
+    return HttpResponse(template.render(context, prevars.request))
 
 
 @requires_game
 def get(prevars, title_name):
     article = prevars.zim_file[title_name].follow_redirect()
-    if article.is_empty or article.is_redirecting:
-        return HttpResponseNotFound()
 
     if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
         return HttpResponse(article.content, content_type=article.mimetype)
 
-    prevars.game_operator.load_testing = (
-        "loadtesting" in prevars.request.GET and prevars.request.META["REMOTE_ADDR"].startswith("127.0.0.1")
-    )
-
-    next_page_result = prevars.game_operator.next_page('/' + title_name)
-
-    if next_page_result:
-        return winpage(prevars.request)
-    elif next_page_result is None:
+    if not prevars.game_operator.is_jump_allowed(article):
         return HttpResponseRedirect(
-            prevars.zim_file[prevars.game_operator.current_page_id].url
+            prevars.game_operator.current_page.url
         )
+    prevars.game_operator.jump_to(article)
+
+    if prevars.game_operator.finished:
+        return winpage(prevars.request)
 
     template = loader.get_template('wiki/page.html')
     context = {
-        'title': prevars.zim_file[
-            prevars.game_operator.current_page_id
-        ].title,
-        'from': prevars.zim_file[
-            prevars.game_operator.start_page_id
-        ].title,
-        'to': prevars.zim_file[
-            prevars.game_operator.end_page_id
-        ].title,
-        'counter': prevars.game_operator.steps,
-        'wiki_content': prevars.zim_file[
-            prevars.game_operator.current_page_id
-        ].content.decode(),
-        'history_empty': prevars.game_operator.is_history_empty()
+        'title': article.title,
+        'from': prevars.game_operator.first_page.title,
+        'to': prevars.game_operator.last_page.title,
+        'counter': prevars.game.steps,
+        'wiki_content': article.content.decode(),
+        'history_empty': prevars.game_operator.is_history_empty
     }
     return HttpResponse(
         template.render(context, prevars.request),
