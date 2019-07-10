@@ -6,6 +6,11 @@
     text-align: center;
 }
 
+img {
+    width: 30px;
+    height: 30px;
+}
+
 .body {
     height: 100%;
     width: 100%;
@@ -47,4 +52,7 @@
     width: 100%;
     background-color: yellow;
     overflow-y: auto;
+}
+.div {
+    height: auto;
 }
