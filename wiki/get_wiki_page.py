@@ -163,7 +163,7 @@ def get_hint_page(request):
 
 def show_path_page(request):
     context = {
-        'form': 'A',
+        'from': 'A',
         'to': 'J',
         'path': ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
     }
