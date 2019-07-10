@@ -16,7 +16,6 @@ logging.baseConfig = saved_basicConfig
 
 from django.conf import settings
 from random import randrange
-from byte_convert import bytes_to_int
 import os
 
 BLOCK_SIZE = 4
