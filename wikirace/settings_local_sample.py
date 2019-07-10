@@ -14,6 +14,7 @@ DATABASES = {
 
 # Path to wiki data files
 WIKI_ZIMFILE_PATH = '/srv/wikirace/data/wikipedia_ru.zim'
+WIKI_ARTICLES_INDEX_FILE_PATH = '/srv/wikirace/data/good_articles_list'
 GRAPH_DIR = '/srv/wikirace/data/'
 GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
 GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
