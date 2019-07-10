@@ -1,10 +1,11 @@
-import sys
-from GraphReader import GraphReader
-from random import shuffle, randrange
+from .GraphReader import GraphReader
+from random import randrange
 from time import time
+
 from zimply.zimply import ZIMFile
-import struct
-from precalc_methods import write_to_files, choose_start_vert, only_digits
+
+from .GraphReader import GraphReader
+from .precalc_methods import write_to_files, choose_start_vert, only_digits
 
 
 def bfs(start_page_id, reader, walk=-1):
@@ -32,6 +33,7 @@ def bfs(start_page_id, reader, walk=-1):
                 go_to[cur_vertex].append(next_)
     print(dist_cnt)
     return dist, go_to
+
 
 start_time = time()
 N = 5054753
@@ -74,12 +76,12 @@ for walk in range(15):
                 name = zim.read_directory_entry_by_index(visited[easy_steps - 1])['title']
                 if not only_digits(name):
                     easy_pairs.append((cur_vertex, visited[easy_steps - 1]))
-                    easy_paths.append(visited[:easy_steps-1])
+                    easy_paths.append(visited[:easy_steps - 1])
         if medium_steps >= dists[1][0]:
             name = zim.read_directory_entry_by_index(visited[medium_steps - 1])['title']
             if not only_digits(name):
                 medium_pairs.append((cur_vertex, visited[medium_steps - 1]))
-                medium_paths.append(visited[:medium_steps-1])
+                medium_paths.append(visited[:medium_steps - 1])
 
 write_to_files('data/medium', 'data/medium_paths', medium_pairs, medium_paths)
 write_to_files('data/easy', 'data/easy_paths', easy_pairs, easy_paths)
