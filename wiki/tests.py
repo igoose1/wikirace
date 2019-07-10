@@ -4,7 +4,7 @@ import wiki.GameOperator as Operator
 
 
 class GameOperatorTest(TestCase):
-    game_id = 6
+    GAME_ID = 6
 
     class FakeGame(object):
         def __init__(self, game_id):
@@ -26,7 +26,7 @@ class GameOperatorTest(TestCase):
     def setUp(self) -> None:
         self.zim = Mock()
         self.graph = Mock()
-        self.fake_game = self.FakeGame(self.game_id)
+        self.fake_game = self.FakeGame(self.GAME_ID)
         Operator.Game.objects.get = Mock(return_value=self.fake_game)
         Operator.Game.objects.create = Mock(return_value=self.fake_game)
 
@@ -39,7 +39,7 @@ class GameOperatorTest(TestCase):
 
     def test_backward_compatibility_v2(self):
         game_operator = self.generate_operator(
-            [1, 2, True, 3, 4, [5], self.game_id]
+            [1, 2, True, 3, 4, [5], self.GAME_ID]
         )
         self.assertNotEqual(game_operator, None)
         self.assertEqual(game_operator.game, self.fake_game)
@@ -56,7 +56,7 @@ class GameOperatorTest(TestCase):
             {
                 "test1": "smth",
                 "test2": "smth",
-                "game_id": self.game_id
+                "game_id": self.GAME_ID
             }
         )
         self.assertEqual(game_operator, None)
