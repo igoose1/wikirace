@@ -136,16 +136,17 @@ class GameOperator:
         }
 
     @staticmethod
-    def deserialize_game_operator(data: dict, zim_file: ZIMFile, graph_reader: GraphReader, load_testing=False):
+    def deserialize_game_operator(data, zim_file: ZIMFile, graph_reader: GraphReader, load_testing=False):
         if data is None:
             return None
         # this ugly if for backward compatibility
         if not isinstance(data, list) and not isinstance(data, dict):
             return None
         if isinstance(data, list):
+            if len(data) not in [6, 7]:
+                return None
             current_page_id = data[0]
             end_page_id = data[1]
-            game_finished = data[2]
             start_page_id = data[3]
             steps = data[4]
             history = data[5]
@@ -156,7 +157,6 @@ class GameOperator:
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
-                    finished=game_finished,
                     last_action_time=datetime.datetime.now()
                 )
             else:
