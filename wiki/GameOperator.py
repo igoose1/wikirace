@@ -108,13 +108,13 @@ class GameOperator:
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
-        cnt = _bytes_to_int(file.read(4))
+        cnt = unpack('>I', file.read(4))[0]
         pair_id = randrange(0, cnt - 1)
         file.seek(4 + pair_id * 8)
-        self.start_page_id = _bytes_to_int(file.read(4))
+        self.start_page_id = unpack('>I', file.read(4))[0]
         print(self.start_page_id)
         self.current_page_id = self.start_page_id
-        self.end_page_id = _bytes_to_int(file.read(4))
+        self.end_page_id = unpack('>I', file.read(4))[0]
         file.close()
         self.game_finished = False
         self.game = GameStat.objects.create(
@@ -122,7 +122,6 @@ class GameOperator:
             end_page_id=self.end_page_id,
             start_time=datetime.datetime.now(),
             last_action_time=datetime.datetime.now()
-        )
 
     def next_page(self, relative_url: str)->bool:
         if self.game_finished:
