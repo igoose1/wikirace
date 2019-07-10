@@ -28,7 +28,7 @@ class PreVariables:
         self.request = request
 
 
-def requires_graph(func):
+def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
         prevars.session_operator = prevars.request.session.get('operator')
@@ -59,7 +59,7 @@ def get_settings(settings_user):
     return settings_user
 
 
-@requires_graph
+@load_prevars
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
     context = {
@@ -71,7 +71,7 @@ def get_main_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@requires_graph
+@load_prevars
 def change_settings(prevars):
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
@@ -88,7 +88,7 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
-@requires_graph
+@load_prevars
 def get_start(prevars):
     prevars.game_operator.initialize_game(
         get_settings(
@@ -100,7 +100,7 @@ def get_start(prevars):
     )
 
 
-@requires_graph
+@load_prevars
 @requires_game
 def get_continue(prevars):
     return HttpResponseRedirect(
@@ -108,7 +108,7 @@ def get_continue(prevars):
     )
 
 
-@requires_graph
+@load_prevars
 @requires_game
 def get_back(prevars):
     prevars.game_operator.prev_page()
@@ -117,7 +117,7 @@ def get_back(prevars):
     )
 
 
-@requires_graph
+@load_prevars
 @requires_game
 def get_hint_page(prevars):
     article = prevars.zim_file[prevars.game_operator.end_page_id]
@@ -129,7 +129,7 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@requires_graph
+@load_prevars
 @requires_game
 def winpage(prevars):
     settings_user = get_settings(
@@ -155,7 +155,7 @@ def winpage(prevars):
     )
 
 
-@requires_graph
+@load_prevars
 @requires_game
 def get(prevars, title_name):
     article = prevars.zim_file[title_name].follow_redirect()
@@ -201,7 +201,7 @@ def get(prevars, title_name):
     )
 
 
-@requires_graph
+@load_prevars
 def get_feedback_page(prevars):
     if prevars.request.method == "POST":
         form = FeedbackForm(prevars.request.POST).save()
