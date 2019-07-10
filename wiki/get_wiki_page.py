@@ -1,7 +1,7 @@
 from django.http import HttpResponse,\
-                        HttpResponseRedirect,\
-                        HttpResponseNotFound,\
-                        HttpResponseBadRequest
+    HttpResponseRedirect,\
+    HttpResponseNotFound,\
+    HttpResponseBadRequest
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
@@ -9,7 +9,7 @@ from django.utils import timezone
 from . import declension
 from .GameOperator import GameOperator
 from .GraphReader import GraphReader
-from .ZIMFile import MyZIMFile
+from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 
 
@@ -69,14 +69,16 @@ def get_main_page(prevars):
 
 @requires_graph
 def change_settings(prevars):
+    difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
+
     difficulty_names = ('random', 'easy', 'medium', 'hard')
-    if name not in difficulty_names\
+    if difficulty not in difficulty_names\
             or (isinstance(name, str) and len(name) > 16):
         return HttpResponseBadRequest()
 
     prevars.request.session['settings'] = {
-        'difficulty': difficulty_names.index(name),
+        'difficulty': difficulty_names.index(name) - 1,
         'name': name
     }
     return HttpResponse('Ok')
@@ -86,13 +88,11 @@ def change_settings(prevars):
 def get_start(prevars):
     prevars.game_operator.initialize_game(
         get_settings(
-            prevars.request.session.get('settings', dict()  )
+            prevars.request.session.get('settings', dict())
         )['difficulty']
     )
     return HttpResponseRedirect(
-        prevars.zim_file.read_directory_entry_by_index(
-            prevars.game_operator.current_page_id
-        )['url']
+        prevars.zim_file[prevars.game_operator.current_page_id].url
     )
 
 
@@ -100,9 +100,7 @@ def get_start(prevars):
 @requires_game
 def get_continue(prevars):
     return HttpResponseRedirect(
-        prevars.zim_file.read_directory_entry_by_index(
-            prevars.game_operator.current_page_id
-        )['url']
+        prevars.zim_file[prevars.game_operator.current_page_id].url
     )
 
 
@@ -111,23 +109,18 @@ def get_continue(prevars):
 def get_back(prevars):
     prevars.game_operator.prev_page()
     return HttpResponseRedirect(
-        prevars.zim_file.read_directory_entry_by_index(
-            prevars.game_operator.current_page_id
-        )['url']
+        prevars.zim_file[prevars.game_operator.current_page_id].url
     )
 
 
 @requires_graph
 @requires_game
 def get_hint_page(prevars):
-    content = prevars.zim_file.get_by_index(
-        prevars.game_operator.end_page_id
-    )
-    data, namespace, mime_type = content
+    article = prevars.zim_file[prevars.game_operator.end_page_id]
 
     template = loader.get_template('wiki/hint_page.html')
     context = {
-        'content': data.decode('utf-8'),
+        'content': article.data.decode(),
     }
     return HttpResponse(template.render(context, prevars.request))
 
@@ -139,16 +132,16 @@ def winpage(prevars):
         prevars.request.session.get('settings', dict())
     )
     context = {
-        'from': prevars.zim_file.read_directory_entry_by_index(
-                prevars.game_operator.start_page_id
-            )['title'],
-        'to': prevars.zim_file.read_directory_entry_by_index(
-                prevars.game_operator.end_page_id
-            )['title'],
+        'from': prevars.zim_file[
+            prevars.game_operator.start_page_id
+        ].title,
+        'to': prevars.zim_file[
+            prevars.game_operator.end_page_id
+        ].title,
         'counter': prevars.game_operator.steps,
         'move_end': declension.mupltiple_suffix(
-                prevars.game_operator.steps
-            ),
+            prevars.game_operator.steps
+        ),
         'name': settings_user['name']
     }
     template = loader.get_template('wiki/win_page.html')
@@ -161,17 +154,15 @@ def winpage(prevars):
 @requires_graph
 @requires_game
 def get(prevars, title_name):
-    content = prevars.zim_file.get_by_url('/' + title_name)
-    if content is None:
+    article = prevars.zim_file[title_name].follow_redirect()
+    if article.is_empty or article.is_redirecting:
         return HttpResponseNotFound()
 
-    data, namespace, mime_type = content
-    if namespace != 'A':
-        return HttpResponse(data, content_type=mime_type)
+    if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
+        return HttpResponse(article.data, content_type=article.mimetype)
 
     prevars.game_operator.load_testing = (
-        "loadtesting" in prevars.request.GET
-        and prevars.request.META["REMOTE_ADDR"].startswith("127.0.0.1")
+        "loadtesting" in prevars.request.GET and prevars.request.META["REMOTE_ADDR"].startswith("127.0.0.1")
     )
 
     next_page_result = prevars.game_operator.next_page('/' + title_name)
@@ -180,31 +171,29 @@ def get(prevars, title_name):
         return winpage(prevars.request)
     elif next_page_result is None:
         return HttpResponseRedirect(
-            prevars.zim_file.read_directory_entry_by_index(
-                prevars.game_operator.current_page_id
-            )['url']
+            prevars.zim_file[prevars.game_operator.current_page_id].url
         )
 
     template = loader.get_template('wiki/page.html')
     context = {
-        'title': prevars.zim_file.read_directory_entry_by_index(
-                prevars.game_operator.current_page_id
-            )['title'],
-        'from': prevars.zim_file.read_directory_entry_by_index(
-                prevars.game_operator.start_page_id
-            )['title'],
-        'to': prevars.zim_file.read_directory_entry_by_index(
-                prevars.game_operator.end_page_id
-            )['title'],
+        'title': prevars.zim_file[
+            prevars.game_operator.current_page_id
+        ].title
+        'from': prevars.zim_file[
+            prevars.game_operator.start_page_id
+        ].title
+        'to': prevars.zim_file[
+            prevars.game_operator.end_page_id
+        ].title
         'counter': prevars.game_operator.steps,
-        'wiki_content': prevars.zim_file.get_by_index(
-                prevars.game_operator.current_page_id
-            ).data.decode('utf-8'),
+        'wiki_content': prevars.zim_file[
+            prevars.game_operator.current_page_id
+        ].content.decode(),
         'history_empty': prevars.game_operator.is_history_empty()
     }
     return HttpResponse(
         template.render(context, prevars.request),
-        content_type=mime_type
+        content_type=article.mimetype
     )
 
 
