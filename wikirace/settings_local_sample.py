@@ -19,7 +19,7 @@ GRAPH_DIR = '/srv/wikirace/data/'
 GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
 GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
 LEVEL_FILE_NAMES = {
-    "easy": GRAPH_DIR+"easy",
-    "medium": GRAPH_DIR+"medium",
-    "hard": GRAPH_DIR+"hard",
+    "easy": GRAPH_DIR + "easy",
+    "medium": GRAPH_DIR + "medium",
+    "hard": GRAPH_DIR + "hard",
 }
