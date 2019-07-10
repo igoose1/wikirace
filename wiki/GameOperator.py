@@ -1,12 +1,13 @@
 from random import randrange
-from wiki.models import Game
-from wiki.GraphReader import GraphReader, _bytes_to_int, _int_to_bytes
+
 from django.conf import settings
+
 import datetime
+from struct import unpack
 
 from .models import GameStat, Turn
 from wiki.GraphReader import GraphReader
-
+from wiki.ZIMFile import ZIMFile
 
 class GameOperator:
     def __init__(self, zim_file, graph_reader: GraphReader):
@@ -63,18 +64,8 @@ class GameOperator:
         return (len(self.history) <= 1)
 
     def _get_random_article_id(self):
-        article_id = randrange(0, len(self.zim))
-        article = self.zim.get_by_index(article_id)
-        while (article is None) or article.namespace != "A":
-            article_id = randrange(0, len(self.zim))
-            article = self.zim._get_article_by_index(article_id)
-
-        entry = self.zim.read_directory_entry_by_index(article_id)
-        while 'redirectIndex' in entry.keys():
-            article_id = entry['redirectIndex']
-            entry = self.zim.read_directory_entry_by_index(article_id)
-
-        return article_id
+        article = self.zim.random_article()
+        return article.index
 
     def initialize_game_random(self):
         self.steps = 0
@@ -87,7 +78,7 @@ class GameOperator:
 
         end_page_id_tmp = self.current_page_id
         for step in range(5):
-            edges = list(self.reader.Edges(end_page_id_tmp))
+            edges = list(self.reader.edges(end_page_id_tmp))
             next_id = randrange(0, len(edges))
             if edges[next_id] == self.current_page_id:
                 break
@@ -108,13 +99,13 @@ class GameOperator:
         file_names = settings.LEVEL_FILE_NAMES
         #file_names = ['data/easy', 'data/medium', 'data/hard']
         file = open(file_names[level], 'rb')
-        cnt = _bytes_to_int(file.read(4))
+        cnt = unpack('>I', file.read(4))
         pair_id = randrange(0, cnt - 1)
         file.seek(4 + pair_id * 8)
-        self.start_page_id = _bytes_to_int(file.read(4))
+        self.start_page_id = unpack('>I', file.read(4))
         print(self.start_page_id)
         self.current_page_id = self.start_page_id
-        self.end_page_id = _bytes_to_int(file.read(4))
+        self.end_page_id = unpack('>I', file.read(4))
         file.close()
         self.game_finished = False
 
@@ -124,7 +115,7 @@ class GameOperator:
         _, namespace, *url_parts = relative_url.split('/')
 
         url = None
-        if namespace == 'A':
+        if namespace == ZIMFile.NAMESPACE_ARTICLE:
             url = "/".join(url_parts)
         if len(namespace) > 1:
             url = namespace
@@ -135,18 +126,15 @@ class GameOperator:
             return True
 
         if url:
-            entry, idx = self.zim._get_entry_by_url("A", url)
-            article = self.zim.get_by_index(idx)
-            if article is None:
+            article = self.zim[url]
+            article = article.follow_redirect()
+            if article.is_empty or article.is_redirecting:
                 return None
 
-            while 'redirectIndex' in entry.keys():
-                idx = entry['redirectIndex']
-                entry = self.zim.read_directory_entry_by_index(idx)
-            if entry['namespace'] != 'A':
+            if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
                 return None
-
-            valid_edges = list(self.reader.Edges(self.current_page_id))
+            idx = article.index
+            valid_edges = list(self.reader.edges(self.current_page_id))
             valid_edges.append(self.current_page_id)
             if idx not in valid_edges and not self.load_testing:
                 if idx in self.history:

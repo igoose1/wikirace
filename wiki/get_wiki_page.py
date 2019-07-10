@@ -15,7 +15,10 @@ from .form import FeedbackForm
 
 class PreVariables:
     def __init__(self, request):
-        self.zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
+        self.zim_file = ZIMFile(
+            settings.WIKI_ZIMFILE_PATH,
+            settings.WIKI_ARTICLES_INDEX_FILE_PATH
+        )
         self.graph = GraphReader(
             settings.GRAPH_OFFSET_PATH,
             settings.GRAPH_EDGES_PATH
@@ -62,7 +65,9 @@ def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
     context = {
         'is_playing': session_operator and not session_operator[2],
-        'settings': get_settings(prevars.request)
+        'settings': get_settings(
+            prevars.request.session.get('settings')
+        )
     }
     return HttpResponse(template.render(context, prevars.request))
 
@@ -78,7 +83,7 @@ def change_settings(prevars):
         return HttpResponseBadRequest()
 
     prevars.request.session['settings'] = {
-        'difficulty': difficulty_names.index(name) - 1,
+        'difficulty': difficulty_names.index(difficulty) - 1,
         'name': name
     }
     return HttpResponse('Ok')
@@ -120,7 +125,7 @@ def get_hint_page(prevars):
 
     template = loader.get_template('wiki/hint_page.html')
     context = {
-        'content': article.data.decode(),
+        'content': article.content.decode(),
     }
     return HttpResponse(template.render(context, prevars.request))
 
@@ -159,7 +164,7 @@ def get(prevars, title_name):
         return HttpResponseNotFound()
 
     if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
-        return HttpResponse(article.data, content_type=article.mimetype)
+        return HttpResponse(article.content, content_type=article.mimetype)
 
     prevars.game_operator.load_testing = (
         "loadtesting" in prevars.request.GET and prevars.request.META["REMOTE_ADDR"].startswith("127.0.0.1")
@@ -178,13 +183,13 @@ def get(prevars, title_name):
     context = {
         'title': prevars.zim_file[
             prevars.game_operator.current_page_id
-        ].title
+        ].title,
         'from': prevars.zim_file[
             prevars.game_operator.start_page_id
-        ].title
+        ].title,
         'to': prevars.zim_file[
             prevars.game_operator.end_page_id
-        ].title
+        ].title,
         'counter': prevars.game_operator.steps,
         'wiki_content': prevars.zim_file[
             prevars.game_operator.current_page_id
