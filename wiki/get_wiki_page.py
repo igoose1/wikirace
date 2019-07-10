@@ -161,8 +161,13 @@ def get_hint_page(request):
     return HttpResponse(template.render(context, request))
 
 def show_path_page(request):
+    context = {
+        'form': 'A',
+        'to': 'J',
+        'path': ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+    }
     template = loader.get_template('wiki/show_path_page.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render(context, request))
 
 def get_difficulty_level_by_name(name):
     if (name == 'random'):
