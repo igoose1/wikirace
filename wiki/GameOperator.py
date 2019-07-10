@@ -113,6 +113,7 @@ class GameOperator:
             end_page_id=self.end_page_id,
             start_time=datetime.datetime.now(),
             last_action_time=datetime.datetime.now()
+        )
 
     def next_page(self, relative_url: str)->bool:
         if self.game_finished:
