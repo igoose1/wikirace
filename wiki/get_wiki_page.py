@@ -24,12 +24,14 @@ class PreVariables:
             settings.GRAPH_EDGES_PATH
         )
         self.game_operator = GameOperator(self.zim_file, self.graph)
+        self.session_operator = None
         self.request = request
 
 
 def requires_graph(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
+        prevars.session_operator = prevars.request.session['operator']
         res = func(prevars, *args, **kwargs)
         if prevars.game_operator.game is not None:
             prevars.request.session['operator'] = prevars.game_operator.save()
@@ -60,11 +62,9 @@ def get_settings(settings_user):
 
 @requires_graph
 def get_main_page(prevars):
-    session_operator = prevars.request.session.get('operator', None)
-
     template = loader.get_template('wiki/start_page.html')
     context = {
-        'is_playing': session_operator and not session_operator[2],
+        'is_playing': prevars.session_operator and not prevars.session_operator[2],
         'settings': get_settings(
             prevars.request.session.get('settings')
         )
