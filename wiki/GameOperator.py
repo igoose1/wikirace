@@ -4,16 +4,17 @@ from django.conf import settings
 from django.utils import timezone
 
 from struct import unpack
+from enum import Enum
 
 from .models import Game, Turn
 from wiki.GraphReader import *
 
-DIFFICULT_EASY = "easy"
-DIFFICULT_MEDIUM = "medium"
-DIFFICULT_HARD = "hard"
 
-RANDOM_GAME_TYPE = "random"
-DIFFICULT_GAME_TYPE = "difficult"
+class Difficulties(Enum):
+    random = "random"
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
 
 
 class GameTaskGenerator(object):
@@ -47,8 +48,10 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         self._difficulty = difficult
 
     def choose_start_and_end_pages(self) -> (int, int):
-        file_names = settings.LEVEL_FILE_NAMES
-        file = open(file_names[self._difficulty], 'rb')
+        file = open(
+            settings.LEVEL_FILE_NAMES[self._difficulty.value],
+            'rb'
+        )
         cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
         pair_id = randrange(0, cnt - 1)
         file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * 2)
