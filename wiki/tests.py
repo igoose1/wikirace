@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from unittest.mock import Mock
 import wiki.GameOperator as Operator
 
@@ -60,3 +60,15 @@ class GameOperatorTest(TestCase):
             }
         )
         self.assertEqual(game_operator, None)
+
+
+class getWikiPageTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def testSmoke(self):
+        urls_case = ('/', '/game_start', '/', '/continue')
+        for url in urls_case:
+            resp = self.client.get(url)
+            self.assertEqual(resp.status_code, 200)
