@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
-    <link href="../../static/wiki/styles.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles.css' %}">
 </head>
 <body>
 <div class="toolbar">
@@ -27,12 +26,12 @@
     <div class="button_bar">
         <div class="button">
             <a href="/" class="image_button">
-                <img src="../../static/wiki/baseline-home-24px.svg" alt="undo">
+                <img src="../../static/wiki/baseline-home-24px.svg" alt="undo" title="дом">
             </a>
         </div>
         <div class="button">
             <a href="/game_start" class="image_button">
-                <img src="../../static/wiki/baseline-autorenew-24px.svg" alt="home">
+                <img src="../../static/wiki/baseline-autorenew-24px.svg" alt="home" title="заново">
             </a>
         </div>
     </div>
@@ -65,12 +64,17 @@
     <span>Цель:&nbsp;<a href="/hint_page" target="_blank">{{ to }}</a></span>
     <span>Ходов:&nbsp;{{ counter }}</span>
 </div>
+{% if not history_empty %}
+    <div class="back_button">
+        <a href="/back">
+            <img src="../../static/wiki/baseline-arrow_back_ios-24px.svg" alt="undo">
+        </a>
+    </div>
+{% endif %}
 <div class="wiki-container">
     <div class="wiki-content">
         {{ wiki_content|safe }}
     </div>
-</div>
-<div class="moves_list">
 </div>
 <script>
     function move_left_bar() {
