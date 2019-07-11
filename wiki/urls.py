@@ -1,11 +1,14 @@
 from django.conf.urls import url
-from django.contrib import admin
+from django.contrib import admin, auth
 from django.urls import include, path
 
 from . import get_wiki_page
+from . import auth
 
 
 urlpatterns = [
+    url('register', auth.register),
+    url('^accounts/', include('django.contrib.auth.urls')),
     path('admin', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),

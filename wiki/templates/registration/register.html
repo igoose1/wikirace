@@ -1,0 +1,25 @@
+{% block content %}
+
+{% if failed %}
+	<h1>username already exists</h1>
+{% endif %}
+
+<form method="post" action="/register/">
+{% csrf_token %}
+
+<div>
+  <label for="id_username">Username:</label>
+  <input type="text" name="username" autofocus="" required="" id="id_username">
+</div>
+<div>
+  <label for="id_password">Password:</label>
+  <input type="password" name="password" required="" id="id_password">
+</div>
+
+<div>
+  <input type="submit" value="register" />
+</div>
+</form>
+
+
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Game(models.Model):
@@ -46,3 +47,13 @@ class Turn(models.Model):
     to_page_id = models.IntegerField()
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
+
+
+class Settings(models.Model):
+    difficulty = models.IntegerField()
+    name = models.TextField(default="no name", max_length=16)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    settings = models.OneToOneField(Settings, on_delete=models.CASCADE)
