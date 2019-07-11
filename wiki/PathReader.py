@@ -19,6 +19,7 @@ def get_path(pair_id, complexity, bytes_count=4):
 
     path_length = unpack('>I', path_file.read(4))[0]
     path = [zim_file[start_vertex].title]
+
     for _ in range(path_length):
         path.append(zim_file[unpack('>I', path_file.read(4))[0]].title)
     path.append(zim_file[finish_vertex].title)
