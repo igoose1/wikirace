@@ -18,7 +18,7 @@
 		<p>Сложность:</p>
 	</div>
 	<div class="right-half">
-		<input type="text" value="{{ settings.name }}" maxlength="16" id="name_field" onkeyup="checkState()"></input>
+		<input type="text" value="{{ settings.name }}" {% if settings.auto %} disabled {% endif %} maxlength="16" id="name_field" onkeyup="checkState()"></input>
 		<select id="difficulty_field" onchange="checkState()">
 			<option value="random" {% if settings.difficulty == -1 %} selected="selected" {% endif %}>Случайно</option>
 			<option value="easy" {% if settings.difficulty == 0 %} selected="selected" {% endif %}>Просто</option>

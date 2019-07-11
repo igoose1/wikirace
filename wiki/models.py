@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from annoying.fields import AutoOneToOneField
 
 
 class Game(models.Model):
@@ -49,11 +52,11 @@ class Turn(models.Model):
     turn_id = models.AutoField(primary_key=True)
 
 
-class Settings(models.Model):
-    difficulty = models.IntegerField()
-    name = models.TextField(default="no name", max_length=16)
-
-
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    settings = models.OneToOneField(Settings, on_delete=models.CASCADE)
+    user = AutoOneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+
+
+class Settings(models.Model):
+    profile = AutoOneToOneField(
+        Profile, default=None, on_delete=models.CASCADE, primary_key=True)
+    difficulty = models.IntegerField(default=0)
