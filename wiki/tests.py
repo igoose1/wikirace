@@ -34,8 +34,8 @@ class TestZIMFile(TestCase):
     def testRandomArticle(self):
         wiki.ZIMFile.randrange = Mock(return_value=1539)
         article_random = self.zim.random_article()
-        self.assertEqual(article_random.title, '(566) Стереоскопия')
-        self.assertEqual(article_random.index, 1946)
+        self.assertEqual(article_random.title, '(1002) Ольберсия')
+        self.assertEqual(article_random.index, 166)
         self.assertFalse(article_random.is_redirecting)
         self.assertFalse(article_random.is_empty)
 
