@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.postgres.fields import ArrayField
 
 class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
@@ -46,3 +46,14 @@ class Turn(models.Model):
     to_page_id = models.IntegerField()
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
+
+
+class UserGame(models.Model):
+    game_id = models.AutoField(primary_key=True)
+    autor_name = models.CharField(default='Анонимно', max_length=30)
+    from_page_id = models.IntegerField()
+    to_page_id = models.IntegerField()
+    likes = models.IntegerField(default=0)
+    shortest_path_len = models.IntegerField(null=True)
+    shortest_path = ArrayField(models.IntegerField())
+    time = models.DateTimeField()
