@@ -1,5 +1,5 @@
 from django.contrib import admin
-from wiki.models import Game, Feedback, Turn
+from wiki.models import Game, Feedback, Node
 
 
 class GameStatAdmin(admin.ModelAdmin):
@@ -14,10 +14,10 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 class TurnAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'from_page_id', 'to_page_id', 'time']
+    list_display = ['page_id', 'game', 'time']
     ordering = ['time']
 
 
 admin.site.register(Game, GameStatAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
-admin.site.register(Turn, TurnAdmin)
+admin.site.register(Node, TurnAdmin)

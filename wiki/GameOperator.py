@@ -5,7 +5,7 @@ from django.conf import settings
 import datetime
 from struct import unpack
 
-from .models import Game, Turn
+from .models import Game, Node
 from wiki.GraphReader import *
 
 DIFFICULT_EASY = "easy"
@@ -72,10 +72,11 @@ class GameOperator:
         return self._game
 
     def jump_back(self):
-        if len(self._history) >= 2:
-            self._history.pop()  # pop current page
+        if not self.is_history_empty:
+            prev_node = Node.objects.get(node_id=self._game.last_node.prev_node_id)
+            self._game.last_node = prev_node
             self.game.steps += 1
-            self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
+            self._game.current_page_id = self._game.last_node.page_id
 
     @property
     def current_page(self):
@@ -95,7 +96,7 @@ class GameOperator:
 
     @property
     def is_history_empty(self) -> bool:
-        return len(self._history) <= 1
+        return self._game.last_node.prev_node_id is None
 
     def is_jump_allowed(self, article: Article):
         if article.is_empty or article.is_redirecting or article.namespace != "A":
@@ -106,12 +107,12 @@ class GameOperator:
     def jump_to(self, article: Article):
         if article.index != self.game.current_page_id:
             self._game.steps += 1
-            Turn.objects.create(
-                from_page_id=self._game.current_page_id,
-                to_page_id=article.index,
-                game_id=self._game.game_id,
+            node = Node.objects.create(
+                prev_node_id=self._game.last_node.node_id,
+                page_id=article.index,
                 time=datetime.datetime.now(),
             )
+            self._game.last_node = node
             self._game.current_page_id = article.index
 
             self._history.append(article.index)
@@ -119,7 +120,12 @@ class GameOperator:
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
         start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+        node = Node.objects.create(
+            page_id=start_page_id,
+            time=datetime.datetime.now(),
+        )
         game = Game.objects.create(
+            last_node=node,
             start_page_id=start_page_id,
             end_page_id=end_page_id,
             current_page_id=start_page_id,
