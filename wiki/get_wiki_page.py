@@ -41,7 +41,7 @@ def load_prevars(func):
         prevars = PreVariables(request)
         prevars.session_operator = prevars.request.session.get('operator', None)
         res = func(prevars, *args, **kwargs)
-        if prevars.game_operator is not None:
+        if prevars.game_operator is not None and not prevars.game_operator.finished:
             prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
         else:
             prevars.request.session['operator'] = None
@@ -165,7 +165,6 @@ def winpage(prevars):
         'name': settings_user['name']
     }
     template = loader.get_template('wiki/win_page.html')
-    prevars.game_operator.game = None
     return HttpResponse(template.render(context, prevars.request))
 
 
