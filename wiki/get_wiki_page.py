@@ -10,7 +10,7 @@ from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
-    RANDOM_GAME_TYPE
+    GameTypes
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -27,7 +27,7 @@ class PreVariables:
             settings.GRAPH_EDGES_PATH
         )
         self.game_operator = GameOperator.deserialize_game_operator(
-            request.session['operator'],
+            request.session.get('operator', None),
             self.zim_file,
             self.graph,
             'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
@@ -39,9 +39,9 @@ class PreVariables:
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
-        prevars.session_operator = prevars.request.session.get('operator')
+        prevars.session_operator = prevars.request.session.get('operator', None)
         res = func(prevars, *args, **kwargs)
-        if prevars.game_operator.game is not None:
+        if prevars.game_operator is not None:
             prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
         else:
             prevars.request.session['operator'] = None
@@ -60,7 +60,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': -1, 'name': 'no name'}
+    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -72,7 +72,7 @@ def get_main_page(prevars):
     context = {
         'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
         'settings': get_settings(
-            prevars.request.session.get('settings')
+            prevars.request.session.get('settings', dict())
         )
     }
     return HttpResponse(template.render(context, prevars.request))
@@ -80,23 +80,23 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
+    NAME_LEN = 16
+
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
-    difficulty_names = ('random', 'easy', 'medium', 'hard')
-    if difficulty not in difficulty_names\
-            or (isinstance(name, str) and len(name) > 16):
+    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
         return HttpResponseBadRequest()
 
     prevars.request.session['settings'] = {
-        'difficulty': difficulty_names.index(difficulty) - 1,
+        'difficulty': GameTypes(difficulty).value,
         'name': name
     }
     return HttpResponse('Ok')
 
 
 def get_game_task_generator(difficulty, prevars):
-    if difficulty == RANDOM_GAME_TYPE:
+    if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     else:
         return DifficultGameTaskGenerator(difficulty)
@@ -104,11 +104,22 @@ def get_game_task_generator(difficulty, prevars):
 
 @load_prevars
 def get_start(prevars):
+    settings = get_settings(
+        prevars.request.session.get('settings', dict())
+    )
+
+    if settings.get('difficulty', None) is None:
+        return HttpResponseRedirect('/')
+
+    if isinstance(settings['difficulty'], int):
+        prevars.request.session['settings'] = get_settings(dict())
+        return HttpResponseBadRequest()
+
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
-            get_settings(
-                prevars.request.session.get('settings', dict())
-            )['difficulty'],
+            GameTypes(
+                settings['difficulty']
+            ),
             prevars
         ),
         prevars.zim_file,
