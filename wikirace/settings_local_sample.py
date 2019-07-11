@@ -13,13 +13,4 @@ DATABASES = {
 }
 
 # Path to wiki data files
-WIKI_ZIMFILE_PATH = '/srv/wikirace/data/wikipedia_ru.zim'
-WIKI_ARTICLES_INDEX_FILE_PATH = '/srv/wikirace/data/good_articles_list'
-GRAPH_DIR = '/srv/wikirace/data/'
-GRAPH_OFFSET_PATH = GRAPH_DIR + 'offset_all'
-GRAPH_EDGES_PATH = GRAPH_DIR + 'edges_all'
-LEVEL_FILE_NAMES = {
-    "easy": GRAPH_DIR + "easy",
-    "medium": GRAPH_DIR + "medium",
-    "hard": GRAPH_DIR + "hard",
-}
+DATA_DIR = '/srv/wikirace/data/'
