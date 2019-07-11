@@ -10,7 +10,7 @@ from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
-    Difficulties
+    GameTypes
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -60,7 +60,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': Difficulties.random.value, 'name': 'no name'}
+    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -80,21 +80,23 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
+    NAME_LEN = 16
+
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
-    if difficulty not in [el.value for el in Difficulties] or (isinstance(name, str) and len(name) > 16):
+    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
         return HttpResponseBadRequest()
 
     prevars.request.session['settings'] = {
-        'difficulty': Difficulties(difficulty).value,
+        'difficulty': GameTypes(difficulty).value,
         'name': name
     }
     return HttpResponse('Ok')
 
 
 def get_game_task_generator(difficulty, prevars):
-    if difficulty == Difficulties.random:
+    if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     else:
         return DifficultGameTaskGenerator(difficulty)
@@ -115,7 +117,7 @@ def get_start(prevars):
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
-            Difficulties(
+            GameTypes(
                 settings['difficulty']
             ),
             prevars

@@ -10,7 +10,7 @@ from .models import Game, Turn
 from wiki.GraphReader import *
 
 
-class Difficulties(Enum):
+class GameTypes(Enum):
     random = "random"
     easy = "easy"
     medium = "medium"
