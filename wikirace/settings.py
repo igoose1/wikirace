@@ -127,12 +127,12 @@ LEVEL_FILE_NAMES = {
     "medium": DATA_DIR + "precalc_pairs_v1/medium",
     "hard": DATA_DIR + "precalc_pairs_v1/hard",
 }
-LEVEL_PATH_FILE_NAMES = {
+LEVEL_PATH_FILE_NAMES_V2 = {
     "easy": DATA_DIR + 'precalc_pairs_v2/easy_paths',
     "medium": DATA_DIR + 'precalc_pairs_v2/medium_paths',
     "hard": DATA_DIR + 'precalc_pairs_v2/hard_paths'
 }
-LEVEL_FILE_NAMES_NEW = {
+LEVEL_FILE_NAMES_V2 = {
     "easy": DATA_DIR + 'precalc_pairs_v2/easy',
     "medium": DATA_DIR + 'precalc_pairs_v2/medium',
     "hard": DATA_DIR + 'oprecalc_pairs_v2/hard'
