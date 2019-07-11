@@ -1,5 +1,4 @@
 from django.test import TestCase, Client
-from django.contrib.sessions.backends.db import SessionStore
 from unittest.mock import Mock, patch
 from wiki import GameOperator, models
 
@@ -28,7 +27,6 @@ class GameOperatorTest(TestCase):
         self.zim = Mock()
         self.graph = Mock()
         self.fake_game = self.FakeGame(self.GAME_ID)
-        self.saved_get = GameOperator.Game.objects.get
         self.patches = [
             patch.object(GameOperator.Game.objects, 'get', Mock(return_value=self.fake_game)),
             patch.object(GameOperator.Game.objects, 'create', Mock(return_value=self.fake_game)),
@@ -86,20 +84,20 @@ class GetWikiPageTest(TestCase):
     def testSettings(self):
         resp = self.client.get('/', follow=True)
         self.assertEqual(resp.status_code, 200)
-        s = SessionStore(resp.cookies['sessionid'].value)
+        session = self.client.session
         for dif in ('random', 'easy', 'medium', 'hard'):
-            s['settings'] = {'difficulty': dif, 'name': 'test'}
-            s.save()
+            session['settings'] = {'difficulty': dif, 'name': 'test'}
+            session.save()
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
 
     def testOldSettings(self):
         resp = self.client.get('/', follow=True)
         self.assertEqual(resp.status_code, 200)
-        s = SessionStore(resp.cookies['sessionid'].value)
+        session = self.client.session
         for num in range(-1, 3):
-            s['settings'] = {'difficulty': num, 'name': 'test'}
-            s.save()
+            session['settings'] = {'difficulty': num, 'name': 'test'}
+            session.save()
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 400)
             resp = self.client.get('/game_start', follow=True)
