@@ -1,8 +1,8 @@
 from wiki.ZIMFile import ZIMFile, Article
 from random import randrange
 from django.conf import settings
+from django.utils import timezone
 
-import datetime
 from struct import unpack
 
 from .models import Game, Turn
@@ -110,7 +110,7 @@ class GameOperator:
                 from_page_id=self._game.current_page_id,
                 to_page_id=article.index,
                 game_id=self._game.game_id,
-                time=datetime.datetime.now(),
+                time=timezone.now(),
             )
             self._game.current_page_id = article.index
 
@@ -123,8 +123,8 @@ class GameOperator:
             start_page_id=start_page_id,
             end_page_id=end_page_id,
             current_page_id=start_page_id,
-            start_time=datetime.datetime.now(),
-            last_action_time=datetime.datetime.now()
+            start_time=timezone.now(),
+            last_action_time=timezone.now()
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)
 
@@ -157,7 +157,7 @@ class GameOperator:
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
-                    last_action_time=datetime.datetime.now()
+                    last_action_time=timezone.now()
                 )
             else:
                 game = Game.objects.get(
