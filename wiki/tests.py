@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
-from unittest.mock import Mock
-import wiki.GameOperator as Operator
+from unittest.mock import Mock, patch
+from wiki import GameOperator, models
 
 
 class GameOperatorTest(TestCase):
@@ -17,7 +17,7 @@ class GameOperatorTest(TestCase):
             self.last_action_time = 0
 
     def generate_operator(self, data):
-        return Operator.GameOperator.deserialize_game_operator(
+        return GameOperator.GameOperator.deserialize_game_operator(
             data,
             self.zim,
             self.graph,
@@ -27,8 +27,17 @@ class GameOperatorTest(TestCase):
         self.zim = Mock()
         self.graph = Mock()
         self.fake_game = self.FakeGame(self.GAME_ID)
-        Operator.Game.objects.get = Mock(return_value=self.fake_game)
-        Operator.Game.objects.create = Mock(return_value=self.fake_game)
+        self.saved_get = GameOperator.Game.objects.get
+        self.patches = [
+            patch.object(GameOperator.Game.objects, 'get', Mock(return_value=self.fake_game)),
+            patch.object(GameOperator.Game.objects, 'create', Mock(return_value=self.fake_game)),
+        ]
+        for p in self.patches:
+            p.start()
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
 
     def test_backward_compatibility_v1(self):
         game_operator = self.generate_operator(
@@ -62,7 +71,7 @@ class GameOperatorTest(TestCase):
         self.assertEqual(game_operator, None)
 
 
-class getWikiPageTest(TestCase):
+class GetWikiPageTest(TestCase):
 
     def setUp(self):
         self.client = Client()
@@ -70,5 +79,5 @@ class getWikiPageTest(TestCase):
     def testSmoke(self):
         urls_case = ('/', '/game_start', '/', '/continue')
         for url in urls_case:
-            resp = self.client.get(url)
+            resp = self.client.get(url, follow=True)
             self.assertEqual(resp.status_code, 200)
