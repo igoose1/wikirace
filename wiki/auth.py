@@ -1,10 +1,6 @@
 from django.http import HttpResponse,\
-    HttpResponseRedirect,\
-    HttpResponseNotFound,\
-    HttpResponseBadRequest
-from django.conf import settings
+    HttpResponseRedirect
 from django.template import loader
-from django.utils import timezone
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login
