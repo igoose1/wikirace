@@ -10,7 +10,7 @@ class TestZIMFile(TestCase):
         self.zim = wiki.ZIMFile.ZIMFile(settings.WIKI_ZIMFILE_PATH,
                                         settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
-    def tierDown(self):
+    def tearDown(self):
         self.zim.close()
 
     def testSmoke(self):
@@ -27,8 +27,8 @@ class TestZIMFile(TestCase):
         article_redirecting = self.zim[47]
         self.assertEqual(article_redirecting.title, '!!')
         article_followed = article_redirecting.follow_redirect()
-        self.assertEqual(article_followed.is_redirecting, False)
-        self.assertEqual(article_followed.is_empty, False)
+        self.assertFalse(article_followed.is_redirecting)
+        self.assertFalse(article_followed.is_empty)
         self.assertEqual(article_followed.title, 'Факториал')
 
     def testRandomArticle(self):
@@ -36,14 +36,14 @@ class TestZIMFile(TestCase):
         article_random = self.zim.random_article()
         self.assertEqual(article_random.title, '(566) Стереоскопия')
         self.assertEqual(article_random.index, 1946)
-        self.assertEqual(article_random.is_redirecting, False)
-        self.assertEqual(article_random.is_empty, False)
+        self.assertFalse(article_random.is_redirecting)
+        self.assertFalse(article_random.is_empty)
 
     def testEmptyArticle(self):
         article = self.zim['A/smth smth']
-        self.assertEqual(article.is_empty, True)
+        self.assertTrue(article.is_empty)
         article_followed = article.follow_redirect()
-        self.assertEqual(article_followed.is_empty, True)
+        self.assertTrue(article_followed.is_empty)
 
     def testEmptyFields(self):
         article = self.zim['A/smth smth']
@@ -59,14 +59,11 @@ class TestZIMFile(TestCase):
 
     def testImage(self):
         article = self.zim[3407948]
-        self.assertEqual(article.is_redirecting, False)
-        self.assertEqual(article.is_empty, False)
+        self.assertFalse(article.is_redirecting)
+        self.assertFalse(article.is_empty)
         self.assertEqual(article.namespace, 'I')
         self.assertEqual(article.index, 3407948)
         self.assertEqual(article.url, 'favicon.png')
-
-    def testLen(self):
-        self.assertEqual(len(self.zim), 5054753)
 
 
 class GameOperatorTest(TestCase):

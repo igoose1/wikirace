@@ -122,4 +122,4 @@ class ZIMFile:
 
     def close(self):
         self._impl.close()
-        self._article_indexes.close()
+        os.close(self._article_indexes)
