@@ -39,7 +39,7 @@ class PreVariables:
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
-        prevars.session_operator = prevars.request.session.get('operator')
+        prevars.session_operator = prevars.request.session.get('operator', None)
         res = func(prevars, *args, **kwargs)
         if prevars.game_operator is not None:
             prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
@@ -102,12 +102,21 @@ def get_game_task_generator(difficulty, prevars):
 
 @load_prevars
 def get_start(prevars):
+    settings = get_settings(
+        prevars.request.session.get('settings', dict())
+    )
+
+    if settings.get('difficulty', None) is None:
+        return HttpResponseRedirect('/')
+
+    if isinstance(settings['difficulty'], int):
+        prevars.request.session['settings'] = get_settings(dict())
+        return HttpResponseBadRequest()
+
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             Difficulties(
-                get_settings(
-                    prevars.request.session.get('settings', dict())
-                )['difficulty']
+                settings['difficulty']
             ),
             prevars
         ),

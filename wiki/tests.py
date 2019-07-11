@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from django.contrib.sessions.backends.db import SessionStore
 from unittest.mock import Mock, patch
 from wiki import GameOperator, models
 
@@ -81,3 +82,26 @@ class GetWikiPageTest(TestCase):
         for url in urls_case:
             resp = self.client.get(url, follow=True)
             self.assertEqual(resp.status_code, 200)
+
+    def testSettings(self):
+        resp = self.client.get('/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        s = SessionStore(resp.cookies['sessionid'].value)
+        for dif in ('random', 'easy', 'medium', 'hard'):
+            s['settings'] = {'difficulty': dif, 'name': 'test'}
+            s.save()
+            resp = self.client.get('/game_start', follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+    def testOldSettings(self):
+        resp = self.client.get('/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+        s = SessionStore(resp.cookies['sessionid'].value)
+        for num in range(-1, 3):
+            s['settings'] = {'difficulty': num, 'name': 'test'}
+            s.save()
+            resp = self.client.get('/game_start', follow=True)
+            self.assertEqual(resp.status_code, 400)
+            resp = self.client.get('/game_start', follow=True)
+            self.assertEqual(resp.status_code, 200)
+

@@ -122,10 +122,15 @@ class GameOperator:
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
         start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+        start_article = zim_file[start_page_id].follow_redirect()
+        end_article = zim_file[end_page_id].follow_redirect()
+        if True in (el.is_redirecting for el in (start_article, end_article)):
+            return None
+
         game = Game.objects.create(
-            start_page_id=start_page_id,
-            end_page_id=end_page_id,
-            current_page_id=start_page_id,
+            start_page_id=start_article.index,
+            end_page_id=end_article.index,
+            current_page_id=start_article.index,
             start_time=timezone.now(),
             last_action_time=timezone.now()
         )
