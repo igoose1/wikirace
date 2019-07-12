@@ -35,7 +35,7 @@ class RandomGameTaskGenerator(GameTaskGenerator):
                 continue
             end_page_id = edges[next_id]
 
-        return start_page_id, end_page_id, None
+        return start_page_id, end_page_id, -1
 
     def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
         self._zim_file = zim_file
