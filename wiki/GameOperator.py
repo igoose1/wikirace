@@ -14,6 +14,7 @@ DIFFICULT_HARD = "hard"
 
 RANDOM_GAME_TYPE = "random"
 DIFFICULT_GAME_TYPE = "difficult"
+TRIAL_GAME_TYPE = "trial"
 
 
 class GameTaskGenerator(object):
@@ -35,6 +36,26 @@ class RandomGameTaskGenerator(GameTaskGenerator):
             end_page_id = edges[next_id]
 
         return start_page_id, end_page_id
+
+    def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
+        self._zim_file = zim_file
+        self._graph_reader = graph_reader
+
+
+class TrialGameTaskGenerator(GameTaskGenerator):
+
+    def choose_start_and_end_pages(self) -> (int, int):
+        start_page_id = self._zim_file.random_article().index
+        end_page_id = start_page_id
+        for step in range(5):
+            edges = list(self._graph_reader.edges(end_page_id))
+            next_id = randrange(0, len(edges))
+            if edges[next_id] == start_page_id:
+                continue
+            end_page_id = edges[next_id]
+
+        print(start_page_id, end_page_id)
+        return 255, 840532
 
     def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
         self._zim_file = zim_file

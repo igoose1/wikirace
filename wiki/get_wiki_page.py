@@ -10,7 +10,9 @@ from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
-    RANDOM_GAME_TYPE
+    TrialGameTaskGenerator,\
+    RANDOM_GAME_TYPE,\
+    TRIAL_GAME_TYPE
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -98,6 +100,8 @@ def change_settings(prevars):
 def get_game_task_generator(difficulty, prevars):
     if difficulty == RANDOM_GAME_TYPE:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
+    elif difficulty == TRIAL_GAME_TYPE:
+        return TrialGameTaskGenerator(prevars.zim_file, prevars.graph)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -109,6 +113,19 @@ def get_start(prevars):
             get_settings(
                 prevars.request.session.get('settings', dict())
             )['difficulty'],
+            prevars
+        ),
+        prevars.zim_file,
+        prevars.graph
+    )
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
+@load_prevars
+def get_start2(prevars):
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            TRIAL_GAME_TYPE,
             prevars
         ),
         prevars.zim_file,
@@ -137,6 +154,11 @@ def get_hint_page(prevars):
         'content': article.content.decode(),
     }
     return HttpResponse(template.render(context, prevars.request))
+
+
+@requires_game
+def add_game(prevars):
+    return HttpResponse('Hello')
 
 
 @requires_game
