@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware', 
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -111,16 +111,29 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
+NUMBER_OF_VERTICES_IN_GRAPH = 5054753
 
 # WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
 
 # Path to wiki data files
-WIKI_ZIMFILE_PATH = settings_local.WIKI_ZIMFILE_PATH
-WIKI_ARTICLES_INDEX_FILE_PATH = settings_local.WIKI_ARTICLES_INDEX_FILE_PATH
-GRAPH_DIR = settings_local.GRAPH_DIR
-GRAPH_OFFSET_PATH = settings_local.GRAPH_OFFSET_PATH
-GRAPH_EDGES_PATH = settings_local.GRAPH_EDGES_PATH
-LEVEL_FILE_NAMES = settings_local.LEVEL_FILE_NAMES
-LEVEL_PATH_FILE_NAMES = settings_local.LEVEL_PATH_FILE_NAMES
-LEVEL_FILE_NAMES_NEW = settings_local.LEVEL_FILE_NAMES_NEW
+DATA_DIR = settings_local.DATA_DIR
+
+WIKI_ZIMFILE_PATH = DATA_DIR + 'wikipedia_ru.zim'
+GRAPH_OFFSET_PATH = DATA_DIR + 'graph/offset_all'
+GRAPH_EDGES_PATH = DATA_DIR + 'graph/edges_all'
+WIKI_ARTICLES_INDEX_FILE_PATH = DATA_DIR + 'good_articles_list'
+LEVEL_FILE_NAMES = {
+    "easy": DATA_DIR + "precalc_pairs_v1/easy",
+    "medium": DATA_DIR + "precalc_pairs_v1/medium",
+    "hard": DATA_DIR + "precalc_pairs_v1/hard",
+}
+LEVEL_PATH_FILE_NAMES_V2 = {
+    "easy": DATA_DIR + 'precalc_pairs_v2/easy_paths',
+    "medium": DATA_DIR + 'precalc_pairs_v2/medium_paths',
+    "hard": DATA_DIR + 'precalc_pairs_v2/hard_paths'
+}
+LEVEL_FILE_NAMES_V2 = {
+    "easy": DATA_DIR + 'precalc_pairs_v2/easy',
+    "medium": DATA_DIR + 'precalc_pairs_v2/medium',
+    "hard": DATA_DIR + 'oprecalc_pairs_v2/hard'
+}
