@@ -22,7 +22,7 @@ def write_to_files(pair_file_name, path_file_name, pairs, paths):
     path_file.close()
 
 
-def choose_start_vert(reader):
+def choose_start_vertex(reader):
     page_id = randrange(0, N)
     while reader.edges_count(page_id) < 5:
         page_id = randrange(0, N)
@@ -37,7 +37,7 @@ def only_digits(name):
     return True
 
 bad_words = []
-f = open('data/forbidden_words.txt', 'r')
+f = open('wiki/data/forbidden_words.txt', 'r')
 for line in f:
     bad_words.append(line)
 f.close()

@@ -1,12 +1,17 @@
 #!/usr/bin/python3
 import sys
-from GraphReader import GraphReader
-from random import choice
+from wiki.GraphReader import GraphReader
+from random import choice, shuffle
 from precalc_methods import write_to_files, choose_start_vertex
 from time import time
+from django.conf import settings
+import os
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 
+N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 def bfs(start_page_id, reader, walk=-1):
+    global N
     dist = [-1] * N
     dist_cnt = dict()
     go_to = [-1] * N
@@ -23,7 +28,8 @@ def bfs(start_page_id, reader, walk=-1):
                 break
         queue_beginning += 1
         dist_cnt[dist[cur_vertex]] += 1
-        edges = reader.edges(cur_vertex)
+        edges = list(reader.edges(cur_vertex))
+        shuffle(edges)
         for next_ in edges:
             if dist[next_] == -1:
                 dist[next_] = dist[cur_vertex] + 1
@@ -31,9 +37,6 @@ def bfs(start_page_id, reader, walk=-1):
                 go_to[next_] = cur_vertex
     print(dist_cnt)
     return dist, go_to
-
-
-N = 5054753
 
 try:
     walks = int(sys.argv[1])
@@ -45,13 +48,13 @@ pairs, paths = [], []
 start_time = time()
 
 for walk in range(walks):
-    reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
+    reader = GraphReader(settings.REVERSE_GRAPH_OFFSET_PATH, settings.REVERSE_GRAPH_EDGES_PATH)
 
     start_page_id = choose_start_vertex(reader)
     print(start_page_id)
 
     rev_dist, rev_go_to = bfs(start_page_id, reader, walk=walk)
-    reader = GraphReader('data/offset', 'data/edges')
+    reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     dir_dist, dir_go_to = bfs(start_page_id, reader, walk=walk)
 
     dist_from_root_is_2, dist_from_root_is_7 = [], []

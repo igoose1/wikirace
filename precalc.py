@@ -1,12 +1,14 @@
-from GraphReader import GraphReader
-from random import randrange
+from wiki.GraphReader import GraphReader
+from random import randrange, shuffle
 from time import time
 
 from zimply.zimply import ZIMFile
 
-from GraphReader import GraphReader
-from precalc_methods import write_to_files, choose_start_vert, only_digits, includes_bad_words
+from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words
+from django.conf import settings
+import os
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 
 def bfs(start_page_id, reader, walk=-1):
     dist = [-1 for i in range(N)]
@@ -25,7 +27,8 @@ def bfs(start_page_id, reader, walk=-1):
                 break
         dist_cnt[dist[cur_vertex]] += 1
         idx += 1
-        edges = reader.edges(cur_vertex)
+        edges = list(reader.edges(cur_vertex))
+        shuffle(edges)
         for next_ in edges:
             if dist[next_] == -1:
                 dist[next_] = dist[cur_vertex] + 1
@@ -37,17 +40,17 @@ def bfs(start_page_id, reader, walk=-1):
 
 start_time = time()
 N = 5054753
-reverse_reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
-reader = GraphReader('data/offset', 'data/edges')
-zim = ZIMFile("data/wikipedia_ru.zim", 'utf-8')
+reverse_reader = GraphReader(settings.REVERSE_GRAPH_EDGES_PATH, settings.REVERSE_GRAPH_OFFSET_PATH)
+reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
+zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, 'utf-8')
 easy_pairs = []
 medium_pairs = []
 easy_paths = []
 medium_paths = []
 
 N = 5054753
-for walk in range(15):
-    start_vertex = choose_start_vert(reader)
+for walk in range(1):
+    start_vertex = choose_start_vertex(reader)
     dist, go_to = bfs(start_vertex, reader, walk=walk)
     dists = [[2, 3], [4, 5]]
     for cur_vertex in range(N):

@@ -121,6 +121,8 @@ DATA_DIR = settings_local.DATA_DIR
 WIKI_ZIMFILE_PATH = DATA_DIR + 'wikipedia_ru.zim'
 GRAPH_OFFSET_PATH = DATA_DIR + 'graph/offset_all'
 GRAPH_EDGES_PATH = DATA_DIR + 'graph/edges_all'
+REVERSE_GRAPH_OFFSET_PATH = DATA_DIR + 'reverse_graph/reverse_offset'
+REVERSE_GRAPH_EDGES_PATH = DATA_DIR + 'reverse_graph/reverse_edges'
 WIKI_ARTICLES_INDEX_FILE_PATH = DATA_DIR + 'good_articles_list'
 LEVEL_FILE_NAMES = {
     "easy": DATA_DIR + "precalc_pairs_v1/easy",
