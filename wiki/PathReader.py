@@ -1,5 +1,5 @@
 from struct import unpack
-from ZIMFile import ZIMFile
+from .ZIMFile import ZIMFile
 from django.conf import settings
 
 
@@ -23,4 +23,6 @@ def get_path(pair_id, complexity, bytes_count=4):
     for _ in range(path_length):
         path.append(zim_file[unpack('>I', path_file.read(4))[0]].title)
     path.append(zim_file[finish_vertex].title)
+    
+    zim_file.close()
     return path

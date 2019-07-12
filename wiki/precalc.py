@@ -1,11 +1,11 @@
-from .GraphReader import GraphReader
+from GraphReader import GraphReader
 from random import randrange
 from time import time
 
 from zimply.zimply import ZIMFile
 
 from GraphReader import GraphReader
-from precalc_methods import write_to_files, choose_start_vert, only_digits, includes_a_year
+from precalc_methods import write_to_files, choose_start_vert, only_digits, includes_bad_words
 
 
 def bfs(start_page_id, reader, walk=-1):
@@ -39,7 +39,7 @@ start_time = time()
 N = 5054753
 reverse_reader = GraphReader('data/reverse_offset', 'data/reverse_edges')
 reader = GraphReader('data/offset', 'data/edges')
-zim = ZIMFile("data/wikipedia_ru_all_novid_2018-06.zim", 'utf-8')
+zim = ZIMFile("data/wikipedia_ru.zim", 'utf-8')
 easy_pairs = []
 medium_pairs = []
 easy_paths = []
@@ -74,12 +74,12 @@ for walk in range(15):
             cnt2 = reverse_reader.edges_count(visited[easy_steps - 1])
             if cnt1 >= 10 and cnt2 >= 10:
                 name = zim.read_directory_entry_by_index(visited[easy_steps - 1])['title']
-                if not only_digits(name)and not includes_a_year(name):
+                if not only_digits(name)and not includes_bad_words(name):
                     easy_pairs.append((cur_vertex, visited[easy_steps - 1]))
                     easy_paths.append(visited[:easy_steps - 1])
         if medium_steps >= dists[1][0]:
             name = zim.read_directory_entry_by_index(visited[medium_steps - 1])['title']
-            if not only_digits(name) and not includes_a_year(name):
+            if not only_digits(name) and not includes_bad_words(name):
                 medium_pairs.append((cur_vertex, visited[medium_steps - 1]))
                 medium_paths.append(visited[:medium_steps - 1])
 

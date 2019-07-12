@@ -3,7 +3,6 @@ import struct
 
 N = 5054753
 
-
 def write_to_files(pair_file_name, path_file_name, pairs, paths):
     file = open(pair_file_name, 'wb')
     path_file = open(path_file_name, 'wb')
@@ -23,7 +22,7 @@ def write_to_files(pair_file_name, path_file_name, pairs, paths):
     path_file.close()
 
 
-def choose_start_vertex(reader):
+def choose_start_vert(reader):
     page_id = randrange(0, N)
     while reader.edges_count(page_id) < 5:
         page_id = randrange(0, N)
@@ -37,6 +36,14 @@ def only_digits(name):
             return False
     return True
 
+bad_words = []
+f = open('data/forbidden_words.txt', 'r')
+for line in f:
+    bad_words.append(line)
+f.close()
 
-def includes_a_year(name):
-    return ('год' in name) or ('Год' in name)
+def includes_bad_words(name):
+    for word in bad_words:
+        if word in name:
+            return True
+    return False

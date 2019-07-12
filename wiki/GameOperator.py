@@ -35,24 +35,25 @@ class RandomGameTaskGenerator(GameTaskGenerator):
                 continue
             end_page_id = edges[next_id]
 
-        return start_page_id, end_page_id
+        return start_page_id, end_page_id, None
 
     def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
         self._zim_file = zim_file
         self._graph_reader = graph_reader
+        self.difficulty = GameTypes.random
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):
 
     def __init__(self, difficult):
-        self._difficulty = difficult
+        self.difficulty = difficult
 
     def choose_start_and_end_pages(self) -> (int, int):
         # to use old version remove '_V2'
         file_names = settings.LEVEL_FILE_NAMES_V2
         amount_of_blocks = settings.LEVEL_AMOUNT_OF_BLOCKS_V2
         file = open(
-            file_names[self._difficulty.value],
+            file_names[self.difficulty.value],
             'rb'
         )
         cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
@@ -62,7 +63,7 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
         file.close()
 
-        return start_page_id, end_page_id
+        return start_page_id, end_page_id, pair_id
 
 
 class GameOperator:
@@ -124,7 +125,7 @@ class GameOperator:
 
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+        start_page_id, end_page_id, pair_id = game_task_generator.choose_start_and_end_pages()
         start_article = zim_file[start_page_id].follow_redirect()
         end_article = zim_file[end_page_id].follow_redirect()
         if True in (el.is_redirecting for el in (start_article, end_article)):
@@ -135,7 +136,9 @@ class GameOperator:
             end_page_id=end_article.index,
             current_page_id=start_article.index,
             start_time=timezone.now(),
-            last_action_time=timezone.now()
+            last_action_time=timezone.now(),
+            difficulty=game_task_generator.difficulty,
+            difficulty_pair_id=pair_id
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)
 

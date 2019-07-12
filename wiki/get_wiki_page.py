@@ -14,6 +14,8 @@ from .GameOperator import GameOperator,\
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
+from .PathReader import get_path
+from .models import Turn
 
 
 class PreVariables:
@@ -150,16 +152,21 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def show_path_page(request):
-    our_path = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+@requires_game
+def show_path_page(prevars):
+    pair_id = prevars.game_operator.game.difficulty_pair_id
+    difficulty = prevars.game_operator.game.difficulty
+    our_path = get_path(pair_id, difficulty)
     user_path = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    game_id = prevars.game_operator.game.game_id
+    turns = Turn.objects.filter(game_id=game_id).order_by('time')
     context = {
         'from': our_path[0],
         'our_path': our_path[1:],
         'user_path': user_path[1:],
     }
     template = loader.get_template('wiki/show_path_page.html')
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(context, prevars.request))
 
 
 @requires_game
