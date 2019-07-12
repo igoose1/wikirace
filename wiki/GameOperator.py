@@ -137,7 +137,7 @@ class GameOperator:
             current_page_id=start_article.index,
             start_time=timezone.now(),
             last_action_time=timezone.now(),
-            difficulty=game_task_generator.difficulty,
+            difficulty=game_task_generator.difficulty.value,
             difficulty_pair_id=pair_id
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)

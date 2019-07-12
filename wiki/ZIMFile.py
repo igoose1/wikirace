@@ -98,6 +98,7 @@ class ZIMFile:
     def __init__(self, filename, index_filename, encoding='utf-8'):
         self._impl = zimply.zimply.ZIMFile(filename, encoding)
         self._article_indexes = os.open(index_filename, os.O_RDONLY)
+        #print('file', self._article_indexes)
         self._good_article_count = os.fstat(self._article_indexes).st_size // BLOCK_SIZE
 
     def random_article(self):
@@ -119,4 +120,4 @@ class ZIMFile:
 
     def close(self):
         self._impl.close()
-        self._article_indexes.close()
+        #self._article_indexes.close()

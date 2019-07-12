@@ -6,6 +6,10 @@ from django.conf import settings
 def get_path(pair_id, complexity, bytes_count=4):
     zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH,
                        settings.WIKI_ARTICLES_INDEX_FILE_PATH)
+    
+    if complexity not in settings.LEVEL_FILE_NAMES_V2.keys():
+        print('complexity', complexity)
+        return []
 
     offset_file = open(settings.LEVEL_FILE_NAMES_V2[complexity], 'rb')
     offset_file.seek((pair_id * 3 + 1) * bytes_count)
@@ -18,7 +22,7 @@ def get_path(pair_id, complexity, bytes_count=4):
     path_file.seek(offset)
 
     path_length = unpack('>I', path_file.read(4))[0]
-    path = [zim_file[start_vertex].title]
+    path = []
 
     for _ in range(path_length):
         path.append(zim_file[unpack('>I', path_file.read(4))[0]].title)

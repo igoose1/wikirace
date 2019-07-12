@@ -156,6 +156,7 @@ def get_hint_page(prevars):
 def show_path_page(prevars):
     pair_id = prevars.game_operator.game.difficulty_pair_id
     difficulty = prevars.game_operator.game.difficulty
+    print('diff', difficulty)
     page_id = prevars.game_operator.game.start_page_id
     start = prevars.zim_file[page_id].title
     our_path = [start]
