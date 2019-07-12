@@ -135,5 +135,7 @@ LEVEL_PATH_FILE_NAMES_V2 = {
 LEVEL_FILE_NAMES_V2 = {
     "easy": DATA_DIR + 'precalc_pairs_v2/easy',
     "medium": DATA_DIR + 'precalc_pairs_v2/medium',
-    "hard": DATA_DIR + 'oprecalc_pairs_v2/hard'
+    "hard": DATA_DIR + 'precalc_pairs_v2/hard'
 }
+LEVEL_AMOUNT_OF_BLOCKS_V2 = 3
+LEVEL_AMOUNT_OF_BLOCKS = 2
