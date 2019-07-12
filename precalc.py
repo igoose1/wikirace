@@ -10,6 +10,7 @@ import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 
+
 def bfs(start_page_id, reader, walk=-1):
     dist = [-1 for i in range(N)]
     dist_cnt = dict()

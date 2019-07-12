@@ -8,8 +8,9 @@ from django.conf import settings
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
-
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
+
+
 def bfs(start_page_id, reader, walk=-1):
     global N
     dist = [-1] * N
@@ -37,6 +38,7 @@ def bfs(start_page_id, reader, walk=-1):
                 go_to[next_] = cur_vertex
     print(dist_cnt)
     return dist, go_to
+
 
 try:
     walks = int(sys.argv[1])
