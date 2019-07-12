@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware', 
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -110,8 +110,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
-NUMBER_OF_VERTICES_IN_GRAPH = 5054753 #do not mess with it
+STATIC_URL = settings_local.STATIC_URL
+NUMBER_OF_VERTICES_IN_GRAPH = 5054753  # do not mess with it
 
 # WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
 
