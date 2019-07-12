@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
@@ -39,7 +40,6 @@ class Feedback(models.Model):
 
 
 class Turn(models.Model):
-
     game_id = models.IntegerField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
