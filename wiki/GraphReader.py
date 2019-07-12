@@ -11,8 +11,17 @@ def read_int_from_file(file, block_size: int) -> int:
 
 class GraphReader:
     def __init__(self, offset_file_name: str, edges_file_name: str):
-        self.offset_file = open(offset_file_name, 'rb')
-        self.edges_file = open(edges_file_name, 'rb')
+        self.offset_file = None
+        self.edges_file = None
+        try:
+            self.offset_file = open(offset_file_name, 'rb')
+            self.edges_file = open(edges_file_name, 'rb')
+        except:
+            if self.edges_file is not None:
+                self.edges_file.close()
+            if self.offset_file is not None:
+                self.edges_file.close()
+            raise
 
     def _get_offset_by_id(self, parent_id: int):
         self.offset_file.seek(OFFSET_BLOCK_SIZE * parent_id)
