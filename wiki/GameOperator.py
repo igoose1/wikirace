@@ -1,19 +1,20 @@
 from wiki.ZIMFile import ZIMFile, Article
 from random import randrange
 from django.conf import settings
+from django.utils import timezone
 
-import datetime
 from struct import unpack
+from enum import Enum
 
 from .models import Game, Turn
 from wiki.GraphReader import *
 
-DIFFICULT_EASY = "easy"
-DIFFICULT_MEDIUM = "medium"
-DIFFICULT_HARD = "hard"
 
-RANDOM_GAME_TYPE = "random"
-DIFFICULT_GAME_TYPE = "difficult"
+class GameTypes(Enum):
+    random = "random"
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
 
 
 class GameTaskGenerator(object):
@@ -47,8 +48,10 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         self._difficulty = difficult
 
     def choose_start_and_end_pages(self) -> (int, int):
-        file_names = settings.LEVEL_FILE_NAMES
-        file = open(file_names[self._difficulty], 'rb')
+        file = open(
+            settings.LEVEL_FILE_NAMES[self._difficulty.value],
+            'rb'
+        )
         cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
         pair_id = randrange(0, cnt - 1)
         file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * 2)
@@ -110,7 +113,7 @@ class GameOperator:
                 from_page_id=self._game.current_page_id,
                 to_page_id=article.index,
                 game_id=self._game.game_id,
-                time=datetime.datetime.now(),
+                time=timezone.now(),
             )
             self._game.current_page_id = article.index
 
@@ -119,12 +122,17 @@ class GameOperator:
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
         start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+        start_article = zim_file[start_page_id].follow_redirect()
+        end_article = zim_file[end_page_id].follow_redirect()
+        if True in (el.is_redirecting for el in (start_article, end_article)):
+            return None
+
         game = Game.objects.create(
-            start_page_id=start_page_id,
-            end_page_id=end_page_id,
-            current_page_id=start_page_id,
-            start_time=datetime.datetime.now(),
-            last_action_time=datetime.datetime.now()
+            start_page_id=start_article.index,
+            end_page_id=end_article.index,
+            current_page_id=start_article.index,
+            start_time=timezone.now(),
+            last_action_time=timezone.now()
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)
 
@@ -157,7 +165,7 @@ class GameOperator:
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
-                    last_action_time=datetime.datetime.now()
+                    last_action_time=timezone.now()
                 )
             else:
                 game = Game.objects.get(
