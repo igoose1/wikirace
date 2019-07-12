@@ -18,33 +18,49 @@ from .form import FeedbackForm
 
 class PreVariables:
     def __init__(self, request):
-        self.zim_file = ZIMFile(
-            settings.WIKI_ZIMFILE_PATH,
-            settings.WIKI_ARTICLES_INDEX_FILE_PATH
-        )
-        self.graph = GraphReader(
-            settings.GRAPH_OFFSET_PATH,
-            settings.GRAPH_EDGES_PATH
-        )
-        self.game_operator = GameOperator.deserialize_game_operator(
-            request.session.get('operator', None),
-            self.zim_file,
-            self.graph,
-            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
-        )
-        self.session_operator = None
-        self.request = request
+        self.zim_file = None
+        self.graph = None
+        try:
+            self.zim_file = ZIMFile(
+                settings.WIKI_ZIMFILE_PATH,
+                settings.WIKI_ARTICLES_INDEX_FILE_PATH
+            )
+            self.graph = GraphReader(
+                settings.GRAPH_OFFSET_PATH,
+                settings.GRAPH_EDGES_PATH
+            )
+            self.game_operator = GameOperator.deserialize_game_operator(
+                request.session.get('operator', None),
+                self.zim_file,
+                self.graph,
+                'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
+            )
+            self.session_operator = None
+            self.request = request
+        except:
+            if self.zim_file is not None:
+                self.zim_file.close()
+            if self.graph is not None:
+                self.graph.close()
+            raise
+
+    def close(self):
+        self.zim_file.close()
+        self.graph.close()
 
 
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
-        prevars.session_operator = prevars.request.session.get('operator', None)
-        res = func(prevars, *args, **kwargs)
-        if prevars.game_operator is not None and not prevars.game_operator.finished:
-            prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
-        else:
-            prevars.request.session['operator'] = None
+        try:
+            prevars.session_operator = prevars.request.session.get('operator', None)
+            res = func(prevars, *args, **kwargs)
+            if prevars.game_operator is not None and not prevars.game_operator.finished:
+                prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
+            else:
+                prevars.request.session['operator'] = None
+        finally:
+            prevars.close()
         return res
 
     return wrapper
