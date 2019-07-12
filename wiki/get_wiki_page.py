@@ -122,7 +122,7 @@ def get_start(prevars):
 
 
 @load_prevars
-def get_start2(prevars):
+def custom_game_start(prevars):
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             TRIAL_GAME_TYPE,
