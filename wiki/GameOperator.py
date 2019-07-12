@@ -48,16 +48,15 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         self._difficulty = difficult
 
     def choose_start_and_end_pages(self) -> (int, int):
-        file = open(
+        with open(
             settings.LEVEL_FILE_NAMES[self._difficulty.value],
             'rb'
-        )
-        cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        pair_id = randrange(0, cnt - 1)
-        file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * 2)
-        start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        file.close()
+        ) as diff_file:
+            cnt = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
+            pair_id = randrange(0, cnt - 1)
+            diff_file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * 2)
+            start_page_id = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
+            end_page_id = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
 
         return start_page_id, end_page_id
 
