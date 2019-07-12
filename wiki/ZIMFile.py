@@ -46,7 +46,8 @@ class Article:
         entry = self._entry
         while 'redirectIndex' in entry.keys():
             redirect_index = entry['redirectIndex']
-            entry = self._zim_file.read_directory_entry_by_index(redirect_index)
+            entry = self._zim_file.read_directory_entry_by_index(
+                redirect_index)
             redirect_counter += 1
             if redirect_counter == max_redirects_count:
                 break
@@ -63,7 +64,8 @@ class Article:
     @property
     def _article(self):
         if self._article_cached is None:
-            article = self._zim_file._get_article_by_index(self.index, follow_redirect=False)
+            article = self._zim_file._get_article_by_index(
+                self.index, follow_redirect=False)
             self._article_cached = article
         return self._article_cached
 
@@ -96,10 +98,26 @@ class ZIMFile:
     NAMESPACE_ARTICLE = "A"
 
     def __init__(self, filename, index_filename, encoding='utf-8'):
+<<<<<<< HEAD
         self._impl = zimply.zimply.ZIMFile(filename, encoding)
         self._article_indexes = os.open(index_filename, os.O_RDONLY)
         #print('file', self._article_indexes)
         self._good_article_count = os.fstat(self._article_indexes).st_size // BLOCK_SIZE
+=======
+        self._impl = None
+        self._article_indexes = None
+        try:
+            self._impl = zimply.zimply.ZIMFile(filename, encoding)
+            self._article_indexes = os.open(index_filename, os.O_RDONLY)
+            self._good_article_count = os.fstat(
+                self._article_indexes).st_size // BLOCK_SIZE
+        except:
+            if self._article_indexes is not None:
+                os.close(self._article_indexes)
+            if self._impl is not None:
+                self._impl.close()
+            raise
+>>>>>>> master
 
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
@@ -120,4 +138,8 @@ class ZIMFile:
 
     def close(self):
         self._impl.close()
+<<<<<<< HEAD
         #self._article_indexes.close()
+=======
+        os.close(self._article_indexes)
+>>>>>>> master

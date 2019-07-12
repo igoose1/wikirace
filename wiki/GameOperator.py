@@ -52,16 +52,15 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         # to use old version remove '_V2'
         file_names = settings.LEVEL_FILE_NAMES_V2
         amount_of_blocks = settings.LEVEL_AMOUNT_OF_BLOCKS_V2
-        file = open(
+        with open(
             file_names[self.difficulty.value],
             'rb'
-        )
-        cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        pair_id = randrange(0, cnt)
-        file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * amount_of_blocks)
-        start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        file.close()
+        ) as file:
+            cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
+            pair_id = randrange(0, cnt)
+            file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * amount_of_blocks)
+            start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
+            end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
 
         return start_page_id, end_page_id, pair_id
 

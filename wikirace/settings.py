@@ -110,7 +110,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = settings_local.STATIC_URL
 NUMBER_OF_VERTICES_IN_GRAPH = 5054753
 
 # WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'
