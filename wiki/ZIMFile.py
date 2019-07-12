@@ -19,6 +19,7 @@ logging.baseConfig = saved_basicConfig
 from django.conf import settings
 from random import randrange
 import os
+import struct
 
 BLOCK_SIZE = 4
 
@@ -102,7 +103,7 @@ class ZIMFile:
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
         os.lseek(self._article_indexes, offset, 0)
-        index = bytes_to_int(os.read(self._article_indexes, BLOCK_SIZE))
+        index = struct.unpack('>I', os.read(self._article_indexes, BLOCK_SIZE))
         return self[index]
 
     def __getitem__(self, key):
