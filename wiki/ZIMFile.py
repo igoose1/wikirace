@@ -98,12 +98,6 @@ class ZIMFile:
     NAMESPACE_ARTICLE = "A"
 
     def __init__(self, filename, index_filename, encoding='utf-8'):
-<<<<<<< HEAD
-        self._impl = zimply.zimply.ZIMFile(filename, encoding)
-        self._article_indexes = os.open(index_filename, os.O_RDONLY)
-        #print('file', self._article_indexes)
-        self._good_article_count = os.fstat(self._article_indexes).st_size // BLOCK_SIZE
-=======
         self._impl = None
         self._article_indexes = None
         try:
@@ -117,7 +111,10 @@ class ZIMFile:
             if self._impl is not None:
                 self._impl.close()
             raise
->>>>>>> master
+    
+    
+    def __enter__(self):
+        return self
 
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
@@ -138,8 +135,7 @@ class ZIMFile:
 
     def close(self):
         self._impl.close()
-<<<<<<< HEAD
-        #self._article_indexes.close()
-=======
         os.close(self._article_indexes)
->>>>>>> master
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
