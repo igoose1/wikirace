@@ -79,12 +79,8 @@ def only_digits(name):
     return True
 
 
-bad_words = []
-f = open(settings.FORBIDDEN_WORDS_FILE, 'r')
-words = f.readline().split()
-for line in words:
-    bad_words.append(line)
-f.close()
+with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
+    bad_words = f.read().split()
 
 
 def includes_bad_words(name):
