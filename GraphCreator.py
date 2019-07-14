@@ -4,6 +4,7 @@ import re
 import urllib.parse as parse
 import sys
 from django.conf import settings
+import os
 
 
 def get_links_from_html(data):
@@ -36,8 +37,8 @@ def generate_graph(thread_id, threads_num, output_dir):
     used = [-1] * article_count
     it_id = 0
 
-    edges_file = open(output_dir + 'edges' + str(thread_id), 'wb')
-    offset_file = open(output_dir + 'offset' + str(thread_id), 'wb')
+    edges_file = open(os.path.join(output_dir, 'edges', str(thread_id)), 'wb')
+    offset_file = open(os.path.join(output_dir, 'offset', str(thread_id)), 'wb')
 
     offset = 0
 
