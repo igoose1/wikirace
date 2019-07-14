@@ -127,8 +127,8 @@ WIKI_ARTICLES_INDEX_FILE_PATH = DATA_DIR + 'good_articles_list'
 V1_DIR = 'precalc_pairs_v1/'
 LEVEL_FILE_NAMES = {
     "easy": DATA_DIR + V1_DIR + "easy",
-    "medium": DATA_DIR + V1_DIR + "precalc_pairs_v1/medium",
-    "hard": DATA_DIR + V1_DIR + "precalc_pairs_v1/hard",
+    "medium": DATA_DIR + V1_DIR + "medium",
+    "hard": DATA_DIR + V1_DIR + "hard",
 }
 V2_DIR = 'precalc_pairs_v2/'
 LEVEL_PATH_FILE_NAMES_V2 = {
