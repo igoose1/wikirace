@@ -6,11 +6,8 @@ from time import time
 from wiki.ZIMFile import ZIMFile
 
 from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words, bfs
-from django.conf import settings
-import os
 import sys
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
+from settings_import import settings
 
 try:
     walks = int(sys.argv[1])
