@@ -1,9 +1,6 @@
 from random import randrange, shuffle
 import struct
-from django.conf import settings
-import os
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
+from settings_import import settings
 
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 

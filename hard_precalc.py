@@ -4,10 +4,8 @@ from wiki.GraphReader import GraphReader
 from random import choice
 from precalc_methods import write_to_files, choose_start_vertex, bfs
 from time import time
-from django.conf import settings
-import os
+from settings_import import settings
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 try:
