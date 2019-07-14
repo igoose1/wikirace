@@ -26,7 +26,7 @@ def int_to_bytes(x):
     return bytes([b1, b2, b3, b4])
 
 
-def generate_graph(x, threads_num):
+def generate_graph(x, threads_num, output_dir):
     if x < 0 or x >= threads_num:
         return
 
@@ -36,8 +36,8 @@ def generate_graph(x, threads_num):
     used = [-1] * article_count
     it_id = 0
 
-    edges = open('data/edges' + str(x), 'wb')
-    offset = open('data/offset' + str(x), 'wb')
+    edges = open(output_dir + 'edges' + str(x), 'wb')
+    offset = open(output_dir + 'offset' + str(x), 'wb')
     off = 0
 
     start_time = time.time()
@@ -84,6 +84,7 @@ def generate_graph(x, threads_num):
 in command line:
 1 argument - id of thread (from 0 to (number_of_threads - 1))
 2 argument - number of threads
+3 argument - where to put result
 '''
 
-generate_graph(int(sys.argv[1]), int(sys.argv[2]))
+generate_graph(int(sys.argv[1]), int(sys.argv[2]), sys.argv[3])
