@@ -103,4 +103,4 @@ OUT_DIR = 'wiki/data'
 write_to_files(OUT_DIR + 'medium', OUT_DIR + 'medium_paths', medium_pairs, medium_paths)
 write_to_files(OUT_DIR + 'easy', OUT_DIR + 'easy_paths', easy_pairs, easy_paths)
 
-print(time() - start_time)
+print('Execution time:', time() - start_time)
