@@ -39,10 +39,11 @@ def get(request, title_name):
             graph.close()
             return winpage(request)
         elif next_page_result is None:
+            url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
             zim_file.close()
             graph.close()
             return HttpResponseRedirect(
-                zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+                url
             )
 
         template = loader.get_template('wiki/page.html')
@@ -73,10 +74,11 @@ def get_start(request):
     game_operator = GameOperator(zim_file, graph)
     game_operator.initialize_game()
     request.session['operator'] = game_operator.save()
+    redirect_url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     zim_file.close()
     graph.close()
     return HttpResponseRedirect(
-        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+        redirect_url
     )
 
 
@@ -92,10 +94,11 @@ def get_back(request):
     game_operator.load(session_operator)
     game_operator.prev_page()
     request.session['operator'] = game_operator.save()
+    url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     zim_file.close()
     graph.close()
     return HttpResponseRedirect(
-        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+        url
     )
 
 
@@ -107,10 +110,11 @@ def get_continue(request):
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     game_operator.load(session_operator)
+    url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     zim_file.close()
     graph.close()
     return HttpResponseRedirect(
-        zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
+        url
     )
 
 
