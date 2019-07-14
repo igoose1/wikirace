@@ -121,19 +121,26 @@ DATA_DIR = settings_local.DATA_DIR
 WIKI_ZIMFILE_PATH = DATA_DIR + 'wikipedia_ru.zim'
 GRAPH_OFFSET_PATH = DATA_DIR + 'graph/offset_all'
 GRAPH_EDGES_PATH = DATA_DIR + 'graph/edges_all'
+REVERSE_GRAPH_OFFSET_PATH = DATA_DIR + 'reverse_graph/reverse_offset'
+REVERSE_GRAPH_EDGES_PATH = DATA_DIR + 'reverse_graph/reverse_edges'
 WIKI_ARTICLES_INDEX_FILE_PATH = DATA_DIR + 'good_articles_list'
+V1_DIR = 'precalc_pairs_v1/'
 LEVEL_FILE_NAMES = {
-    "easy": DATA_DIR + "precalc_pairs_v1/easy",
-    "medium": DATA_DIR + "precalc_pairs_v1/medium",
-    "hard": DATA_DIR + "precalc_pairs_v1/hard",
+    "easy": DATA_DIR + V1_DIR + "easy",
+    "medium": DATA_DIR + V1_DIR + "medium",
+    "hard": DATA_DIR + V1_DIR + "hard",
 }
+V2_DIR = 'precalc_pairs_v2/'
 LEVEL_PATH_FILE_NAMES_V2 = {
-    "easy": DATA_DIR + 'precalc_pairs_v2/easy_paths',
-    "medium": DATA_DIR + 'precalc_pairs_v2/medium_paths',
-    "hard": DATA_DIR + 'precalc_pairs_v2/hard_paths'
+    "easy": DATA_DIR + V2_DIR + 'easy_paths',
+    "medium": DATA_DIR + V2_DIR + 'medium_paths',
+    "hard": DATA_DIR + V2_DIR + 'hard_paths'
 }
 LEVEL_FILE_NAMES_V2 = {
-    "easy": DATA_DIR + 'precalc_pairs_v2/easy',
-    "medium": DATA_DIR + 'precalc_pairs_v2/medium',
-    "hard": DATA_DIR + 'oprecalc_pairs_v2/hard'
+    "easy": DATA_DIR + V2_DIR + 'easy',
+    "medium": DATA_DIR + V2_DIR + 'medium',
+    "hard": DATA_DIR + V2_DIR + 'hard'
 }
+LEVEL_AMOUNT_OF_BLOCKS_V2 = 3
+LEVEL_AMOUNT_OF_BLOCKS = 2
+FORBIDDEN_WORDS_FILE = DATA_DIR + 'forbidden_words.txt'

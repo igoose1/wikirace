@@ -13,6 +13,7 @@
 <div class="move_time_block">
     <div class="move_block">
         {{ counter }} ход{{move_end}}
+        <a href="/show_path_page">Самый короткий путь</a>
     </div>
     <div class="time_block">
         {{ time }}
@@ -24,7 +25,7 @@
     </div>
     <img src="../../static/wiki/baseline-arrow_forward_ios-24px.svg" class="arrow_block">
     <div class="to_block">
-        {{ to }}
+        <a href="/hint_page">{{ to }}</a>
     </div>
 </div>
 <a href="/game_start">
