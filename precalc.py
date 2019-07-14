@@ -5,7 +5,7 @@ from random import randrange
 from time import time
 from wiki.ZIMFile import ZIMFile
 from precalc_methods import write_to_files, choose_start_vertex, is_number, includes_bad_words, bfs
-import sys
+import sys, os
 from settings_import import settings
 import argparse
 

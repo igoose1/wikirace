@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys
+import sys, os
 from wiki.GraphReader import GraphReader
 from random import choice
 from precalc_methods import write_to_files, choose_start_vertex, bfs

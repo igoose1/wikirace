@@ -20,13 +20,13 @@ class GameTypes(Enum):
 
 class GameTaskGenerator(object):
 
-    def choose_start_and_end_pages(self) -> (int, int):
+    def choose_path(self) -> list:
         raise NotImplementedError("This is super class, implement this field in child class.")
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
 
-    def choose_start_and_end_pages(self) -> (int, int):
+    def choose_path(self) -> list:
         start_page_id = self._zim_file.random_article().index
         end_page_id = start_page_id
         path = [start_page_id]
@@ -38,7 +38,7 @@ class RandomGameTaskGenerator(GameTaskGenerator):
             end_page_id = edges[next_id]
             path.append(end_page_id)
 
-        return start_page_id, end_page_id, path
+        return path
 
     def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
         self._zim_file = zim_file
@@ -50,24 +50,18 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
     def __init__(self, difficult):
         self._difficulty = difficult
 
-    def choose_start_and_end_pages(self) -> (int, int):
+    def choose_path(self) -> list:
         # to use old version remove '_V2'
         file_names = settings.LEVEL_FILE_NAMES_V2
-        amount_of_blocks = settings.LEVEL_AMOUNT_OF_BLOCKS_V2
         with open(
                 file_names[self._difficulty.value],
                 'rb'
         ) as file:
             cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
             pair_id = randrange(0, cnt)
-            file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * amount_of_blocks)
-            start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-            end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
             path = get_path(pair_id, self._difficulty.value)
 
-        print('difficulty', self._difficulty.value, path)
-
-        return start_page_id, end_page_id, path
+        return path
 
 
 class GameOperator:
@@ -133,7 +127,9 @@ class GameOperator:
 
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        start_page_id, end_page_id, path = game_task_generator.choose_start_and_end_pages()
+        path = game_task_generator.choose_path()
+        start_page_id = path[0]
+        end_page_id = path[-1]
         start_article = zim_file[start_page_id].follow_redirect()
         end_article = zim_file[end_page_id].follow_redirect()
         if True in (el.is_redirecting for el in (start_article, end_article)):
