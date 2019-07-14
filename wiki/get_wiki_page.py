@@ -57,7 +57,7 @@ def load_prevars(func):
         try:
             prevars.session_operator = prevars.request.session.get('operator', None)
             res = func(prevars, *args, **kwargs)
-            if prevars.game_operator is not None and not prevars.game_operator.finished:
+            if prevars.game_operator is not None:
                 prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
             else:
                 prevars.request.session['operator'] = None
