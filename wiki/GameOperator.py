@@ -2,7 +2,7 @@ from wiki.ZIMFile import ZIMFile, Article
 from random import randrange
 from django.conf import settings
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 from struct import unpack
 from enum import Enum
 
@@ -115,8 +115,8 @@ class GameOperator:
         if article.index != self.game.current_page_id:
             self._game.steps += 1
             Turn.objects.create(
-                from_page_id=self._game.current_page_id,
-                to_page_id=article.index,
+                start_page_id=self._game.current_page_id,
+                end_page_id=article.index,
                 game_id=self._game.game_id,
                 time=timezone.now(),
             )
@@ -125,21 +125,22 @@ class GameOperator:
             self._history.append(article.index)
 
     @classmethod
+    def create_pair(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, pair_id=None):
+        if not pair_id:
+            start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+            start_page_id = zim_file[start_page_id].follow_redirect().index
+            end_page_id = zim_file[end_page_id].follow_redirect().index
+            game_pair = GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
+        else:
+            game_pair = get_object_or_404(GamePair, pair_id=pair_id)
+        return game_pair
+
+    @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader,
                     pair_id=None):
-        start_page_id = None
-        if pair_id:
-            game_pair = GamePair.objects.get_or_create(pair_id=pair_id)
-            if game_pair[1]:  # was created
-                # what to do if there is not such id? Later
-                pass
-            game_pair = game_pair[0]
-            start_page_id = game_pair.from_page_id
-            end_page_id = game_pair.to_page_id
-        if not start_page_id:
-            start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
-        start_article = zim_file[start_page_id].follow_redirect()
-        end_article = zim_file[end_page_id].follow_redirect()
+        game_pair = GameOperator.create_pair(game_task_generator, zim_file, pair_id)
+        start_article = zim_file[game_pair.start_page_id].follow_redirect()
+        end_article = zim_file[game_pair.end_page_id].follow_redirect()
         if True in (el.is_redirecting for el in (start_article, end_article)):
             return None
         game = Game.objects.create(
@@ -149,9 +150,7 @@ class GameOperator:
             start_time=timezone.now(),
             last_action_time=timezone.now(),
         )
-        if not pair_id:
-            game_pair = GamePair.objects.get_or_create(from_page_id=start_article.index, to_page_id=end_article.index)[0]
-        return GameOperator(game, [start_page_id], graph_reader, zim_file, game_pair)
+        return GameOperator(game, [start_article.index], graph_reader, zim_file, game_pair)
 
     def serialize_game_operator(self) -> dict:
         self._game.save()
@@ -184,20 +183,20 @@ class GameOperator:
                     current_page_id=current_page_id,
                     last_action_time=timezone.now()
                 )
-                game_pair = GamePair.objects.get_or_create(from_page_id=start_page_id, to_page_id=end_page_id)[0]
+                game_pair = GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
             else:
                 game = Game.objects.get(
                     game_id=data[6]
                 )
                 game.current_page_id = current_page_id
-                game_pair = GamePair.objects.get_or_create(from_page_id=game.start_page_id,
-                                                           to_page_id=game.end_page_id)[0]
+                game_pair = GamePair.objects.get_or_create(start_page_id=game.start_page_id,
+                                                           end_page_id=game.end_page_id)[0]
         else:
             if "game_id" in data.keys() and 'history' in data.keys():
                 game = Game.objects.get(game_id=data["game_id"])
                 history = data['history']
-                game_pair = GamePair.objects.get_or_create(from_page_id=game.start_page_id,
-                                                           to_page_id=game.end_page_id)[0]
+                game_pair = GamePair.objects.get_or_create(start_page_id=game.start_page_id,
+                                                           end_page_id=game.end_page_id)[0]
             else:
                 return None
         return GameOperator(game, history, graph_reader, zim_file, game_pair, load_testing)

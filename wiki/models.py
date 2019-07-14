@@ -44,8 +44,8 @@ class Turn(models.Model):
     Saving of user's steps
     """
     game_id = models.IntegerField()
-    from_page_id = models.IntegerField()
-    to_page_id = models.IntegerField()
+    start_page_id = models.IntegerField()
+    end_page_id = models.IntegerField()
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
 
@@ -54,6 +54,6 @@ class GamePair(models.Model):
     """
     Ids of all pairs. Uniquely representable structure of game.
     """
-    from_page_id = models.IntegerField(default=None)
-    to_page_id = models.IntegerField(default=None)
+    start_page_id = models.IntegerField(default=0)
+    end_page_id = models.IntegerField(default=0)
     pair_id = models.AutoField(primary_key=True)

@@ -103,7 +103,7 @@ def get_game_task_generator(difficulty, prevars):
 
 
 @load_prevars
-def get_start(prevars):
+def get_start(prevars, pair_id=None):
     settings = get_settings(
         prevars.request.session.get('settings', dict())
     )
@@ -123,17 +123,10 @@ def get_start(prevars):
             prevars
         ),
         prevars.zim_file,
-        prevars.graph
+        prevars.graph,
+        pair_id,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
-
-
-@load_prevars
-def get_by_id(prevars, pair_id):
-    if not prevars.game_operator:
-        prevars.game_operator = GameOperator.create_game(None, prevars.zim_file, prevars.graph, pair_id)
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
-
 
 @requires_game
 def get_continue(prevars):
