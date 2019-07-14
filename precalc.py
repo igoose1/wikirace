@@ -4,7 +4,7 @@ from wiki.GraphReader import GraphReader
 from random import randrange
 from time import time
 from wiki.ZIMFile import ZIMFile
-from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words, bfs
+from precalc_methods import write_to_files, choose_start_vertex, is_number, includes_bad_words, bfs
 import sys
 from settings_import import settings
 import argparse
@@ -30,7 +30,7 @@ dist_range = {
 
 
 def ok_name(name):
-    return not only_digits(name) and not includes_bad_words(name)
+    return not is_number(name) and not includes_bad_words(name)
 
 
 def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_name=None):

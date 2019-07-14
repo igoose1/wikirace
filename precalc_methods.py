@@ -69,11 +69,8 @@ def choose_start_vertex(reader):
     return page_id
 
 
-def only_digits(name):
-    for c in name:
-        if c.isdigit():
-            return False
-    return True
+def is_number(name):
+    return all(c.isdigit() for c in name)
 
 
 with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
