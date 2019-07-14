@@ -1,7 +1,11 @@
 from random import randrange
 import struct
+from django.conf import settings
+import os
 
-N = 5054753
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
+
+N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
 def write_to_files(pair_file_name, path_file_name, pairs, paths):
@@ -39,8 +43,9 @@ def only_digits(name):
 
 
 bad_words = []
-f = open('wiki/data/forbidden_words.txt', 'r')
-for line in f:
+f = open(settings.FORBIDDEN_WORDS_FILE, 'r')
+words = f.readline().split()
+for line in words:
     bad_words.append(line)
 f.close()
 

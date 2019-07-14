@@ -1,8 +1,7 @@
 from wiki.GraphReader import GraphReader
 from random import randrange, shuffle
 from time import time
-
-from zimply.zimply import ZIMFile
+from wiki.ZIMFile import ZIMFile
 
 from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words
 from django.conf import settings
@@ -39,8 +38,14 @@ def bfs(start_page_id, reader, walk=-1):
     return dist, go_to
 
 
+try:
+    walks = int(sys.argv[1])
+except IndexError:
+    print('Usage $./precalc.py <iterations_amount>')
+    exit(1)
+
 start_time = time()
-N = 5054753
+N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 reverse_reader = GraphReader(settings.REVERSE_GRAPH_EDGES_PATH, settings.REVERSE_GRAPH_OFFSET_PATH)
 reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, 'utf-8')
@@ -48,12 +53,31 @@ easy_pairs = []
 medium_pairs = []
 easy_paths = []
 medium_paths = []
+dist_range = {
+    'easy': [2, 2],
+    'medium' : [3, 4]
+}
 
-N = 5054753
-for walk in range(1):
+
+def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_name=None):
+    if len(visited) < dist_range[level][0]:
+        return
+    steps = min(randrange(dist_range[level][0], dist_range[level][1] + 1), len(visited))
+    final = visited[steps-1]
+    cnt1 = reverse_reader.edges_count(start)
+    cnt2 = reverse_reader.edges_count(final)
+    if cnt1 >= outer_links and cnt2 >= outer_links:
+        final_name = zim[final].title
+        if start_name is None:
+            start_name = zim[start].title
+        if not only_digits(name) and not includes_bad_words(name):
+            pairs.append((start, final))
+            paths.append(visited[:steps - 1])
+
+
+for walk in range(walks):
     start_vertex = choose_start_vertex(reader)
     dist, go_to = bfs(start_vertex, reader, walk=walk)
-    dists = [[2, 3], [4, 5]]
     for cur_vertex in range(N):
         v = cur_vertex
         if v % 10000 == 0:
@@ -64,31 +88,19 @@ for walk in range(1):
         if only_digits(cur_name):
             continue
         visited = []
-        max_steps = randrange(dists[1][0], dists[1][1])
+        max_steps = randrange(dists[1][0], dists[1][1] + 1)
         while len(visited) < max_steps:
             if len(go_to[v]) == 0:
                 break
             next_ = go_to[v][randrange(0, len(go_to[v]))]
             visited.append(next_)
             v = next_
-        easy_steps = min(randrange(dists[0][0], dists[0][1] + 1), len(visited))
-        medium_steps = min(randrange(dists[1][0], dists[1][1] + 1), len(visited))
-        if easy_steps >= dists[0][0]:
-            cnt1 = reverse_reader.edges_count(cur_vertex)
-            cnt2 = reverse_reader.edges_count(visited[easy_steps - 1])
-            if cnt1 >= 10 and cnt2 >= 10:
-                name = zim.read_directory_entry_by_index(visited[easy_steps - 1])['title']
-                if not only_digits(name)and not includes_bad_words(name):
-                    easy_pairs.append((cur_vertex, visited[easy_steps - 1]))
-                    easy_paths.append(visited[:easy_steps - 1])
-        if medium_steps >= dists[1][0]:
-            name = zim.read_directory_entry_by_index(visited[medium_steps - 1])['title']
-            if not only_digits(name) and not includes_bad_words(name):
-                medium_pairs.append((cur_vertex, visited[medium_steps - 1]))
-                medium_paths.append(visited[:medium_steps - 1])
+        add_pair_if_ok(cur_vertex, visited, 'easy', easy_pairs, easy_paths, start_name=cur_name)
+        add_pair_if_ok(cur_vertex, visited, 'medium', medium_pairs, medium_paths, start_name=cur_name)
 
-write_to_files('data/medium', 'data/medium_paths', medium_pairs, medium_paths)
-write_to_files('data/easy', 'data/easy_paths', easy_pairs, easy_paths)
+OUT_DIR = 'wiki/data'
+
+write_to_files(OUT_DIR + 'medium', OUT_DIR + 'medium_paths', medium_pairs, medium_paths)
+write_to_files(OUT_DIR + 'easy', OUT_DIR + 'easy_paths', easy_pairs, easy_paths)
 
 print(time() - start_time)
-print(max(dist))
