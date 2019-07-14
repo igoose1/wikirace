@@ -77,7 +77,8 @@ for walk in range(walks):
         pairs.append([from_vertex, to_vertex])
         paths.append(path)
 
-OUT_DIR = 'wiki/data/'
+write_to_files(os.path.join(OUT_DIR, 'hard'),
+    os.path.join(OUT_DIR, 'hard_paths'),
+    easy_pairs, easy_paths)
 
-write_to_files(OUT_DIR + 'hard', OUT_DIR + 'hard_paths', pairs, paths)
 print('program executed in', time() - start_time)
