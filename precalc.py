@@ -84,7 +84,7 @@ for walk in range(walks):
             print('walk', walk, v, 'ready')
         if dist[v] > 5:
             continue
-        cur_name = zim.read_directory_entry_by_index(cur_vertex)['title']
+        cur_name = zim[cur_vertex].title
         if only_digits(cur_name):
             continue
         visited = []
