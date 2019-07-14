@@ -62,3 +62,11 @@ class Trial(models.Model):
     trial_name = models.CharField(default='испытание', max_length=200)
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
+
+    def __str__(self):
+        return '{trial_name}, ind = {game_id}, path: {from_page_id} -> {to_page_id}'.format(
+            trial_name=self.trial_name,
+            game_id=self.game_id,
+            from_page_id=self.from_page_id,
+            to_page_id=self.to_page_id
+        )

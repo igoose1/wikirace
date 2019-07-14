@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from struct import unpack
 
-from .models import Game, Turn
+from .models import Game, Turn, Trial
 from wiki.GraphReader import *
 
 DIFFICULT_EASY = "easy"
@@ -45,21 +45,16 @@ class RandomGameTaskGenerator(GameTaskGenerator):
 class TrialGameTaskGenerator(GameTaskGenerator):
 
     def choose_start_and_end_pages(self) -> (int, int):
-        start_page_id = self._zim_file.random_article().index
-        end_page_id = start_page_id
-        for step in range(5):
-            edges = list(self._graph_reader.edges(end_page_id))
-            next_id = randrange(0, len(edges))
-            if edges[next_id] == start_page_id:
-                continue
-            end_page_id = edges[next_id]
+        trial = Trial.objects.get(game_id=self._game_id)
+        from_page_id = trial.from_page_id
+        to_page_id = trial.to_page_id
+        print(from_page_id, to_page_id)
+        return from_page_id, to_page_id
 
-        print(start_page_id, end_page_id)
-        return 255, 840532
-
-    def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
+    def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader, game_id):
         self._zim_file = zim_file
         self._graph_reader = graph_reader
+        self._game_id = game_id
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):

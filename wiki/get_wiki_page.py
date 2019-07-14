@@ -97,11 +97,11 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty, prevars):
+def get_game_task_generator(difficulty, prevars, game_id):
     if difficulty == RANDOM_GAME_TYPE:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == TRIAL_GAME_TYPE:
-        return TrialGameTaskGenerator(prevars.zim_file, prevars.graph)
+        return TrialGameTaskGenerator(prevars.zim_file, prevars.graph, game_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -113,23 +113,25 @@ def get_start(prevars):
             get_settings(
                 prevars.request.session.get('settings', dict())
             )['difficulty'],
-            prevars
+            prevars,
+            0
         ),
         prevars.zim_file,
         prevars.graph
     )
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
-
 @load_prevars
-def custom_game_start(prevars):
+def custom_game_start(prevars, game_id):
+    print(game_id)
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             TRIAL_GAME_TYPE,
-            prevars
+            prevars,
+            game_id
         ),
         prevars.zim_file,
-        prevars.graph
+        prevars.graph,
     )
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
