@@ -88,7 +88,7 @@ for walk in range(walks):
         if only_digits(cur_name):
             continue
         visited = []
-        max_steps = randrange(dists[1][0], dists[1][1] + 1)
+        max_steps = 5
         while len(visited) < max_steps:
             if len(go_to[v]) == 0:
                 break
