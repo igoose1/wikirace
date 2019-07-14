@@ -11,7 +11,7 @@ def merge(file_count: int, offset_block: int = 4):
     output_graph = open('edges_all', 'wb')
     output_offset = open('offset_all', 'wb')
     # sum of offsets from previous files
-    offset: int = 0
+    offset = 0
 
     for i in range(file_count):
         input_graph = 'edges' + str(i)

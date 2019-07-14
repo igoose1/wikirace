@@ -20,6 +20,7 @@ from django.conf import settings
 from random import randrange
 from byte_convert import bytes_to_int
 import os
+from wiki.file_holder import file_holder
 
 BLOCK_SIZE = 4
 
@@ -94,28 +95,21 @@ class Article:
         return self._entry.get('url', '')
 
 
+@file_holder
 class ZIMFile:
     NAMESPACE_ARTICLE = "A"
 
     def __init__(self, filename, index_filename, encoding='utf-8'):
         self._impl = None
         self._article_indexes = None
-        try:
-            self._impl = zimply.zimply.ZIMFile(filename, encoding)
-            self._article_indexes = os.open(index_filename, os.O_RDONLY)
-            self._good_article_count = os.fstat(
-                self._article_indexes).st_size // BLOCK_SIZE
-        except:
-            if self._article_indexes is not None:
-                os.close(self._article_indexes)
-            if self._impl is not None:
-                self._impl.close()
-            raise
+        self._impl = self._add_file(zimply.zimply.ZIMFile(filename, encoding))
+        self._article_indexes = self._open_file(index_filename, "rb")
+        self._good_article_count = os.path.getsize(index_filename) // BLOCK_SIZE
 
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
-        os.lseek(self._article_indexes, offset, 0)
-        index = bytes_to_int(os.read(self._article_indexes, BLOCK_SIZE))
+        self._article_indexes.seek(offset)
+        index = bytes_to_int(self._article_indexes.read(BLOCK_SIZE))
         return self[index]
 
     def __getitem__(self, key):
@@ -128,7 +122,3 @@ class ZIMFile:
 
     def __len__(self):
         return len(self._impl)
-
-    def close(self):
-        self._impl.close()
-        os.close(self._article_indexes)

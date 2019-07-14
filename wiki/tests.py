@@ -2,7 +2,8 @@ from django.test import TestCase, Client
 import wiki.ZIMFile
 from django.conf import settings
 from unittest.mock import Mock, patch
-from wiki import GameOperator, models
+from wiki import GameOperator, models, get_wiki_page
+from wiki.file_holder import file_holder
 
 
 class TestZIMFile(TestCase):
@@ -164,3 +165,41 @@ class GetWikiPageTest(TestCase):
             self.assertEqual(resp.status_code, 400)
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
+
+
+class FileLeaksTest(TestCase):
+
+    def testSmoke(self):
+
+        @file_holder
+        class Fake(object):
+            def __init__(self):
+                self.mock_file1 = Mock()
+                self.mock_file1.close = Mock()
+
+                self.mock_file2 = Mock()
+                self.mock_file2.close = Mock()
+
+                self._add_file(self.mock_file1)
+                self._add_file(self.mock_file2)
+
+        test_class = Fake()
+        test_class.close()
+
+        self.assertTrue(test_class.mock_file1.close.called)
+        self.assertTrue(test_class.mock_file2.close.called)
+
+    def testException(self):
+
+        @file_holder
+        class Fake(object):
+            def __init__(self):
+                self.mock_file1 = Mock()
+                self.mock_file1.close = Mock()
+
+                self._add_file(self.mock_file1)
+                raise FileNotFoundError
+
+        with self.assertRaises(FileNotFoundError):
+            test_class = Fake()
+            self.assertTrue(test_class.mock_file1.close.called)
