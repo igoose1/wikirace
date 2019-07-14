@@ -54,6 +54,6 @@ class GamePair(models.Model):
     """
     Ids of all pairs. Uniquely representable structure of game.
     """
-    from_page_id = models.IntegerField()
-    to_page_id = models.IntegerField()
+    from_page_id = models.IntegerField(default=None)
+    to_page_id = models.IntegerField(default=None)
     pair_id = models.AutoField(primary_key=True)

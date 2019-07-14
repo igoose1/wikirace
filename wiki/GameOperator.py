@@ -125,8 +125,19 @@ class GameOperator:
             self._history.append(article.index)
 
     @classmethod
-    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader,
+                    pair_id=None):
+        start_page_id = None
+        if pair_id:
+            game_pair = GamePair.objects.get_or_create(pair_id=pair_id)
+            if game_pair[1]:  # was created
+                # what to do if there is not such id? Later
+                pass
+            game_pair = game_pair[0]
+            start_page_id = game_pair.from_page_id
+            end_page_id = game_pair.to_page_id
+        if not start_page_id:
+            start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
         start_article = zim_file[start_page_id].follow_redirect()
         end_article = zim_file[end_page_id].follow_redirect()
         if True in (el.is_redirecting for el in (start_article, end_article)):
@@ -138,7 +149,8 @@ class GameOperator:
             start_time=timezone.now(),
             last_action_time=timezone.now(),
         )
-        game_pair = GamePair.objects.get_or_create(from_page_id=start_article.index, to_page_id=end_article.index)[0]
+        if not pair_id:
+            game_pair = GamePair.objects.get_or_create(from_page_id=start_article.index, to_page_id=end_article.index)[0]
         return GameOperator(game, [start_page_id], graph_reader, zim_file, game_pair)
 
     def serialize_game_operator(self) -> dict:
@@ -149,8 +161,8 @@ class GameOperator:
         }
 
     @staticmethod
-    def deserialize_game_operator(data, zim_file: ZIMFile, graph_reader: GraphReader, load_testing=False, game_pair=None):
-        if data is None:
+    def deserialize_game_operator(data=None, zim_file=None, graph_reader=None, load_testing=False):
+        if not data:
             return None
         # this ugly if for backward compatibility
         if not isinstance(data, list) and not isinstance(data, dict):

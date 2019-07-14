@@ -130,16 +130,7 @@ def get_start(prevars):
 
 @load_prevars
 def get_by_id(prevars):
-    prevars.game_operator = GameOperator.create_game(
-        get_game_task_generator(
-            GameTypes(
-                settings['difficulty']
-            ),
-            prevars
-        ),
-        prevars.zim_file,
-        prevars.graph
-    )
+    prevars.game_operator = GameOperator.create_game(None, prevars.zim_file, prevars.graph, 12)
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
 
