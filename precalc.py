@@ -76,9 +76,9 @@ for walk in range(walks):
         while len(visited) < max_steps:
             if len(go_to[v]) == 0:
                 break
-            next_ = go_to[v][randrange(0, len(go_to[v]))]
-            visited.append(next_)
-            v = next_
+            next_vertex = go_to[v][randrange(0, len(go_to[v]))]
+            visited.append(next_vertex)
+            v = next_vertex
         add_pair_if_ok(cur_vertex, visited, 'easy',
                        easy_pairs, easy_paths, start_name=cur_name)
         add_pair_if_ok(cur_vertex, visited, 'medium',
