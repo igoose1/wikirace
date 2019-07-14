@@ -85,7 +85,7 @@ for walk in range(walks):
         paths.append(path)
 
 write_to_files(os.path.join(OUT_DIR, 'hard'),
-    os.path.join(OUT_DIR, 'hard_paths'),
-    easy_pairs, easy_paths)
+               os.path.join(OUT_DIR, 'hard_paths'),
+               pairs, paths)
 
-print('program executed in', time() - start_time)
+print('Time of execution: ', time() - start_time)
