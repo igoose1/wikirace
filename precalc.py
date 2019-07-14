@@ -39,9 +39,9 @@ def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_na
         return
     steps = min(randrange(dist_range[level][0], dist_range[level][1] + 1), len(visited))
     final = visited[steps-1]
-    cnt1 = reverse_reader.edges_count(start)
-    cnt2 = reverse_reader.edges_count(final)
-    if cnt1 >= outer_links and cnt2 >= outer_links:
+    links_to_start_page = reverse_reader.edges_count(start)
+    links_to_final_page = reverse_reader.edges_count(final)
+    if links_to_start_page >= outer_links and links_to_final_page >= outer_links:
         final_name = zim[final].title
         if start_name is None:
             start_name = zim[start].title
@@ -73,7 +73,7 @@ for walk in range(walks):
         add_pair_if_ok(cur_vertex, visited, 'easy', easy_pairs, easy_paths, start_name=cur_name)
         add_pair_if_ok(cur_vertex, visited, 'medium', medium_pairs, medium_paths, start_name=cur_name)
 
-OUT_DIR = 'wiki/data'
+OUT_DIR = 'wiki/data/'
 
 write_to_files(OUT_DIR + 'medium', OUT_DIR + 'medium_paths', medium_pairs, medium_paths)
 write_to_files(OUT_DIR + 'easy', OUT_DIR + 'easy_paths', easy_pairs, easy_paths)
