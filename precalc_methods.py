@@ -83,6 +83,7 @@ with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
     bad_words = f.read().split()
 
 
+
 def includes_bad_words(name):
     for word in bad_words:
         if word in name:

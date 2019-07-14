@@ -2,7 +2,7 @@
 import sys
 from wiki.GraphReader import GraphReader
 from random import choice, shuffle
-from precalc_methods import write_to_files, choose_start_vertex
+from precalc_methods import write_to_files, choose_start_vertex, bfs
 from time import time
 from django.conf import settings
 import os
