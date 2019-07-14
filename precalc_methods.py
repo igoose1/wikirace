@@ -12,7 +12,7 @@ def bfs(start_page_id, reader, walk=-1, hard=False):
     dist = [-1] * N
     dist_cnt = dict()
     if hard:
-        go_to = [-1] * N
+        go_to = [-1 for i in range(N)]
     else:
         go_to = [[] for i in range(N)]
     queue = [start_page_id]
