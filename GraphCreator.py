@@ -26,8 +26,8 @@ def int_to_bytes(x):
     return bytes([b1, b2, b3, b4])
 
 
-def generate_graph(x, threads_num, output_dir):
-    if x < 0 or x >= threads_num:
+def generate_graph(thread_id, threads_num, output_dir):
+    if thread_id < 0 or thread_id >= threads_num:
         return
 
     wikipedia = zimply.zimply.ZIMFile(settings.WIKI_ZIMFILE_PATH, 'utf-8')
@@ -36,16 +36,16 @@ def generate_graph(x, threads_num, output_dir):
     used = [-1] * article_count
     it_id = 0
 
-    edges = open(output_dir + 'edges' + str(x), 'wb')
-    offset = open(output_dir + 'offset' + str(x), 'wb')
+    edges = open(output_dir + 'edges' + str(thread_id), 'wb')
+    offset = open(output_dir + 'offset' + str(thread_id), 'wb')
     off = 0
 
     start_time = time.time()
     block = article_count // threads_num
-    start = x * block
-    fin = (x + 1) * block
+    start = thread_id * block
+    fin = (thread_id + 1) * block
 
-    if x == threads_num - 1:
+    if thread_id == threads_num - 1:
         fin = article_count
     for i in range(start, fin):
         if i % 1000 == 0:
