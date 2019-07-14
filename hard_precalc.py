@@ -100,4 +100,4 @@ for walk in range(walks):
 OUT_DIR = 'wiki/data/'
 
 write_to_files(OUT_DIR + 'hard', OUT_DIR + 'hard_paths', pairs, paths)
-print(time() - start_time)
+print('program executed in', time() - start_time)
