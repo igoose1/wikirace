@@ -129,9 +129,10 @@ def get_start(prevars):
 
 
 @load_prevars
-def get_by_id(prevars):
-    prevars.game_operator = GameOperator.create_game(None, prevars.zim_file, prevars.graph, 12)
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+def get_by_id(prevars, pair_id):
+    if not prevars.game_operator:
+        prevars.game_operator = GameOperator.create_game(None, prevars.zim_file, prevars.graph, pair_id)
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -177,6 +178,7 @@ def winpage(prevars):
 
 @requires_game
 def get(prevars, title_name):
+    # print('Get'*100, title_name)
     article = prevars.zim_file[title_name].follow_redirect()
     if article.is_empty or article.is_redirecting:
         return HttpResponseNotFound()

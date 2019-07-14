@@ -10,7 +10,7 @@ urlpatterns = [
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
     url('game_start', get_wiki_page.get_start),
-    url('by_id', get_wiki_page.get_by_id),
+    url('by_id/(.*)', get_wiki_page.get_by_id),
     url('continue', get_wiki_page.get_continue),
     url('back', get_wiki_page.get_back),
     url('hint_page', get_wiki_page.get_hint_page),
