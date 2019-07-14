@@ -16,6 +16,7 @@ from .GameOperator import GameOperator,\
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
+from .models import Trial
 
 
 class PreVariables:
@@ -213,6 +214,17 @@ def get(prevars, title_name):
         template.render(context, prevars.request),
         content_type=article.mimetype
     )
+
+
+@load_prevars
+def choose_custom_game(prevars):
+    trials = Trial.objects.all()
+    template = loader.get_template('wiki/choose_custom_game.html')
+    context = {
+        'title': 'Выбери челлендж',
+        'trials': trials
+    }
+    return HttpResponse(template.render(context, prevars.request))
 
 
 @load_prevars
