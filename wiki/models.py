@@ -9,9 +9,7 @@ class Game(models.Model):
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
-    
-    difficulty = models.TextField(null=True)
-    difficulty_pair_id = models.IntegerField(default=-1)
+    possible_path = models.TextField(default="")
 
     @property
     def finished(self):

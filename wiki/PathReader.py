@@ -11,8 +11,9 @@ def get_path(pair_id, complexity, bytes_count=4):
             return []
     
         offset_file = open(settings.LEVEL_FILE_NAMES_V2[complexity], 'rb')
-        offset_file.seek((pair_id * 3 + 2) * bytes_count)
-
+        offset_file.seek((pair_id * 3 + 1) * bytes_count)
+        
+        start_vertex = unpack('>I', offset_file.read(4))[0]
         finish_vertex = unpack('>I', offset_file.read(4))[0]
         offset = unpack('>I', offset_file.read(4))[0]
     
@@ -20,10 +21,10 @@ def get_path(pair_id, complexity, bytes_count=4):
         path_file.seek(offset)
     
         path_length = unpack('>I', path_file.read(4))[0]
-        path = []
+        path = [start_vertex]
     
         for _ in range(path_length):
-            path.append(zim_file[unpack('>I', path_file.read(4))[0]].title)
-        path.append(zim_file[finish_vertex].title)
+            path.append(unpack('>I', path_file.read(4))[0])
+        path.append(finish_vertex)
 
     return path
