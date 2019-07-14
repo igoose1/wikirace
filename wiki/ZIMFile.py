@@ -111,8 +111,7 @@ class ZIMFile:
             if self._impl is not None:
                 self._impl.close()
             raise
-    
-    
+
     def __enter__(self):
         return self
 
@@ -136,6 +135,6 @@ class ZIMFile:
     def close(self):
         self._impl.close()
         os.close(self._article_indexes)
-    
+
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()

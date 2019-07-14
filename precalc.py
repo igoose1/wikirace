@@ -35,7 +35,7 @@ easy_paths = []
 medium_paths = []
 dist_range = {
     'easy': [2, 2],
-    'medium' : [3, 4]
+    'medium': [3, 4]
 }
 
 
@@ -47,7 +47,7 @@ def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_na
     if len(visited) < dist_range[level][0]:
         return
     steps = min(randrange(dist_range[level][0], dist_range[level][1] + 1), len(visited))
-    final = visited[steps-1]
+    final = visited[steps - 1]
     links_to_start_page = reverse_reader.edges_count(start)
     links_to_final_page = reverse_reader.edges_count(final)
     if links_to_start_page >= outer_links and links_to_final_page >= outer_links:

@@ -107,7 +107,7 @@ class GameOperator:
     @property
     def is_history_empty(self) -> bool:
         return len(self._history) <= 1
-    
+
     @property
     def path(self):
         return list(map(int, self.game.possible_path.split()))

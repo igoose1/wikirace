@@ -75,7 +75,7 @@ for walk in range(walks):
         from_root_part.pop()
         path += from_root_part[::-1]
         for i in range(len(path)):
-            path_slice = path[i+1:]
+            path_slice = path[i + 1:]
             if path[i] in path_slice:
                 idx = path_slice.index(path[i])
                 path = path[:i] + path_slice[idx:]
