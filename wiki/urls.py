@@ -8,6 +8,9 @@ from . import get_wiki_page
 urlpatterns = [
     path('admin', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
+    url('multiplayer/generate', get_wiki_page.get_multiplayer_generate),
+    url('multiplayer/results', get_wiki_page.get_multiplayer_results_page),
+    url('multiplayer/join', get_wiki_page.get_multiplayer_join),
     url('feedback', get_wiki_page.get_feedback_page),
     url('game_start', get_wiki_page.get_start),
     url('continue', get_wiki_page.get_continue),

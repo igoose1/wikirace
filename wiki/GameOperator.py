@@ -61,6 +61,16 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         return start_page_id, end_page_id
 
 
+class FixedGameTaskGenerator(GameTaskGenerator):
+
+    def __init__(self, start_page, end_page):
+        self._start_page = start_page
+        self._end_page = end_page
+
+    def choose_start_and_end_pages(self) -> (int, int):
+        return self._start_page, self._end_page
+
+
 class GameOperator:
     def __init__(self, game: Game, history: list, graph_reader: GraphReader, zim_file: ZIMFile, load_testing=False):
         self._zim = zim_file

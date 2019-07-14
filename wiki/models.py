@@ -1,7 +1,15 @@
 from django.db import models
 
 
+class MultiplayerPair(models.Model):
+    from_page_id = models.IntegerField()
+    to_page_id = models.IntegerField()
+    game_id = models.CharField(max_length=30, primary_key=True)
+
+
 class Game(models.Model):
+    multiplayer = models.ForeignKey(MultiplayerPair, null=True,
+                                    on_delete=models.SET_NULL)
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WikiRace - Победа</title>
+	<link href="../../static/wiki/results_page_style.css" rel="stylesheet">
+    <script src="../../static/wiki/clear_state.js"></script>
+</head>
+<body>
+<div class="win_title">
+    Результаты:
+</div>
+<div>
+	<div class="top_results">
+		<table class="results_table">
+			{% for row in results_table %}
+			<tr {% if row.is_me %} style="background: rgb(0,164,0); color: white;" {% endif %}>
+				<td class="name">{{ row.name }}</td>
+				<td class="result">{{ row.steps }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+	{% if my_results %}
+	<div class="my_result">
+		<table class="results_table" {% if not my_results_finished %} style="background: rgb(164,0,0); color: white;" {% endif %}>
+			<tr>
+				<td class="name">{{ my_results.name }}</td>
+				<td class="result">{{ my_results.steps }}</td>
+			</tr>
+		</table>
+	</div>
+	{% endif %}
+</div>
+<a href="/">
+    <div class="play_block">
+        <img src="../../static/wiki/baseline-home-24px.svg" class="play_block_icon"/>
+    </div>
+</a>
+
+</body>
+</html>
