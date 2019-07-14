@@ -1,18 +1,27 @@
+#!/usr/bin/python3
+
 from wiki.GraphReader import GraphReader
-from random import randrange, shuffle
+from random import randrange
 from time import time
 from wiki.ZIMFile import ZIMFile
 
 from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words, bfs
 from django.conf import settings
-import os, sys
+import os
+import sys
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 
 try:
     walks = int(sys.argv[1])
+except IndexError or TypeError:
+    print('Usage $./precalc.py <iterations_amount> <output_directory>')
+    exit(1)
+
+try:
+    OUT_DIR = sys.argv[2]
 except IndexError:
-    print('Usage $./precalc.py <iterations_amount>')
+    print('Usage: $./precalc.py <iterations_amount> <output_directory>')
     exit(1)
 
 start_time = time()
@@ -70,10 +79,11 @@ for walk in range(walks):
             next_ = go_to[v][randrange(0, len(go_to[v]))]
             visited.append(next_)
             v = next_
-        add_pair_if_ok(cur_vertex, visited, 'easy', easy_pairs, easy_paths, start_name=cur_name)
-        add_pair_if_ok(cur_vertex, visited, 'medium', medium_pairs, medium_paths, start_name=cur_name)
+        add_pair_if_ok(cur_vertex, visited, 'easy',
+                       easy_pairs, easy_paths, start_name=cur_name)
+        add_pair_if_ok(cur_vertex, visited, 'medium',
+                       medium_pairs, medium_paths, start_name=cur_name)
 
-OUT_DIR = 'wiki/data/'
 
 write_to_files(OUT_DIR + 'medium', OUT_DIR + 'medium_paths', medium_pairs, medium_paths)
 write_to_files(OUT_DIR + 'easy', OUT_DIR + 'easy_paths', easy_pairs, easy_paths)
