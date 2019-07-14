@@ -38,6 +38,7 @@ def generate_graph(thread_id, threads_num, output_dir):
 
     edges_file = open(output_dir + 'edges' + str(thread_id), 'wb')
     offset_file = open(output_dir + 'offset' + str(thread_id), 'wb')
+
     offset = 0
 
     start_time = time.time()
