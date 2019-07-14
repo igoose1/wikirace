@@ -128,6 +128,21 @@ def get_start(prevars):
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
 
+@load_prevars
+def get_by_id(prevars):
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            GameTypes(
+                settings['difficulty']
+            ),
+            prevars
+        ),
+        prevars.zim_file,
+        prevars.graph
+    )
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
 @requires_game
 def get_continue(prevars):
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
@@ -159,6 +174,7 @@ def winpage(prevars):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
+        'pair_id': prevars.game_operator.game_pair.pair_id,
         'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.game.steps
         ),
@@ -192,6 +208,7 @@ def get(prevars, title_name):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
+        'pair_id': prevars.game_operator.game_pair.pair_id,
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty
     }

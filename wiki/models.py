@@ -40,9 +40,20 @@ class Feedback(models.Model):
 
 
 class Turn(models.Model):
-
+    """
+    Saving of user's steps
+    """
     game_id = models.IntegerField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
+
+
+class GamePair(models.Model):
+    """
+    Ids of all pairs. Uniquely representable structure of game.
+    """
+    from_page_id = models.IntegerField()
+    to_page_id = models.IntegerField()
+    pair_id = models.AutoField(primary_key=True)
