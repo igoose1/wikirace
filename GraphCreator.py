@@ -38,7 +38,7 @@ def generate_graph(thread_id, threads_num, output_dir):
 
     edges_file = open(output_dir + 'edges' + str(thread_id), 'wb')
     offset_file = open(output_dir + 'offset' + str(thread_id), 'wb')
-    off = 0
+    offset = 0
 
     start_time = time.time()
     block = article_count // threads_num
@@ -52,7 +52,7 @@ def generate_graph(thread_id, threads_num, output_dir):
             print(i, "files are ready")
         current_article = wikipedia.read_directory_entry_by_index(i)
         if 'redirectIndex' in current_article.keys():
-            offset_file.write(int_to_bytes(off))
+            offset_file.write(int_to_bytes(offset))
             continue
         cnt = 0
         if current_article['namespace'] == 'A':
@@ -71,10 +71,10 @@ def generate_graph(thread_id, threads_num, output_dir):
                     continue
                 edges_file.write(int_to_bytes(index))
                 cnt += 1
-        offset_file.write(int_to_bytes(off))
-        off += cnt * 4
+        offset_file.write(int_to_bytes(offset))
+        offset += cnt * 4
 
-    offset_file.write(int_to_bytes(off))
+    offset_file.write(int_to_bytes(offset))
     offset_file.close()
     edges_file.close()
     print('Time of execution:', time.time() - start_time)
