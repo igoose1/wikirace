@@ -178,6 +178,7 @@ def show_path_page(prevars):
     user_path = [start]
     game_id = prevars.game_operator.game.game_id
     turns = Turn.objects.filter(game_id=game_id).order_by('time')
+
     user_path += [prevars.zim_file[turn.to_page_id].title for turn in turns]
     context = {
         'from': our_path[0],
