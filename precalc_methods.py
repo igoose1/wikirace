@@ -22,7 +22,7 @@ def bfs(start_page_id, reader, walk=-1, hard=False):
     while queue_beginning < len(queue):
         cur_vertex = queue[queue_beginning]
         if dist[cur_vertex] > dist[queue[queue_beginning - 1]]:
-            print('walk', walk, 'dist', dist[queue[queue_beginning]], flush=True)
+            print('walk', walk, 'dist', dist[cur_vertex], flush=True)
             dist_cnt[dist[cur_vertex]] = 0
             if dist[cur_vertex] == 10:
                 break
@@ -49,17 +49,17 @@ def write_to_files(pair_file_name, path_file_name, pairs, paths):
     file = open(pair_file_name, 'wb')
     path_file = open(path_file_name, 'wb')
     file.write(struct.pack('>i', len(pairs)))
-    off = 0
+    offset = 0
     for i in range(len(pairs)):
         p = pairs[i]
         file.write(struct.pack('>i', p[0]))
         file.write(struct.pack('>i', p[1]))
-        file.write(struct.pack('>i', off))
+        file.write(struct.pack('>i', offset))
         path_file.write(struct.pack('>i', len(paths[i])))
-        off += 4
+        offset += 4
         for v in paths[i]:
             path_file.write(struct.pack('>i', v))
-            off += 4
+            offset += 4
     file.close()
     path_file.close()
 
