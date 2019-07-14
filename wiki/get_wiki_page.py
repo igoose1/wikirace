@@ -172,10 +172,9 @@ def get_hint_page(prevars):
 def show_path_page(prevars):
     page_id = prevars.game_operator.game.start_page_id
     start = prevars.zim_file[page_id].title
-    our_path_index = list(map(int, prevars.game_operator.game.possible_path.split()))
-    our_path = []
-    for idx in our_path_index:
-        our_path.append(prevars.zim_file[idx].title)
+    our_path = [
+        prevars.zim_file[idx].title for idx in prevars.game_operator.path
+    ]
     user_path = [start]
     game_id = prevars.game_operator.game.game_id
     turns = Turn.objects.filter(game_id=game_id).order_by('time')
