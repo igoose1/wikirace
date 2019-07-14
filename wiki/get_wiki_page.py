@@ -134,7 +134,7 @@ def custom_game_start(prevars, game_id):
         prevars.zim_file,
         prevars.graph,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/custom_game/' + prevars.game_operator.current_page.url)
 
 
 @requires_game
