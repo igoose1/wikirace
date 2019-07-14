@@ -15,7 +15,7 @@ parser.add_argument('out_dir', help='output directory')
 args = parser.parse_args()
 
 start_time = time()
-N = settings.NUMBER_OF_VERTICES_IN_GRAPH
+VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 reverse_reader = GraphReader(settings.REVERSE_GRAPH_EDGES_PATH, settings.REVERSE_GRAPH_OFFSET_PATH)
 reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
@@ -54,7 +54,7 @@ def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_na
 for walk in range(args.iter_num):
     start_vertex = choose_start_vertex(reader)
     dist, go_to = bfs(start_vertex, reader, walk=walk)
-    for cur_vertex in range(N):
+    for cur_vertex in range(VERTICES_COUNT):
         if cur_vertex % 10000 == 0:
             print('walk', walk, cur_vertex, 'ready')
         if dist[cur_vertex] > 5:

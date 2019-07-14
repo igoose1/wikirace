@@ -7,7 +7,7 @@ from time import time
 from settings_import import settings
 import argpase
 
-N = settings.NUMBER_OF_VERTICES_IN_GRAPH
+VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 parser = argparse.ArgumentParser()
 parser.add_argument('iter_num', help='iterations amount', type=int)
@@ -33,7 +33,7 @@ for walk in range(args.iter_num):
 
     dist_from_root_is_2, dist_from_root_is_7 = [], []
 
-    for v in range(N):
+    for v in range(VERTICES_COUNT):
         if dir_dist[v] != -1 and dir_dist[v] < 5 and rev_dist[v] == 2:
             dist_from_root_is_2.append(v)
         if rev_dist[v] == 7:

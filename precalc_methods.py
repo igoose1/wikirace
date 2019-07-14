@@ -2,16 +2,16 @@ from random import randrange, shuffle
 import struct
 from settings_import import settings
 
-N = settings.NUMBER_OF_VERTICES_IN_GRAPH
+VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
 def bfs(start_page_id, reader, walk=-1, hard=False):
-    dist = [-1] * N
+    dist = [-1] * VERTICES_COUNT
     dist_cnt = dict()
     if hard:
-        go_to = [-1 for i in range(N)]
+        go_to = [-1 for i in range(VERTICES_COUNT)]
     else:
-        go_to = [[] for i in range(N)]
+        go_to = [[] for i in range(VERTICES_COUNT)]
     queue = [start_page_id]
     queue_beginning = 0
     dist[start_page_id] = 0
@@ -62,9 +62,9 @@ def write_to_files(pair_file_name, path_file_name, pairs, paths):
 
 
 def choose_start_vertex(reader):
-    page_id = randrange(0, N)
+    page_id = randrange(0, VERTICES_COUNT)
     while reader.edges_count(page_id) < 5:
-        page_id = randrange(0, N)
+        page_id = randrange(0, VERTICES_COUNT)
     print('start vertex', page_id, flush=True)
     return page_id
 
