@@ -49,7 +49,7 @@ def generate_graph(thread_id, threads_num, output_dir):
         fin = article_count
     for i in range(start, fin):
         if i % 1000 == 0:
-            print(i, "files are ready")
+            print(i, " files are ready")
         current_article = wikipedia.read_directory_entry_by_index(i)
         if 'redirectIndex' in current_article.keys():
             offset_file.write(int_to_bytes(offset))
