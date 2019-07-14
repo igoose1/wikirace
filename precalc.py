@@ -59,6 +59,10 @@ dist_range = {
 }
 
 
+def ok_name(name):
+    return not only_digits(name) and not includes_bad_words(name)
+
+
 def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_name=None):
     if len(visited) < dist_range[level][0]:
         return
@@ -70,7 +74,7 @@ def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_na
         final_name = zim[final].title
         if start_name is None:
             start_name = zim[start].title
-        if not only_digits(name) and not includes_bad_words(name):
+        if ok_name(start_name) and ok_name(final_name):
             pairs.append((start, final))
             paths.append(visited[:steps - 1])
 
