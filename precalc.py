@@ -4,22 +4,15 @@ from wiki.GraphReader import GraphReader
 from random import randrange
 from time import time
 from wiki.ZIMFile import ZIMFile
-
 from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words, bfs
 import sys
 from settings_import import settings
+import argparse
 
-try:
-    walks = int(sys.argv[1])
-except IndexError or TypeError:
-    print('Usage $./precalc.py <iterations_amount> <output_directory>')
-    exit(1)
-
-try:
-    OUT_DIR = sys.argv[2]
-except IndexError:
-    print('Usage: $./precalc.py <iterations_amount> <output_directory>')
-    exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument('iter_num', help='iterations amount', type=int)
+parser.add_argument('out_dir', help='output directory')
+args = parser.parse_args()
 
 start_time = time()
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
@@ -58,7 +51,7 @@ def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_na
             paths.append(visited[:steps - 1])
 
 
-for walk in range(walks):
+for walk in range(args.iter_num):
     start_vertex = choose_start_vertex(reader)
     dist, go_to = bfs(start_vertex, reader, walk=walk)
     for cur_vertex in range(N):
@@ -84,11 +77,11 @@ for walk in range(walks):
                        medium_pairs, medium_paths, start_name=cur_name)
 
 
-write_to_files(os.path.join(OUT_DIR, 'medium'),
-               os.path.join(OUT_DIR, 'medium_paths'),
+write_to_files(os.path.join(args.out_dir, 'medium'),
+               os.path.join(args.out_dir, 'medium_paths'),
                medium_pairs, medium_paths)
-write_to_files(os.path.join(OUT_DIR, 'easy'),
-               os.path.join(OUT_DIR, 'easy_paths'),
+write_to_files(os.path.join(args.out_dir, 'easy'),
+               os.path.join(args.out_dir, 'easy_paths'),
                easy_pairs, easy_paths)
 
 print('Execution time:', time() - start_time)

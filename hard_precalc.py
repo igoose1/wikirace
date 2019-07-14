@@ -5,26 +5,19 @@ from random import choice
 from precalc_methods import write_to_files, choose_start_vertex, bfs
 from time import time
 from settings_import import settings
+import argpase
 
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
-try:
-    walks = int(sys.argv[1])
-except IndexError or TypeError:
-    print('Usage $./hard_precalc.py <iterations_amount> <output_directory>')
-    exit(1)
-
-try:
-    OUT_DIR = sys.argv[2]
-except IndexError:
-    print('Usage $./hard_precalc.py <iterations_amount> <output_directory>')
-    exit(1)
-
+parser = argparse.ArgumentParser()
+parser.add_argument('iter_num', help='iterations amount', type=int)
+parser.add_argument('out_dir', help='output directory')
+args = parser.parse_args()
 
 pairs, paths = [], []
 start_time = time()
 
-for walk in range(walks):
+for walk in range(args.iter_num):
     reader = GraphReader(settings.REVERSE_GRAPH_OFFSET_PATH, settings.REVERSE_GRAPH_EDGES_PATH)
 
     start_page_id = choose_start_vertex(reader)
@@ -82,8 +75,8 @@ for walk in range(walks):
         pairs.append([from_vertex, to_vertex])
         paths.append(path)
 
-write_to_files(os.path.join(OUT_DIR, 'hard'),
-               os.path.join(OUT_DIR, 'hard_paths'),
+write_to_files(os.path.join(args.out_dir, 'hard'),
+               os.path.join(args.out_dir, 'hard_paths'),
                pairs, paths)
 
 print('Time of execution: ', time() - start_time)
