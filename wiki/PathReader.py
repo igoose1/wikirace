@@ -11,9 +11,8 @@ def get_path(pair_id, complexity, bytes_count=4):
             return []
     
         offset_file = open(settings.LEVEL_FILE_NAMES_V2[complexity], 'rb')
-        offset_file.seek((pair_id * 3 + 1) * bytes_count)
-    
-        start_vertex = unpack('>I', offset_file.read(4))[0]
+        offset_file.seek((pair_id * 3 + 2) * bytes_count)
+
         finish_vertex = unpack('>I', offset_file.read(4))[0]
         offset = unpack('>I', offset_file.read(4))[0]
     
