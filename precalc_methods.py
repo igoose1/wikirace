@@ -26,6 +26,8 @@ def bfs(start_page_id, reader, walk=-1, hard=False):
             dist_cnt[dist[cur_vertex]] = 0
             if dist[cur_vertex] == 10:
                 break
+            if hard and dist[cur_vertex] == 3 and dist_cnt[2] < 100:
+                return None, None
         queue_beginning += 1
         dist_cnt[dist[cur_vertex]] += 1
         edges = list(reader.edges(cur_vertex))

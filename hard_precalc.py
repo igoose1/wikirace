@@ -26,8 +26,12 @@ for walk in range(walks):
     print(start_page_id)
 
     rev_dist, rev_go_to = bfs(start_page_id, reader, walk=walk, hard=True)
+    if rev_dist is None:
+        continue
     reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     dir_dist, dir_go_to = bfs(start_page_id, reader, walk=walk, hard=True)
+    if dir_dist is None:
+        continue
 
     dist_from_root_is_2, dist_from_root_is_7 = [], []
 
