@@ -10,7 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
-    url('choose_custom_game/', get_wiki_page.custom_game_start),
+    url('choose_custom_game', get_wiki_page.choose_custom_game),
     url('custom_game/game_start/([0-9]+)', get_wiki_page.custom_game_start),
     url('custom_game/(.*)', get_wiki_page.get),
     url('continue', get_wiki_page.get_continue),

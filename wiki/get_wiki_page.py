@@ -1,17 +1,17 @@
-from django.http import HttpResponse,\
-    HttpResponseRedirect,\
-    HttpResponseNotFound,\
+from django.http import HttpResponse, \
+    HttpResponseRedirect, \
+    HttpResponseNotFound, \
     HttpResponseBadRequest
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
 
 from . import inflection
-from .GameOperator import GameOperator,\
-    DifficultGameTaskGenerator,\
-    RandomGameTaskGenerator,\
-    TrialGameTaskGenerator,\
-    RANDOM_GAME_TYPE,\
+from .GameOperator import GameOperator, \
+    DifficultGameTaskGenerator, \
+    RandomGameTaskGenerator, \
+    TrialGameTaskGenerator, \
+    RANDOM_GAME_TYPE, \
     TRIAL_GAME_TYPE
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
@@ -87,7 +87,7 @@ def change_settings(prevars):
     name = prevars.request.POST.get('name')
 
     difficulty_names = ('random', 'easy', 'medium', 'hard')
-    if difficulty not in difficulty_names\
+    if difficulty not in difficulty_names \
             or (isinstance(name, str) and len(name) > 16):
         return HttpResponseBadRequest()
 
@@ -121,6 +121,7 @@ def get_start(prevars):
         prevars.graph
     )
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
 
 @load_prevars
 def custom_game_start(prevars, game_id):
