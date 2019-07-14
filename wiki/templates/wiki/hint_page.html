@@ -4,12 +4,12 @@
 <head>
     <title>Hint</title>
     <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles.css' %}">
-    <link href="../../static/wiki/hint_page.css" rel="stylesheet">
+    <link href="{% static "wiki/hint_page.css" %}" rel="stylesheet">
 </head>
 <body>
     <div class="content">
         {{ content |safe}}
-        <script src="../../static/wiki/jquery.js"></script>
+        <script src="{% static "wiki/jquery.js" %}"></script>
     </div>
     <script language="javascript" type="text/javascript">
     $(window).on("load",function () {
