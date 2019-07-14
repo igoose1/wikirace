@@ -14,6 +14,7 @@ def get(request, title_name):
 
     content = zim_file.get_by_url('/' + title_name)
     if content is None:
+        zim_file.close()
         raise Http404()
 
     data, namespace, mime_type = content
@@ -21,9 +22,12 @@ def get(request, title_name):
         graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 
         game_operator = GameOperator(zim_file, graph)
-        game_operator.load_testing = ("loadtesting" in request.GET
-                                      and request.META["REMOTE_ADDR"].startswith("127.0.0.1"))
+        game_operator.load_testing = (
+                "loadtesting" in request.GET and request.META["REMOTE_ADDR"].startswith("127.0.0.1")
+        )
         if request.session.get('operator', None) is None:
+            zim_file.close()
+            graph.close()
             return HttpResponseRedirect('/')
         game_operator.load(request.session['operator'])
 
@@ -31,8 +35,12 @@ def get(request, title_name):
         request.session['operator'] = game_operator.save()
 
         if next_page_result:
+            zim_file.close()
+            graph.close()
             return winpage(request)
         elif next_page_result is None:
+            zim_file.close()
+            graph.close()
             return HttpResponseRedirect(
                 zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
             )
@@ -46,11 +54,13 @@ def get(request, title_name):
             'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
             'history_empty': game_operator.is_history_empty()
         }
+        zim_file.close()
+        graph.close()
         return HttpResponse(
             template.render(context, request),
             content_type=mime_type
         )
-
+    zim_file.close()
     return HttpResponse(
         data,
         content_type=mime_type
@@ -63,6 +73,8 @@ def get_start(request):
     game_operator = GameOperator(zim_file, graph)
     game_operator.initialize_game()
     request.session['operator'] = game_operator.save()
+    zim_file.close()
+    graph.close()
     return HttpResponseRedirect(
         zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     )
@@ -74,15 +86,19 @@ def get_back(request):
     game_operator = GameOperator(zim_file, graph)
     session_operator = request.session.get('operator', None)
     if session_operator is None:
+        zim_file.close()
+        graph.close()
         return HttpResponseRedirect('/')
     game_operator.load(session_operator)
     game_operator.prev_page()
     request.session['operator'] = game_operator.save()
+    zim_file.close()
+    graph.close()
     return HttpResponseRedirect(
         zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     )
-    
-    
+
+
 def get_continue(request):
     session_operator = request.session.get('operator', None)
     if session_operator is None:
@@ -91,6 +107,8 @@ def get_continue(request):
     graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
     game_operator = GameOperator(zim_file, graph)
     game_operator.load(session_operator)
+    zim_file.close()
+    graph.close()
     return HttpResponseRedirect(
         zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
     )
@@ -102,6 +120,8 @@ def winpage(request):
     game_operator = GameOperator(zim_file, graph)
     session_operator = request.session.get('operator', None)
     if session_operator is None:
+        zim_file.close()
+        graph.close()
         return HttpResponseRedirect('/')
     game_operator.load(session_operator)
     ending = ''
@@ -118,6 +138,8 @@ def winpage(request):
         'move_end': ending
     }
     template = loader.get_template('wiki/win_page.html')
+    zim_file.close()
+    graph.close()
     return HttpResponse(
         template.render(context, request),
     )
@@ -127,7 +149,7 @@ def get_main_page(request) -> HttpResponse:
     template = loader.get_template('wiki/start_page.html')
     session_operator = request.session.get('operator', None)
     is_playing = False
-    if (session_operator and not session_operator[2]):
+    if session_operator and not session_operator[2]:
         is_playing = True
     return HttpResponse(template.render({'is_playing': is_playing}, request))
 
@@ -138,6 +160,8 @@ def get_hint_page(request):
 
     game_operator = GameOperator(zim_file, graph)
     if request.session.get('operator', None) is None:
+        zim_file.close()
+        graph.close()
         return HttpResponseRedirect('/')
     game_operator.load(request.session['operator'])
 
@@ -149,6 +173,8 @@ def get_hint_page(request):
     }
 
     template = loader.get_template('wiki/hint_page.html')
+    zim_file.close()
+    graph.close()
     return HttpResponse(template.render(context, request))
 
 
