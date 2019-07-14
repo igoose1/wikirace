@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 from wiki.GraphReader import GraphReader
-from random import choice, shuffle
+from random import choice
 from precalc_methods import write_to_files, choose_start_vertex, bfs
 from time import time
 from django.conf import settings
@@ -12,9 +12,16 @@ N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 try:
     walks = int(sys.argv[1])
-except IndexError:
-    print('Usage $./hard_precalc.py <iterations_amount>')
+except IndexError or TypeError:
+    print('Usage $./hard_precalc.py <iterations_amount> <output_directory>')
     exit(1)
+
+try:
+    OUT_DIR = sys.argv[2]
+except IndexError:
+    print('Usage $./hard_precalc.py <iterations_amount> <output_directory>')
+    exit(1)
+
 
 pairs, paths = [], []
 start_time = time()

@@ -74,14 +74,13 @@ def choose_start_vertex(reader):
 
 def only_digits(name):
     for c in name:
-        if ord(c) < ord('0') or ord(c) > ord('9'):
+        if c.isdigit():
             return False
     return True
 
 
 with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
     bad_words = f.read().split()
-
 
 
 def includes_bad_words(name):
