@@ -54,7 +54,9 @@ def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_na
         final_name = zim[final].title
         if start_name is None:
             start_name = zim[start].title
-        if ok_name(start_name) and ok_name(final_name):
+            if not ok_name(start_name):
+                return
+        if ok_name(final_name):
             pairs.append((start, final))
             paths.append(visited[:steps - 1])
 
