@@ -55,8 +55,8 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         file_names = settings.LEVEL_FILE_NAMES_V2
         amount_of_blocks = settings.LEVEL_AMOUNT_OF_BLOCKS_V2
         with open(
-            file_names[self._difficulty.value],
-            'rb'
+                file_names[self._difficulty.value],
+                'rb'
         ) as file:
             cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
             pair_id = randrange(0, cnt)
@@ -64,7 +64,7 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
             start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
             end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
             path = get_path(pair_id, self._difficulty.value)
-        
+
         print('difficulty', self._difficulty.value, path)
 
         return start_page_id, end_page_id, path
@@ -134,7 +134,7 @@ class GameOperator:
         end_article = zim_file[end_page_id].follow_redirect()
         if True in (el.is_redirecting for el in (start_article, end_article)):
             return None
-        
+
         path_str = ' '.join(map(str, path))
         game = Game.objects.create(
             start_page_id=start_article.index,
