@@ -70,7 +70,7 @@ for walk in range(walks):
         if dist[cur_vertex] > 5:
             continue
         cur_name = zim[cur_vertex].title
-        if ok_name(start_name):
+        if ok_name(cur_name):
             continue
         visited = []
         max_steps = 5
