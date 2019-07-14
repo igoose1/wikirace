@@ -77,7 +77,7 @@ def generate_graph(x, threads_num, output_dir):
     offset.write(int_to_bytes(off))
     offset.close()
     edges.close()
-    print('Time of execution: ', time.time() - start_time)
+    print('Time of execution:', time.time() - start_time)
 
 
 '''
