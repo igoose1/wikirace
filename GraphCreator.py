@@ -57,7 +57,7 @@ def generate_graph(thread_id, threads_num, output_dir):
         cnt = 0
         if current_article['namespace'] == 'A':
             data = wikipedia._read_blob(current_article['clusterNumber'], current_article['blobNumber'])
-            links = get_links_from_html(data.decode('utf-8'))
+            links = get_links_from_html(data.decode())
             for link in links:
                 entry, index = wikipedia._get_entry_by_url('A', link)
                 it_id += 1
