@@ -22,7 +22,7 @@ def bfs(start_page_id, reader, walk=-1):
     dist_cnt[0] = 0
     while queue_beginning < len(queue):
         cur_vertex = queue[queue_beginning]
-        if dist[queue[queue_beginning]] > dist[queue[queue_beginning - 1]]:
+        if dist[cur_vertex] > dist[queue[queue_beginning - 1]]:
             print('walk', walk, 'dist', dist[queue[queue_beginning]], flush=True)
             dist_cnt[dist[cur_vertex]] = 0
             if dist[cur_vertex] == 10:
@@ -32,10 +32,11 @@ def bfs(start_page_id, reader, walk=-1):
         edges = list(reader.edges(cur_vertex))
         shuffle(edges)
         for next_ in edges:
-            if dist[next_] == -1:
-                dist[next_] = dist[cur_vertex] + 1
-                queue.append(next_)
-                go_to[next_] = cur_vertex
+            if dist[next_] != -1:
+                continue
+            dist[next_] = dist[cur_vertex] + 1
+            queue.append(next_)
+            go_to[next_] = cur_vertex
     print(dist_cnt)
     return dist, go_to
 
