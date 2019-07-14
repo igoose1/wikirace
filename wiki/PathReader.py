@@ -20,7 +20,7 @@ def get_path(pair_id, complexity, bytes_count=4):
 
     path_length = unpack('>I', path_file.read(4))[0]
     path = [start_vertex]
-    path += [unpack('>I', path_file.read(4))[0] for i in range(path_length))]
+    path += [unpack('>I', path_file.read(4))[0] for i in range(path_length)]
     path += finish_vertex
 
     return path
