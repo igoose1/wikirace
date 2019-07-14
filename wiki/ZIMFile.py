@@ -103,7 +103,7 @@ class ZIMFile:
         self._impl = None
         self._article_indexes = None
         self._impl = self._add_file(zimply.zimply.ZIMFile(filename, encoding))
-        self._article_indexes = self._add_file(open(index_filename, "rb"))
+        self._article_indexes = self._open_file(index_filename, "rb")
         self._good_article_count = os.path.getsize(index_filename) // BLOCK_SIZE
 
     def random_article(self):

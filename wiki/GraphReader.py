@@ -15,8 +15,8 @@ class GraphReader:
     def __init__(self, offset_file_name: str, edges_file_name: str):
         self.offset_file = None
         self.edges_file = None
-        self.offset_file = self._add_file(open(offset_file_name, 'rb'))
-        self.edges_file = self._add_file(open(edges_file_name, 'rb'))
+        self.offset_file = self._open_file(offset_file_name, 'rb')
+        self.edges_file = self._open_file(edges_file_name, 'rb')
 
     def _get_offset_by_id(self, parent_id: int):
         self.offset_file.seek(OFFSET_BLOCK_SIZE * parent_id)

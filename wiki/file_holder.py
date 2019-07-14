@@ -19,7 +19,11 @@ def file_holder(cls):
             self.close()
             raise
 
+    def _open_file(self, *args):
+        return self._add_file(open(*args))
+
     cls.close = _close
     cls._add_file = _add_file
+    cls._open_file = _open_file
     cls.__init__ = _init
     return cls
