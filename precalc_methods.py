@@ -1,4 +1,4 @@
-from random import randrange
+from random import randrange, shuffle
 import struct
 from django.conf import settings
 import os
@@ -6,6 +6,42 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
+
+
+def bfs(start_page_id, reader, walk=-1, hard=False):
+    global N
+    dist = [-1] * N
+    dist_cnt = dict()
+    if hard:
+        go_to = [-1] * N
+    else:
+        go_to = [[] for i in range(N)]
+    queue = [start_page_id]
+    queue_beginning = 0
+    dist[start_page_id] = 0
+    dist_cnt[0] = 0
+    while queue_beginning < len(queue):
+        cur_vertex = queue[queue_beginning]
+        if dist[cur_vertex] > dist[queue[queue_beginning - 1]]:
+            print('walk', walk, 'dist', dist[queue[queue_beginning]], flush=True)
+            dist_cnt[dist[cur_vertex]] = 0
+            if dist[cur_vertex] == 10:
+                break
+        queue_beginning += 1
+        dist_cnt[dist[cur_vertex]] += 1
+        edges = list(reader.edges(cur_vertex))
+        shuffle(edges)
+        for next_ in edges:
+            if dist[next_] != -1:
+                continue
+            dist[next_] = dist[cur_vertex] + 1
+            queue.append(next_)
+            if hard:
+                go_to[next_] = cur_vertex
+            else:
+                go_to[cur_vertex].append(next_)
+    print(dist_cnt)
+    return dist, go_to
 
 
 def write_to_files(pair_file_name, path_file_name, pairs, paths):

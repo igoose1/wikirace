@@ -3,40 +3,11 @@ from random import randrange, shuffle
 from time import time
 from wiki.ZIMFile import ZIMFile
 
-from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words
+from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words, bfs
 from django.conf import settings
 import os, sys
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
-
-
-def bfs(start_page_id, reader, walk=-1):
-    dist = [-1 for i in range(N)]
-    dist_cnt = dict()
-    go_to = [[] for i in range(N)]
-    queue = [start_page_id]
-    idx = 0
-    dist[start_page_id] = 0
-    dist_cnt[0] = 1
-    while idx < len(queue):
-        cur_vertex = queue[idx]
-        if dist[queue[idx]] > dist[queue[idx - 1]]:
-            print('walk', walk, 'dist', dist[queue[idx]], flush=True)
-            dist_cnt[dist[cur_vertex]] = 0
-            if dist[cur_vertex] == 10:
-                break
-        dist_cnt[dist[cur_vertex]] += 1
-        idx += 1
-        edges = list(reader.edges(cur_vertex))
-        shuffle(edges)
-        for next_ in edges:
-            if dist[next_] == -1:
-                dist[next_] = dist[cur_vertex] + 1
-                queue.append(next_)
-                go_to[cur_vertex].append(next_)
-    print(dist_cnt)
-    return dist, go_to
-
 
 try:
     walks = int(sys.argv[1])

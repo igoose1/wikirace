@@ -10,37 +10,6 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
-
-def bfs(start_page_id, reader, walk=-1):
-    global N
-    dist = [-1] * N
-    dist_cnt = dict()
-    go_to = [-1] * N
-    queue = [start_page_id]
-    queue_beginning = 0
-    dist[start_page_id] = 0
-    dist_cnt[0] = 0
-    while queue_beginning < len(queue):
-        cur_vertex = queue[queue_beginning]
-        if dist[cur_vertex] > dist[queue[queue_beginning - 1]]:
-            print('walk', walk, 'dist', dist[queue[queue_beginning]], flush=True)
-            dist_cnt[dist[cur_vertex]] = 0
-            if dist[cur_vertex] == 10:
-                break
-        queue_beginning += 1
-        dist_cnt[dist[cur_vertex]] += 1
-        edges = list(reader.edges(cur_vertex))
-        shuffle(edges)
-        for next_ in edges:
-            if dist[next_] != -1:
-                continue
-            dist[next_] = dist[cur_vertex] + 1
-            queue.append(next_)
-            go_to[next_] = cur_vertex
-    print(dist_cnt)
-    return dist, go_to
-
-
 try:
     walks = int(sys.argv[1])
 except IndexError:
@@ -56,9 +25,9 @@ for walk in range(walks):
     start_page_id = choose_start_vertex(reader)
     print(start_page_id)
 
-    rev_dist, rev_go_to = bfs(start_page_id, reader, walk=walk)
+    rev_dist, rev_go_to = bfs(start_page_id, reader, walk=walk, hard=True)
     reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-    dir_dist, dir_go_to = bfs(start_page_id, reader, walk=walk)
+    dir_dist, dir_go_to = bfs(start_page_id, reader, walk=walk, hard=True)
 
     dist_from_root_is_2, dist_from_root_is_7 = [], []
 
