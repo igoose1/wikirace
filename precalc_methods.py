@@ -9,7 +9,6 @@ N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
 def bfs(start_page_id, reader, walk=-1, hard=False):
-    global N
     dist = [-1] * N
     dist_cnt = dict()
     if hard:
