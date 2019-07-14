@@ -63,16 +63,16 @@ for walk in range(walks):
     start_vertex = choose_start_vertex(reader)
     dist, go_to = bfs(start_vertex, reader, walk=walk)
     for cur_vertex in range(N):
-        v = cur_vertex
-        if v % 10000 == 0:
-            print('walk', walk, v, 'ready')
-        if dist[v] > 5:
+        if cur_vertex % 10000 == 0:
+            print('walk', walk, cur_vertex, 'ready')
+        if dist[cur_vertex] > 5:
             continue
         cur_name = zim[cur_vertex].title
-        if only_digits(cur_name):
+        if ok_name(start_name):
             continue
         visited = []
         max_steps = 5
+        v = cur_vertex
         while len(visited) < max_steps:
             if len(go_to[v]) == 0:
                 break
