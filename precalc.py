@@ -5,7 +5,7 @@ from wiki.ZIMFile import ZIMFile
 
 from precalc_methods import write_to_files, choose_start_vertex, only_digits, includes_bad_words
 from django.conf import settings
-import os
+import os, sys
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wikirace.settings")
 
@@ -48,7 +48,7 @@ start_time = time()
 N = settings.NUMBER_OF_VERTICES_IN_GRAPH
 reverse_reader = GraphReader(settings.REVERSE_GRAPH_EDGES_PATH, settings.REVERSE_GRAPH_OFFSET_PATH)
 reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, 'utf-8')
+zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 easy_pairs = []
 medium_pairs = []
 easy_paths = []
