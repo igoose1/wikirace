@@ -211,6 +211,7 @@ def get(prevars, title_name):
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty
     }
+    print("Id = " + str(prevars.game_operator.game.current_page_id))
     return HttpResponse(
         template.render(context, prevars.request),
         content_type=article.mimetype
