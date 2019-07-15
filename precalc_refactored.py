@@ -20,7 +20,7 @@ class EasyBFSOperator(precalc.BFSOperator):
 
 
 class GenIteration:
-    def __init__(self, graph, reversed_graph, difficulty):
+    def __init__(self, graph, reversed_graph, difficulty, iteration_id=0):
         self.graph = graph
         self.reversed_graph = reversed_graph
         self.title_checker = precalc.TitleChecker()
@@ -30,9 +30,10 @@ class GenIteration:
         self.dist = []
         self.go_to = []
         self._init_dist()
+        self.bfs_operator = EasyBFSOperator(iteration_id)
 
     def _init_dist(self):
-        self.dist, self.go_to = precalc.bfs(self.start_page_id, self.graph)
+        self.dist, self.go_to = bfs(self.start_page_id, self.graph, self.bfs_operator)
 
     def enough_outer_links(self, index):
         links_amount = self.reversed_graph.edges_count(index)

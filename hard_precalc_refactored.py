@@ -21,7 +21,7 @@ class HardBFSOperator(precalc.BFSOperator):
 
 
 class GenIterationHard:
-    def __init__(self, graph, reversed_graph):
+    def __init__(self, graph, reversed_graph, iteration_id=0):
         self.graph = graph
         self.reversed_graph = reversed_graph
         self.paths = []
@@ -34,12 +34,13 @@ class GenIterationHard:
         self.good_sources = []
         self.good_sinks = []
         self._init_dists()
+        self.bfs_operator = HardBFSOperator(iteration_id)
 
     def _init_dists(self):
-        self.dir_dist, self.dir_go_to = precalc.bfs(self.start_page_id,
-                                                    self.graph, hard=True)
-        self.rev_dist, self.rev_go_to = precalc.bfs(self.start_page_id,
-                                                    self.rev_graph, hard=True)
+        self.dir_dist, self.dir_go_to = bfs(self.start_page_id,
+                                            self.graph, self.bfs_operator)
+        self.rev_dist, self.rev_go_to = bfs(self.start_page_id,
+                                            self.rev_graph, self.bfs_operator)
 
     def is_good_sink(self, vertex):
         max_dir_dist = MAX_PATH_LENGTH - SOURCE_LEVEL
