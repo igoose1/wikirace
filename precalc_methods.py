@@ -4,7 +4,6 @@ from settings_import import settings
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
-
 class DifficultyData:
     def __init__(self, out_directory, difficulty_name):
         self.paths = []
@@ -15,12 +14,14 @@ class DifficultyData:
         file_name = self.out_directory + self.difficulty_name
         pair_file = open(file_name, 'wb')
         path_file = open(file_name + '_path', 'wb')
-        pair_file.write(struct.pack('>i', len(pairs)))
+        number_of_pairs = len(self.paths)
+        pair_file.write(struct.pack('>i', number_of_pairs))
         offset = 0
-        for i in range(len(pairs)):
-            p = pairs[i]
-            pair_file.write(struct.pack('>i', p[0]))
-            pair_file.write(struct.pack('>i', p[1]))
+        for i in range(len(paths)):
+            start_vertex = self.pairs[i][0]
+            final_vertex = self.pairs[i][1]
+            pair_file.write(struct.pack('>i', start_vertex))
+            pair_file.write(struct.pack('>i', final_vertex))
             pair_file.write(struct.pack('>i', offset))
             path_file.write(struct.pack('>i', len(paths[i])))
             offset += 4
