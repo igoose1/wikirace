@@ -47,13 +47,25 @@ class GenIterationHard:
                                             self.reversed_graph, self.bfs_operator)
 
     def is_good_sink(self, vertex):
+        '''
+        We choose vertices which are <DESTINATION_LEVEL> steps away from
+        root vertex (in reversed graph). Root vertex is named self.start_page_id
+        These vertices are potential finish articles. Potential start vertices 
+        are <SOURCE_LEVEL> steps away from root vertex.
+        By that choice we garantee that the shortest path from source (start) to
+        sink (finish) is not shorter than 5 steps. Then we find paths from
+        source to root and from root to sink. We make sure this path exists
+        and it is not longer than <MAX_PATH_LENGTH> in this function.
+        '''        
         max_dir_dist = MAX_PATH_LENGTH - SOURCE_LEVEL
-        return (self.dir_dist[vertex] is not None and 
+        return (self.title_checker.is_title_ok(vertex) and
+                self.dir_dist[vertex] is not None and 
                 self.dir_dist[vertex] <= max_dir_dist and 
                 self.rev_dist[vertex] == DESTINATION_LEVEL)
 
     def is_good_source(self, vertex):
-        return self.rev_dist[vertex] == SOURCE_LEVEL
+        return (self.title_checker.is_title_ok(vertex) and
+                self.rev_dist[vertex] == SOURCE_LEVEL)
 
     def gen_sources(self):
         for vertex in range(VERTICES_COUNT):
@@ -105,10 +117,10 @@ class GenIterationHard:
     def run(self):
         self.gen_sources()
         self.gen_sinks()
-        logging.debug('sources and sinks generated')
+        logging.info('sources and sinks generated')
         self.gen_paths()
         self.cut_cycles()
-        logging.debug('paths generated')
+        logging.info('paths generated')
     
     @property
     def generated_paths(self):

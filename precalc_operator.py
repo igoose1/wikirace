@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 l = logging.getLogger('the_logger')
 if args.debug:
-    l.level = logging.DEBUG
+    l.level = logging.INFO
 l.handlers.append(logging.StreamHandler(sys.stderr))
 logging.root = l
 

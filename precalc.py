@@ -27,7 +27,7 @@ class GenIteration:
         self.graph = graph
         self.reversed_graph = reversed_graph
         self.title_checker = precalc.TitleChecker()
-        self.paths = []
+        self._paths = []
         self.start_page_id = precalc.choose_start_vertex(self.graph)
         self.difficulty = difficulty
         self.dist = []
@@ -65,15 +65,11 @@ class GenIteration:
                 continue
             current_path = self.get_path_by_vertex(vertex)
             if self.is_vertex_good(current_path[-1]):
-                self.paths.append(current_path)
+                self._paths.append(current_path)
 
     def run(self):
         self.gen_paths()
 
-    def paths(self):
-        return self.paths
-
-
-
-
-
+    @property
+    def generated_paths(self):
+        return self._paths
