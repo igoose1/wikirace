@@ -45,7 +45,7 @@ def get_a_path(start_vertex, go_to, max_steps):
 def choose_path_from_start(visited, dist_range):
     if len(visited) < dist_range.start:
         return None
-    steps = choice[dist_range]
+    steps = choice(dist_range)
     return visited[:steps+1]
 
 
