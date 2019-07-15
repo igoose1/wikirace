@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 
 class Game(models.Model):
@@ -8,7 +9,7 @@ class Game(models.Model):
     current_page_id = models.IntegerField(null=True, default=None)
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
-    last_action_time = models.DateTimeField()
+    last_action_time = models.DateTimeField(default=datetime.datetime.now())
     game_pair = models.ForeignKey('GamePair', on_delete=models.CASCADE, null=True)
 
     @property
