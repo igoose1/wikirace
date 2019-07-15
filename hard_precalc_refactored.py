@@ -1,8 +1,33 @@
 from random import choice
-from precalc_methods import choose_start_vertex, bfs, TitleChecker
+import precalc_methods as precalc
+from time import time
 from settings_import import settings
+import logging
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
+DESTINATION_LEVEL = 2
+SOURCE_LEVEL = 7
+MIN_DESTINATION_COUNT = 100
+
+
+class HardBFSOperator(precalc.BFSOperator):
+    def __init__(self, iteration_id):
+        self._go_to = [-1 for i in range(VERTICES_COUNT)]
+        self.iteration_id = iteration_id
+        logging.basicConfig(level=logging.INFO)
+    
+    def add_edge(self, start_vertex, final_vertex):
+        self._go_to[final_vertex] = start_vertex
+    
+    @property
+    def go_to(self):
+        return self._go_to
+    
+    def log(self, msg):
+        logging.info('iteration {}: '.format(self.iteration_id) + msg)
+    
+    def bad_root(self, dist_ready, dist_cnt):
+        return dist_ready == DESTINATION_LEVEL and dist_cnt < MIN_DESTINATION_COUNT
 
 
 class GenIterationHard:

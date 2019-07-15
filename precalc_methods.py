@@ -5,7 +5,6 @@ from wiki.ZIMFile import ZIMFile
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
-
 class DifficultyData:
     def __init__(self, out_directory, difficulty):
         self._paths = []
@@ -37,15 +36,28 @@ class DifficultyData:
                 offset += 4
         pair_file.close()
         path_file.close()
+        
+        
+class BFSOperator:
+    def add_edge(self, start_vertex, final_vertex):
+        raise NotImplementedError("This is super class, implement this field in child class.")
+    
+    @property
+    def go_to(self):
+        raise NotImplementedError("This is super class, implement this field in child class.")
+    
+    def log(self, msg):
+        raise NotImplementedError("This is super class, implement this field in child class.")
+    
+    def bad_root(self, dist_ready, dist_cnt):
+        return False
 
+MAX_BFS_DEPTH = 9
 
-def bfs(start_page_id, reader, walk=-1, hard=False):
-    dist = [-1] * VERTICES_COUNT
+def bfs(start_page_id, reader, bfs_operator: BFSOperator):
+    dist = [None] * VERTICES_COUNT
     dist_cnt = dict()
-    if hard:
-        go_to = [-1 for i in range(VERTICES_COUNT)]
-    else:
-        go_to = [[] for i in range(VERTICES_COUNT)]
+    # go_to = [[] for i in range(VERTICES_COUNT)]
     queue = [start_page_id]
     queue_beginning = 0
     dist[start_page_id] = 0
@@ -53,27 +65,25 @@ def bfs(start_page_id, reader, walk=-1, hard=False):
     while queue_beginning < len(queue):
         cur_vertex = queue[queue_beginning]
         if dist[cur_vertex] > dist[queue[queue_beginning - 1]]:
-            print('walk', walk, 'dist', dist[cur_vertex], flush=True)
+            dist_ready = dist[cur_vertex] - 1
+            bfs_operator.log('dist {} calculated'.format(dist_ready))
             dist_cnt[dist[cur_vertex]] = 0
-            if dist[cur_vertex] == 10:
+            if dist[cur_vertex] > MAX_BFS_DEPTH:
                 break
-            if hard and dist[cur_vertex] == 3 and dist_cnt[2] < 100:
+            if bfs_operator.bad_root(dist_ready, dist_cnt[dist_ready]):
                 return None, None
         queue_beginning += 1
         dist_cnt[dist[cur_vertex]] += 1
         edges = list(reader.edges(cur_vertex))
         shuffle(edges)
-        for next_ in edges:
-            if dist[next_] != -1:
+        for next_vertex in edges:
+            if dist[next_vertex] != -1:
                 continue
-            dist[next_] = dist[cur_vertex] + 1
+            dist[next_vertex] = dist[cur_vertex] + 1
             queue.append(next_)
-            if hard:
-                go_to[next_] = cur_vertex
-            else:
-                go_to[cur_vertex].append(next_)
-    print(dist_cnt)
-    return dist, go_to
+            bfs_operator.add_edge(cur_vertex, next_vertex)
+    bfs_operator.log('dist calculation executed')
+    return dist, bfs_operator.go_to
 
 
 def choose_start_vertex(reader):
