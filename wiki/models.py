@@ -16,15 +16,13 @@ class MultiplayerPair(models.Model):
         if self.game_key != '' and self.game_key is not None:
             return
         suffix = settings.SECRET_KEY
-        hashed = hashlib.sha256((str(self.game_id) + suffix).encode()).hexdigest()
-        game_key = hashed[:6]
+        hashed_string = None
         counter = 0
-        while MultiplayerPair.objects.filter(game_key=game_key).count() > 0:
+        while hashed_string is None or MultiplayerPair.objects.filter(game_key=self.game_key).count() > 0:
             counter += 1
             suffix += 'a'
-            hashed = hashlib.sha256((str(self.game_id) + suffix).encode()).hexdigest()
-            game_key = hashed[:min(6 + counter // 1024, 16)]
-        self.game_key = game_key
+            hashed_string = hashlib.sha256((str(self.game_id) + suffix).encode()).hexdigest()
+            self.game_key = hashed_string[:min(6 + counter // 1024, 16)]
         self.save()
 
 
