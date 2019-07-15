@@ -62,7 +62,6 @@ MAX_BFS_DEPTH = 9
 def bfs(start_page_id, reader, bfs_operator: BFSOperator):
     dist = [None] * VERTICES_COUNT
     dist_cnt = dict()
-    # go_to = [[] for i in range(VERTICES_COUNT)]
     queue = [start_page_id]
     queue_beginning = 0
     dist[start_page_id] = 0
@@ -91,9 +90,12 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
     return dist, bfs_operator.go_to
 
 
+MIN_LINKS_FROM_ROOT = 5
+
+
 def choose_start_vertex(reader):
     page_id = randrange(0, VERTICES_COUNT)
-    while reader.edges_count(page_id) < 5:
+    while reader.edges_count(page_id) < MIN_LINKS_FROM_ROOT:
         page_id = randrange(0, VERTICES_COUNT)
     return page_id
 
