@@ -2,6 +2,7 @@ from random import randrange, shuffle
 import struct
 from settings_import import settings
 from wiki.ZIMFile import ZIMFile
+import logging, os, sys
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
@@ -17,7 +18,7 @@ class DifficultyData:
         self._paths.append(path)
     
     def write_to_files(self):
-        file_name = self.out_directory + self.difficulty
+        file_name = os.path.join(self.out_directory, self.difficulty)
         pair_file = open(file_name, 'wb')
         path_file = open(file_name + '_path', 'wb')
         number_of_pairs = len(self._paths)
@@ -54,8 +55,8 @@ class BFSOperator:
     def go_to(self):
         return self._go_to
     
-    def log(self, msg):
-        logging.info('iteration {}: '.format(self.iteration_id) + msg)  
+    def log(self, msg: str):
+        logging.debug('iteration {}: '.format(self.iteration_id) + msg)  
     
     def bad_root(self, dist_ready, dist_cnt):
         return False
@@ -79,16 +80,17 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
             if dist[cur_vertex] > MAX_BFS_DEPTH:
                 break
             if bfs_operator.bad_root(dist_ready, dist_cnt[dist_ready]):
+                bfs_operator.log('bad root vertex')
                 return None, None
         queue_beginning += 1
         dist_cnt[dist[cur_vertex]] += 1
         edges = list(reader.edges(cur_vertex))
         shuffle(edges)
         for next_vertex in edges:
-            if dist[next_vertex] != -1:
+            if dist[next_vertex] is not None:
                 continue
             dist[next_vertex] = dist[cur_vertex] + 1
-            queue.append(next_)
+            queue.append(next_vertex)
             bfs_operator.add_edge(cur_vertex, next_vertex)
     bfs_operator.log('dist calculation executed')
     return dist, bfs_operator.go_to

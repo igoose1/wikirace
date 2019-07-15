@@ -32,11 +32,11 @@ class GenIteration:
         self.difficulty = difficulty
         self.dist = []
         self.go_to = []
-        self._init_dist()
         self.bfs_operator = EasyBFSOperator(iteration_id)
+        self._init_dist()
 
     def _init_dist(self):
-        self.dist, self.go_to = bfs(self.start_page_id, self.graph, self.bfs_operator)
+        self.dist, self.go_to = precalc.bfs(self.start_page_id, self.graph, self.bfs_operator)
 
     def enough_outer_links(self, index):
         links_amount = self.reversed_graph.edges_count(index)

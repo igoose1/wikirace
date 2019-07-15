@@ -1,6 +1,7 @@
 from random import choice
 import precalc_methods as precalc
 from settings_import import settings
+import logging
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 DESTINATION_LEVEL = 2
@@ -27,7 +28,7 @@ class GenIterationHard:
     def __init__(self, graph, reversed_graph, iteration_id=0):
         self.graph = graph
         self.reversed_graph = reversed_graph
-        self.paths = []
+        self._paths = []
         self.start_page_id = precalc.choose_start_vertex(self.graph)
         self.title_checker = precalc.TitleChecker()
         self.rev_dist = []
@@ -36,14 +37,14 @@ class GenIterationHard:
         self.dir_go_to = []
         self.good_sources = []
         self.good_sinks = []
-        self._init_dists()
         self.bfs_operator = HardBFSOperator(iteration_id)
+        self._init_dists()
 
     def _init_dists(self):
-        self.dir_dist, self.dir_go_to = bfs(self.start_page_id,
+        self.dir_dist, self.dir_go_to = precalc.bfs(self.start_page_id,
                                             self.graph, self.bfs_operator)
-        self.rev_dist, self.rev_go_to = bfs(self.start_page_id,
-                                            self.rev_graph, self.bfs_operator)
+        self.rev_dist, self.rev_go_to = precalc.bfs(self.start_page_id,
+                                            self.reversed_graph, self.bfs_operator)
 
     def is_good_sink(self, vertex):
         max_dir_dist = MAX_PATH_LENGTH - SOURCE_LEVEL
@@ -74,7 +75,7 @@ class GenIterationHard:
                 break
         if cur_vertex == sink:
             path.append(sink)
-            self.paths.append(path)
+            self._paths.append(path)
             return
         from_root_part = []
         cur_vertex = sink
@@ -83,18 +84,18 @@ class GenIterationHard:
             cur_vertex = self.dir_go_to[cur_vertex]
         from_root_part.pop()
         path += list(reversed(from_root_part))
-        self.paths.append(path)
+        self._paths.append(path)
 
     def cut_cycles(self):
-        for j in range(len(self.paths)):
-            path = self.paths[j]
+        for j in range(len(self._paths)):
+            path = self._paths[j]
             for i in range(len(path)):
                 path_slice = path[i+1:]
                 if path[i] in path_slice:
                     idx = path_slice.index(path[i])
                     path = path[:i] + path_slice[idx:]
                     break
-            self.paths[j] = path
+            self._paths[j] = path
 
     def gen_paths(self):
         for source in self.good_sources:
@@ -104,8 +105,11 @@ class GenIterationHard:
     def run(self):
         self.gen_sources()
         self.gen_sinks()
+        logging.debug('sources and sinks generated')
         self.gen_paths()
         self.cut_cycles()
-
-    def paths(self):
-        return self.paths
+        logging.debug('paths generated')
+    
+    @property
+    def generated_paths(self):
+        return self._paths
