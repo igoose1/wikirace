@@ -2,7 +2,7 @@ import argparse
 from wiki.GraphReader import GraphReader
 from django.conf import settings
 from precalc_methods import DifficultyData
-from hard_precalc_refactored import GenIteration
+from hard_precalc_refactored import GenIterationHard
 
 
 parser = argparse.ArgumentParser()
@@ -22,7 +22,7 @@ paths = []
 
 if data.difficulty == 'hard':
     for i in range(iter_num):
-        currentIter = GenIteration(graph, reversed_graph)
+        currentIter = GenIterationHard(graph, reversed_graph)
         currentIter.run()
         paths += currentIter.paths()
 else:

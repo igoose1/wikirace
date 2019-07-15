@@ -29,6 +29,7 @@ easy_data = precalc.DifficultyData(args.out_dir, 'easy')
 medium_data = precalc.DifficultyData(args.out_dir, 'medium')
 title_checker = precalc.TitleChecker()
 
+
 def get_a_path(start_vertex, go_to, max_steps):
     v = start_vertex
     visited = [start_vertex]
@@ -45,7 +46,7 @@ def choose_path_from_start(visited, dist_range):
     if len(visited) < dist_range.start:
         return None
     steps = choice[dist_range]
-    return visited[:steps + 1]
+    return visited[:steps+1]
 
 
 def enough_outer_links(index):
@@ -59,7 +60,7 @@ def ok_vertex(index):
 
 
 for iter_id in range(args.iter_num):
-    start_vertex = choose_start_vertex(reader)
+    start_vertex = precalc.choose_start_vertex(reader)
     dist, go_to = precalc.bfs(start_vertex, reader)
     for cur_vertex in range(VERTICES_COUNT):
         if dist[cur_vertex] > 5:

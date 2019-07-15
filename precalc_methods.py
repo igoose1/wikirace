@@ -1,6 +1,7 @@
 from random import randrange, shuffle
 import struct
 from settings_import import settings
+from wiki.ZIMFile import ZIMFile
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
@@ -86,6 +87,8 @@ class TitleChecker:
     def __init__(self):
         with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
             self._bad_words = f.read().split()
+        self.zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH,
+                                settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
     def is_number(self, name):
         return all(c.isdigit() for c in name)
@@ -93,5 +96,9 @@ class TitleChecker:
     def includes_bad_words(self, name):
         return any(word in name for word in self._bad_words)
     
-    def is_title_ok(self, name):
+    def is_title_ok(self, page_id):
+        name = self.zim_file[page_id].title
         return not self.is_number(name) and not self.includes_bad_words(name)
+
+    def __exit__(self):
+        self.zim_file.close()

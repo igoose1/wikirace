@@ -1,16 +1,17 @@
 from random import choice
-from precalc_methods import choose_start_vertex, bfs
+from precalc_methods import choose_start_vertex, bfs, TitleChecker
 from settings_import import settings
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
-class GenIteration:
+class GenIterationHard:
     def __init__(self, graph, reversed_graph):
         self.graph = graph
         self.reversed_graph = reversed_graph
         self.paths = []
         self.start_page_id = choose_start_vertex(self.graph)
+        self.title_checker = TitleChecker()
         self.rev_dist = []
         self.rev_go_to = []
         self.dir_dist = []
