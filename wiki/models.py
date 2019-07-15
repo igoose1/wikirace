@@ -29,7 +29,7 @@ class MultiplayerPair(models.Model):
 
 
 @receiver(post_save, sender=MultiplayerPair)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_multiplayer_key(sender, instance, created, **kwargs):
     if created:
         instance.game_key_calculate()
 
