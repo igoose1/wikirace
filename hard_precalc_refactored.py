@@ -1,35 +1,29 @@
-import os
-from wiki.GraphReader import GraphReader
 from random import choice
-from precalc_methods import write_to_files, choose_start_vertex, bfs
-from time import time
+from precalc_methods import choose_start_vertex, bfs
 from settings_import import settings
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
 class GenIteration:
-    def __init__(self, iteration_number):
-        self.graph = GraphReader(settings.REVERSE_GRAPH_OFFSET_PATH,
-                                 settings.REVERSE_GRAPH_EDGES_PATH)
-        self.reversed_graph = GraphReader(settings.GRAPH_OFFSET_PATH,
-                                          settings.GRAPH_EDGES_PATH)
+    def __init__(self, graph, reversed_graph):
+        self.graph = graph
+        self.reversed_graph = reversed_graph
         self.paths = []
         self.start_page_id = choose_start_vertex(self.graph)
         self.rev_dist = []
         self.rev_go_to = []
         self.dir_dist = []
         self.dir_go_to = []
-        self.iteration = iteration_number
         self.good_sources = []
         self.good_sinks = []
         self._init_dists()
 
     def _init_dists(self):
         self.dir_dist, self.dir_go_to = bfs(self.start_page_id,
-                                            self.graph, walk=self.iteration, hard=True)
+                                            self.graph, walk=0, hard=True)
         self.rev_dist, self.rev_go_to = bfs(self.start_page_id,
-                                            self.rev_graph, walk=self.iteration, hard=True)
+                                            self.rev_graph, walk=0, hard=True)
 
     def is_good_sink(self, vertex):
         return 0 < self.dir_dist[vertex] < 5 and self.rev_dist[vertex] == 2
@@ -89,3 +83,6 @@ class GenIteration:
         self.gen_sinks()
         self.gen_paths()
         self.cut_cycles()
+
+    def paths(self):
+        return self.paths

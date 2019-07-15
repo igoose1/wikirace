@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-import sys, os
+import os
 from wiki.GraphReader import GraphReader
 from random import choice
 from precalc_methods import write_to_files, choose_start_vertex, bfs
 from time import time
 from settings_import import settings
-import argpase
+import argparse
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 

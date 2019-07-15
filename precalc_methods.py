@@ -11,10 +11,10 @@ class DifficultyData:
         self.out_directory = out_directory
         self.difficulty = difficulty
     
-    def add_pair(self, pair_path):
-        if pair_path is None:
+    def add_path(self, path):
+        if path is None:
             return
-        self._paths.append(pair_path)
+        self._paths.append(path)
     
     def write_to_files(self):
         file_name = self.out_directory + self.difficulty
