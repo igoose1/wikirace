@@ -167,6 +167,55 @@ class GetWikiPageTest(TestCase):
             self.assertEqual(resp.status_code, 200)
 
 
+class PlayingTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+        start_page_id, end_page_id = 993636, 1680165
+        self.patches = [
+            patch.object(
+                GameOperator.DifficultGameTaskGenerator,
+                'choose_start_and_end_pages',
+                Mock(return_value=(start_page_id, end_page_id))
+            )
+        ]
+
+        session = self.client.session
+        session['settings'] = {
+            'difficulty': 'easy',
+            'name': 'test'
+        }
+        session.save()
+
+        for p in self.patches:
+            p.start()
+
+        for url in ('/', '/game_start', '/'):
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    def testSmoke(self):
+        url_way = [
+            '/Глоксин,_Беньямин_Петер.html',
+            '/1765_год.html',
+            '/XX_век.html',
+            '/1992_год.html',
+            '/XXV_летние_Олимпийские_игры.html',
+            '/Куба_на_летних_Олимпийских_играх_1992.html'
+        ]
+
+        for url in url_way:
+            resp = self.client.get(url)
+            self.assertEqual(resp.status_code, 200)
+            if url == url_way[-1]:
+                self.assertTrue('class="win_title"' in resp.content.decode())
+
+
 class FileLeaksTest(TestCase):
 
     def testSmoke(self):
