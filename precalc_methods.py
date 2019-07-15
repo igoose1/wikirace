@@ -11,6 +11,8 @@ class DifficultyData:
         self.difficulty_name = difficulty_name
     
     def add_pair(self, pair_path):
+        if pair_path is None:
+            return
         self._paths.append(pair_path)
     
     def write_to_files():
