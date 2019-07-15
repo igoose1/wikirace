@@ -3,6 +3,7 @@ from wiki.GraphReader import GraphReader
 from django.conf import settings
 from precalc_methods import DifficultyData
 from hard_precalc_refactored import GenIterationHard
+from precalc_refactored import GenIteration
 
 
 parser = argparse.ArgumentParser()
@@ -20,13 +21,14 @@ data = DifficultyData(args.out_dir, args.difficulty)
 iter_num = args.iter_num
 paths = []
 
-if data.difficulty == 'hard':
-    for i in range(iter_num):
+for i in range(iter_num):
+    if data.difficulty == 'hard':
         currentIter = GenIterationHard(graph, reversed_graph)
-        currentIter.run()
-        paths += currentIter.paths()
-else:
-    pass
+    else:
+        currentIter = GenIteration(graph, reversed_graph)
+    currentIter.run()
+    paths += currentIter.paths()
+
 
 for path in paths:
     data.add_path(path)
