@@ -5,12 +5,6 @@ from settings_import import settings
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
-dist_ranges = {
-    'easy': range(2, 3),
-    'medium': range(3, 5)
-}
-
-
 class DifficultyData:
     def __init__(self, out_directory, difficulty_name):
         self.paths = []
