@@ -4,11 +4,12 @@ from settings_import import settings
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
+
 class DifficultyData:
-    def __init__(self, out_directory, difficulty_name):
+    def __init__(self, out_directory, difficulty):
         self._paths = []
         self.out_directory = out_directory
-        self.difficulty_name = difficulty_name
+        self.difficulty = difficulty
     
     def add_pair(self, pair_path):
         if pair_path is None:
@@ -16,7 +17,7 @@ class DifficultyData:
         self._paths.append(pair_path)
     
     def write_to_files(self):
-        file_name = self.out_directory + self.difficulty_name
+        file_name = self.out_directory + self.difficulty
         pair_file = open(file_name, 'wb')
         path_file = open(file_name + '_path', 'wb')
         number_of_pairs = len(self._paths)
