@@ -9,6 +9,7 @@ class Game(models.Model):
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
+    game_pair = models.ForeignKey('GamePair', on_delete=models.CASCADE, null=True)
 
     @property
     def finished(self):
