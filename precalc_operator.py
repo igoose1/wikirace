@@ -21,11 +21,11 @@ data = DifficultyData(args.out_dir, args.difficulty)
 iter_num = args.iter_num
 paths = []
 
-for i in range(iter_num):
+for iteration in range(iter_num):
     if data.difficulty == 'hard':
-        currentIter = GenIterationHard(graph, reversed_graph)
+        currentIter = GenIterationHard(graph, reversed_graph, iteration)
     else:
-        currentIter = GenIteration(graph, reversed_graph)
+        currentIter = GenIteration(graph, reversed_graph, data.difficulty, iteration)
     currentIter.run()
     paths += currentIter.paths()
 
