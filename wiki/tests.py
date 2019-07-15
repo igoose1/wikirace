@@ -168,6 +168,17 @@ class GetWikiPageTest(TestCase):
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
 
+    def testImpossibleBack(self):
+        for url in ('/', '/game_start'):
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/continue', follow=True)
+        article_url = '/' + resp.redirect_chain[-1][0]
+
+        resp = self.client.get('/back')
+        self.assertRedirects(resp, article_url)
+
 
 class PlayingTest(TestCase):
 
