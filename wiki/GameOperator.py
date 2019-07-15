@@ -4,17 +4,19 @@ from django.conf import settings
 from django.utils import timezone
 
 from struct import unpack
+from enum import Enum
 
 from .models import Game, Turn, Trial
 from wiki.GraphReader import *
 
-DIFFICULT_EASY = "easy"
-DIFFICULT_MEDIUM = "medium"
-DIFFICULT_HARD = "hard"
 
-RANDOM_GAME_TYPE = "random"
-DIFFICULT_GAME_TYPE = "difficult"
-TRIAL_GAME_TYPE = "trial"
+
+class GameTypes(Enum):
+    random = "random"
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
+    trial = "trial"
 
 
 class GameTaskGenerator(object):
@@ -62,14 +64,15 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
         self._difficulty = difficult
 
     def choose_start_and_end_pages(self) -> (int, int):
-        file_names = settings.LEVEL_FILE_NAMES
-        file = open(file_names[self._difficulty], 'rb')
-        cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        pair_id = randrange(0, cnt - 1)
-        file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * 2)
-        start_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        end_page_id = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
-        file.close()
+        with open(
+            settings.LEVEL_FILE_NAMES[self._difficulty.value],
+            'rb'
+        ) as diff_file:
+            cnt = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
+            pair_id = randrange(0, cnt - 1)
+            diff_file.seek(EDGE_BLOCK_SIZE + pair_id * EDGE_BLOCK_SIZE * 2)
+            start_page_id = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
+            end_page_id = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
 
         return start_page_id, end_page_id
 
@@ -134,10 +137,15 @@ class GameOperator:
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
         start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
+        start_article = zim_file[start_page_id].follow_redirect()
+        end_article = zim_file[end_page_id].follow_redirect()
+        if True in (el.is_redirecting for el in (start_article, end_article)):
+            return None
+
         game = Game.objects.create(
-            start_page_id=start_page_id,
-            end_page_id=end_page_id,
-            current_page_id=start_page_id,
+            start_page_id=start_article.index,
+            end_page_id=end_article.index,
+            current_page_id=start_article.index,
             start_time=timezone.now(),
             last_action_time=timezone.now()
         )
