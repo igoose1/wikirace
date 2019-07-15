@@ -6,8 +6,9 @@ from django.utils import timezone
 from struct import unpack
 from enum import Enum
 
-from .models import Game, Turn
+from .models import Game, Turn, Trial
 from wiki.GraphReader import *
+
 
 
 class GameTypes(Enum):
@@ -15,6 +16,7 @@ class GameTypes(Enum):
     easy = "easy"
     medium = "medium"
     hard = "hard"
+    trial = "trial"
 
 
 class GameTaskGenerator(object):
@@ -40,6 +42,16 @@ class RandomGameTaskGenerator(GameTaskGenerator):
     def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
         self._zim_file = zim_file
         self._graph_reader = graph_reader
+
+
+class TrialGameTaskGenerator(GameTaskGenerator):
+
+    def choose_start_and_end_pages(self) -> (int, int):
+        trial = Trial.objects.get(game_id=self._game_id)
+        return trial.from_page_id, trial.to_page_id
+
+    def __init__(self, game_id):
+        self._game_id = game_id
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):

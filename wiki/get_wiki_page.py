@@ -1,6 +1,6 @@
-from django.http import HttpResponse,\
-    HttpResponseRedirect,\
-    HttpResponseNotFound,\
+from django.http import HttpResponse, \
+    HttpResponseRedirect, \
+    HttpResponseNotFound, \
     HttpResponseBadRequest
 from django.conf import settings
 from django.template import loader
@@ -10,11 +10,13 @@ from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
+    TrialGameTaskGenerator,\
     GameTypes
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from wiki.file_holder import file_holder
+from .models import Trial
 
 
 @file_holder
@@ -90,6 +92,7 @@ def change_settings(prevars):
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
+
     if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
         return HttpResponseBadRequest()
 
@@ -103,6 +106,8 @@ def change_settings(prevars):
 def get_game_task_generator(difficulty, prevars):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
+    elif difficulty == GameTypes.trial:
+        return TrialGameTaskGenerator(prevars.request.GET.get('id', None))
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -125,12 +130,27 @@ def get_start(prevars):
             GameTypes(
                 settings['difficulty']
             ),
-            prevars
+            prevars,
         ),
         prevars.zim_file,
         prevars.graph
     )
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
+@load_prevars
+def custom_game_start(prevars):
+    if Trial.objects.get(game_id=prevars.request.GET.get("id",None)) is None:
+        return HttpResponseNotFound()
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            GameTypes.trial,
+            prevars,
+        ),
+        prevars.zim_file,
+        prevars.graph
+    )
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -200,10 +220,22 @@ def get(prevars, title_name):
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty
     }
+    print("Id = " + str(prevars.game_operator.game.current_page_id))
     return HttpResponse(
         template.render(context, prevars.request),
         content_type=article.mimetype
     )
+
+
+@load_prevars
+def choose_custom_game(prevars):
+    trials = Trial.objects.all()
+    template = loader.get_template('wiki/choose_custom_game.html')
+    context = {
+        'title': 'Выбери челлендж',
+        'trials': trials
+    }
+    return HttpResponse(template.render(context, prevars.request))
 
 
 @load_prevars
