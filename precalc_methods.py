@@ -6,18 +6,21 @@ VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 class DifficultyData:
     def __init__(self, out_directory, difficulty_name):
-        self.paths = []
+        self._paths = []
         self.out_directory = out_directory
         self.difficulty_name = difficulty_name
+    
+    def add_pair(self, pair_path):
+        self._paths.append(pair_path)
     
     def write_to_files():
         file_name = self.out_directory + self.difficulty_name
         pair_file = open(file_name, 'wb')
         path_file = open(file_name + '_path', 'wb')
-        number_of_pairs = len(self.paths)
+        number_of_pairs = len(self._paths)
         pair_file.write(struct.pack('>i', number_of_pairs))
         offset = 0
-        for i in range(len(paths)):
+        for i in range(number_of_pairs):
             start_vertex = self.pairs[i][0]
             final_vertex = self.pairs[i][1]
             pair_file.write(struct.pack('>i', start_vertex))
@@ -29,7 +32,7 @@ class DifficultyData:
                 path_file.write(struct.pack('>i', v))
                 offset += 4
         file.close()
-        path_file.close()  
+        path_file.close()
 
 
 def bfs(start_page_id, reader, walk=-1, hard=False):
