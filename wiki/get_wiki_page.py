@@ -14,18 +14,20 @@ from .GameOperator import GameOperator,\
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
+from wiki.file_holder import file_holder
 
 
+@file_holder
 class PreVariables:
     def __init__(self, request):
-        self.zim_file = ZIMFile(
+        self.zim_file = self._add_file(ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
-        )
-        self.graph = GraphReader(
+        ))
+        self.graph = self._add_file(GraphReader(
             settings.GRAPH_OFFSET_PATH,
             settings.GRAPH_EDGES_PATH
-        )
+        ))
         self.game_operator = GameOperator.deserialize_game_operator(
             request.session.get('operator', None),
             self.zim_file,
@@ -39,12 +41,15 @@ class PreVariables:
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
-        prevars.session_operator = prevars.request.session.get('operator', None)
-        res = func(prevars, *args, **kwargs)
-        if prevars.game_operator is not None and not prevars.game_operator.finished:
-            prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
-        else:
-            prevars.request.session['operator'] = None
+        try:
+            prevars.session_operator = prevars.request.session.get('operator', None)
+            res = func(prevars, *args, **kwargs)
+            if prevars.game_operator is not None and not prevars.game_operator.finished:
+                prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
+            else:
+                prevars.request.session['operator'] = None
+        finally:
+            prevars.close()
         return res
 
     return wrapper
@@ -161,7 +166,7 @@ def get_hint_page(prevars):
 
 
 @requires_game
-def winpage(prevars):
+def get_win_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
     )
@@ -195,7 +200,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        return winpage(prevars.request)
+        return get_win_page(prevars.request)
 
     template = loader.get_template('wiki/game_page.html')
     context = {
