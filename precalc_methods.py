@@ -79,16 +79,16 @@ def choose_start_vertex(reader):
     return page_id
 
 
-def is_number(name):
-    return all(c.isdigit() for c in name)
+class TitleChecker:
+    def __init__(self):
+        with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
+            self._bad_words = f.read().split()
 
-
-with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
-    bad_words = f.read().split()
-
-
-def includes_bad_words(name):
-    for word in bad_words:
-        if word in name:
-            return True
-    return False
+    def is_number(name):
+        return all(c.isdigit() for c in name)
+    
+    def includes_bad_words(name):
+        return any(word in name for word in self._bad_words)
+    
+    def is_title_ok(name):
+        return not is_number(name) and not includes_bad_words(name)
