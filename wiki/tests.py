@@ -182,7 +182,12 @@ class GetWikiPageTest(TestCase):
 class PlayingTest(TestCase):
 
     def setUp(self):
-        start_page_id, end_page_id = 993636, 1680165
+        zim = wiki.ZIMFile.ZIMFile(
+            settings.WIKI_ZIMFILE_PATH,
+            settings.WIKI_ARTICLES_INDEX_FILE_PATH
+        )
+        pages = 'Глоксин,_Беньямин_Петер.html', 'Куба_на_летних_Олимпийских_играх_1992.html'
+        start_page_id, end_page_id = (zim[page].index for page in pages)
         self.patches = [
             patch.object(
                 GameOperator.DifficultGameTaskGenerator,
@@ -226,34 +231,18 @@ class PlayingTest(TestCase):
                 self.assertTrue('class="win_title"' in resp.content.decode())
 
     def testBackButtons(self):
-        back_url = '/back'
         url_way = [
             '/Глоксин,_Беньямин_Петер.html',
             '/1765_год.html',
-            '/XX_век.html',
-            back_url,
-            '/XX_век.html',
-            '/1999_год.html',
-            back_url,
-            '/1992_год.html',
-            '/XXV_летние_Олимпийские_игры.html',
-            '/Куба_на_летних_Олимпийских_играх_1992.html'
+            '/XX_век.html'
         ]
 
-        url_stack = []
-        for url in url_way:
-            resp = self.client.get(url)
-
-            # '/back' before playing checks in GetWikiPageTest.testImpossibleBack
-            if url == back_url and len(url_stack) >= 2:
-                url_stack.pop()
-                self.assertRedirects(resp, quote(url_stack[-1]))
-            elif url != back_url:
-                url_stack.append(url)
-                self.assertEqual(resp.status_code, 200)
-
-            if url == url_way[-1]:
-                self.assertTrue('class="win_title"' in resp.content.decode())
+        tuple(map(self.client.get, url_way))
+        resp = self.client.get('/back')
+        self.assertRedirects(
+            resp,
+            quote(url_way[-2])
+        )
 
 
 class FileLeaksTest(TestCase):
