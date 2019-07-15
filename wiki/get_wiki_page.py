@@ -17,44 +17,33 @@ from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .models import MultiplayerPair, Game
 from django.contrib.sessions.models import Session
+from wiki.file_holder import file_holder
 
 
+@file_holder
 class PreVariables:
     def __init__(self, request):
-        self.zim_file = None
-        self.graph = None
         self.save_operator = True
-        try:
-            self.zim_file = ZIMFile(
-                settings.WIKI_ZIMFILE_PATH,
-                settings.WIKI_ARTICLES_INDEX_FILE_PATH
-            )
-            self.graph = GraphReader(
-                settings.GRAPH_OFFSET_PATH,
-                settings.GRAPH_EDGES_PATH
-            )
-            self.game_operator = GameOperator.deserialize_game_operator(
-                request.session.get('operator', None),
-                self.zim_file,
-                self.graph,
-                'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
-            )
-            if self.game_operator is not None:
-                session = Session.objects.get(session_key=request.session.session_key)
-                self.game_operator.game.session = session
-                self.game_operator.game.session_key = session.session_key
-            self.session_operator = None
-            self.request = request
-        except Exception:
-            if self.zim_file is not None:
-                self.zim_file.close()
-            if self.graph is not None:
-                self.graph.close()
-            raise
-
-    def close(self):
-        self.zim_file.close()
-        self.graph.close()
+        self.zim_file = self._add_file(ZIMFile(
+            settings.WIKI_ZIMFILE_PATH,
+            settings.WIKI_ARTICLES_INDEX_FILE_PATH
+        ))
+        self.graph = self._add_file(GraphReader(
+            settings.GRAPH_OFFSET_PATH,
+            settings.GRAPH_EDGES_PATH
+        ))
+        self.game_operator = GameOperator.deserialize_game_operator(
+            request.session.get('operator', None),
+            self.zim_file,
+            self.graph,
+            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
+        )
+        if self.game_operator is not None:
+            session = Session.objects.get(session_key=request.session.session_key)
+            self.game_operator.game.session = session
+            self.game_operator.game.session_key = session.session_key
+        self.session_operator = None
+        self.request = request
 
 
 def load_prevars(func):
