@@ -47,16 +47,6 @@ class Turn(models.Model):
     turn_id = models.AutoField(primary_key=True)
 
 
-class UserGame(models.Model):
-    game_id = models.AutoField(primary_key=True)
-    autor_name = models.CharField(default='Анонимно', max_length=30)
-    from_page_id = models.IntegerField()
-    to_page_id = models.IntegerField()
-    likes = models.IntegerField(default=0)
-    shortest_path_len = models.IntegerField(null=True)
-    time = models.DateTimeField()
-
-
 class Trial(models.Model):
     game_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)

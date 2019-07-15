@@ -103,11 +103,11 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty, prevars, game_id):
+def get_game_task_generator(difficulty, prevars):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == GameTypes.trial:
-        return TrialGameTaskGenerator(prevars.zim_file, prevars.graph, game_id)
+        return TrialGameTaskGenerator(prevars.request.GET.get('id', None))
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -131,7 +131,6 @@ def get_start(prevars):
                 settings['difficulty']
             ),
             prevars,
-            0
         ),
         prevars.zim_file,
         prevars.graph
@@ -140,18 +139,18 @@ def get_start(prevars):
 
 
 @load_prevars
-def custom_game_start(prevars, game_id):
-    print(game_id)
+def custom_game_start(prevars):
+    if Trial.objects.get(game_id=prevars.request.GET.get("id",None)) is None:
+        return HttpResponseNotFound()
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             GameTypes.trial,
             prevars,
-            game_id
         ),
         prevars.zim_file,
-        prevars.graph,
+        prevars.graph
     )
-    return HttpResponseRedirect('/custom_game/' + prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -174,11 +173,6 @@ def get_hint_page(prevars):
         'content': article.content.decode(),
     }
     return HttpResponse(template.render(context, prevars.request))
-
-
-@requires_game
-def add_game(prevars):
-    return HttpResponse('Hello')
 
 
 @requires_game

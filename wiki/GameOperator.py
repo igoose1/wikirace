@@ -48,13 +48,9 @@ class TrialGameTaskGenerator(GameTaskGenerator):
 
     def choose_start_and_end_pages(self) -> (int, int):
         trial = Trial.objects.get(game_id=self._game_id)
-        from_page_id = trial.from_page_id
-        to_page_id = trial.to_page_id
-        return from_page_id, to_page_id
+        return trial.from_page_id, trial.to_page_id
 
-    def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader, game_id):
-        self._zim_file = zim_file
-        self._graph_reader = graph_reader
+    def __init__(self, game_id):
         self._game_id = game_id
 
 

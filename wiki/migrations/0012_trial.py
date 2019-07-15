@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wiki', '0011_usergame'),
+        ('wiki', '0010_auto_20190710_1339'),
     ]
 
     operations = [

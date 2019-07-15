@@ -9,7 +9,7 @@
 <body>
 <ul>
     {% for trial in trials %}
-        <li><a href="custom_game/game_start/{{ trial.game_id }}">{{ trial.trial_name }}</a> {{ trial.from_page_id }} </li>
+        <li><a href="custom_game/game_start?id={{ trial.game_id }}">{{ trial.trial_name }}</a> {{ trial.from_page_id }} </li>
     {% endfor %}
 </ul>
 </body>
