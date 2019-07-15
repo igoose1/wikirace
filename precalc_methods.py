@@ -15,7 +15,7 @@ class DifficultyData:
             return
         self._paths.append(pair_path)
     
-    def write_to_files():
+    def write_to_files(self):
         file_name = self.out_directory + self.difficulty_name
         pair_file = open(file_name, 'wb')
         path_file = open(file_name + '_path', 'wb')
@@ -23,14 +23,14 @@ class DifficultyData:
         pair_file.write(struct.pack('>i', number_of_pairs))
         offset = 0
         for i in range(number_of_pairs):
-            start_vertex = self.pairs[i][0]
-            final_vertex = self.pairs[i][1]
+            start_vertex = self._paths[i][0]
+            final_vertex = self._paths[i][-1]
             pair_file.write(struct.pack('>i', start_vertex))
             pair_file.write(struct.pack('>i', final_vertex))
             pair_file.write(struct.pack('>i', offset))
-            path_file.write(struct.pack('>i', len(paths[i])))
+            path_file.write(struct.pack('>i', len(self._paths[i])))
             offset += 4
-            for v in paths[i]:
+            for v in self._paths[i]:
                 path_file.write(struct.pack('>i', v))
                 offset += 4
         file.close()
