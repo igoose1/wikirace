@@ -5,6 +5,38 @@ from settings_import import settings
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
 
+dist_ranges = {
+    'easy': range(2, 3),
+    'medium': range(3, 5)
+}
+
+
+class DifficultyData:
+    def __init__(self, out_directory, difficulty_name):
+        self.paths = []
+        self.out_directory = out_directory
+        self.difficulty_name = difficulty_name
+    
+    def write_to_files():
+        file_name = self.out_directory + self.difficulty_name
+        pair_file = open(file_name, 'wb')
+        path_file = open(file_name + '_path', 'wb')
+        pair_file.write(struct.pack('>i', len(pairs)))
+        offset = 0
+        for i in range(len(pairs)):
+            p = pairs[i]
+            pair_file.write(struct.pack('>i', p[0]))
+            pair_file.write(struct.pack('>i', p[1]))
+            pair_file.write(struct.pack('>i', offset))
+            path_file.write(struct.pack('>i', len(paths[i])))
+            offset += 4
+            for v in paths[i]:
+                path_file.write(struct.pack('>i', v))
+                offset += 4
+        file.close()
+        path_file.close()  
+
+
 def bfs(start_page_id, reader, walk=-1, hard=False):
     dist = [-1] * VERTICES_COUNT
     dist_cnt = dict()
@@ -42,30 +74,10 @@ def bfs(start_page_id, reader, walk=-1, hard=False):
     return dist, go_to
 
 
-def write_to_files(pair_file_name, path_file_name, pairs, paths):
-    file = open(pair_file_name, 'wb')
-    path_file = open(path_file_name, 'wb')
-    file.write(struct.pack('>i', len(pairs)))
-    offset = 0
-    for i in range(len(pairs)):
-        p = pairs[i]
-        file.write(struct.pack('>i', p[0]))
-        file.write(struct.pack('>i', p[1]))
-        file.write(struct.pack('>i', offset))
-        path_file.write(struct.pack('>i', len(paths[i])))
-        offset += 4
-        for v in paths[i]:
-            path_file.write(struct.pack('>i', v))
-            offset += 4
-    file.close()
-    path_file.close()
-
-
 def choose_start_vertex(reader):
     page_id = randrange(0, VERTICES_COUNT)
     while reader.edges_count(page_id) < 5:
         page_id = randrange(0, VERTICES_COUNT)
-    print('start vertex', page_id, flush=True)
     return page_id
 
 
