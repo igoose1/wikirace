@@ -39,9 +39,9 @@ class GenIterationHard:
 
     def _init_dists(self):
         self.dir_dist, self.dir_go_to = bfs(self.start_page_id,
-                                            self.graph, walk=0, hard=True)
+                                            self.graph, hard=True)
         self.rev_dist, self.rev_go_to = bfs(self.start_page_id,
-                                            self.rev_graph, walk=0, hard=True)
+                                            self.rev_graph, hard=True)
 
     def is_good_sink(self, vertex):
         return 0 < self.dir_dist[vertex] < 5 and self.rev_dist[vertex] == 2
