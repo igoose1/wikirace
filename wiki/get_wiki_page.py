@@ -23,6 +23,7 @@ class PreVariables:
     def __init__(self, request):
         self.zim_file = None
         self.graph = None
+        self.save_operator = True
         try:
             self.zim_file = ZIMFile(
                 settings.WIKI_ZIMFILE_PATH,
@@ -62,16 +63,17 @@ def load_prevars(func):
         try:
             prevars.session_operator = prevars.request.session.get('operator', None)
             res = func(prevars, *args, **kwargs)
-            finished = True
-            serialized_operator = None
-            if prevars.game_operator is not None:
-                serialized_operator = prevars.game_operator.serialize_game_operator()
-                finished = prevars.game_operator.finished
+            if prevars.save_operator:
+                finished = True
+                serialized_operator = None
+                if prevars.game_operator is not None:
+                    serialized_operator = prevars.game_operator.serialize_game_operator()
+                    finished = prevars.game_operator.finished
 
-            if not finished:
-                prevars.request.session['operator'] = serialized_operator
-            else:
-                prevars.request.session['operator'] = None
+                if not finished:
+                    prevars.request.session['operator'] = serialized_operator
+                else:
+                    prevars.request.session['operator'] = None
         finally:
             prevars.close()
         return res
@@ -205,9 +207,11 @@ def winpage(prevars):
 def get(prevars, title_name):
     article = prevars.zim_file[title_name].follow_redirect()
     if article.is_empty or article.is_redirecting:
+        prevars.save_operator = False
         return HttpResponseNotFound()
 
     if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
+        prevars.save_operator = False
         return HttpResponse(article.content, content_type=article.mimetype)
 
     if not prevars.game_operator.is_jump_allowed(article):
