@@ -13,7 +13,7 @@ class MultiplayerPair(models.Model):
     game_key = models.CharField(default='', max_length=64)
 
     def game_key_calculate(self):
-        if self.game_key != '' and self.game_key is not None:
+        if self.game_key != '':
             return
         suffix = settings.SECRET_KEY
         hashed_string = None
