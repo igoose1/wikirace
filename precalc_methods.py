@@ -33,7 +33,7 @@ class DifficultyData:
             for v in self._paths[i]:
                 path_file.write(struct.pack('>i', v))
                 offset += 4
-        file.close()
+        pair_file.close()
         path_file.close()
 
 
@@ -86,11 +86,11 @@ class TitleChecker:
         with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
             self._bad_words = f.read().split()
 
-    def is_number(name):
+    def is_number(self, name):
         return all(c.isdigit() for c in name)
     
-    def includes_bad_words(name):
+    def includes_bad_words(self, name):
         return any(word in name for word in self._bad_words)
     
-    def is_title_ok(name):
-        return not is_number(name) and not includes_bad_words(name)
+    def is_title_ok(self, name):
+        return not self.is_number(name) and not self.includes_bad_words(name)
