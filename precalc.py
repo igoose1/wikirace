@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
 from wiki.GraphReader import GraphReader
-from random import randrange
+from random import randrange, choice
 from time import time
 from wiki.ZIMFile import ZIMFile
-from precalc_methods import write_to_files, choose_start_vertex, is_number, includes_bad_words, bfs
+import precalc_methods as precalc
 import sys, os
 from settings_import import settings
-import argparse
+import argparse, logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('iter_num', help='iterations amount', type=int)
@@ -16,64 +16,62 @@ args = parser.parse_args()
 
 start_time = time()
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
+MINIMAL_OUTER_LINKS = 50
 reverse_reader = GraphReader(settings.REVERSE_GRAPH_EDGES_PATH, settings.REVERSE_GRAPH_OFFSET_PATH)
 reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
 dist_range = {
-    'easy': [2, 2],
-    'medium': [3, 4]
+    'easy': range(2, 3),
+    'medium': range(3, 5)
 }
-easy_data = DifficultyData(args.out_dir, 'easy')
-medium_data = DifficultyData(args.out_dir, 'medium')
+easy_data = precalc.DifficultyData(args.out_dir, 'easy')
+medium_data = precalc.DifficultyData(args.out_dir, 'medium')
+title_checker = precalc.TitleChecker()
+
+def get_a_path(start_vertex, go_to, max_steps):
+    v = start_vertex
+    visited = [start_vertex]
+    while len(visited) < max_steps:
+        if len(go_to[v]) == 0:
+            break
+        next_vertex = choice(go_to[v])
+        visited.append(next_vertex)
+        v = next_vertex
+    return visited
 
 
-def ok_name(name):
-    return not is_number(name) and not includes_bad_words(name)
+def choose_path_from_start(visited, dist_range):
+    if len(visited) < dist_range.start:
+        return None
+    steps = choice[dist_range]
+    return visited[:steps + 1]
 
 
-def add_pair_if_ok(start, visited, level, pairs, paths, outer_links=50, start_name=None):
-    if len(visited) < dist_range[level][0]:
-        return
-    steps = min(randrange(dist_range[level][0], dist_range[level][1] + 1), len(visited))
-    final = visited[steps - 1]
-    links_to_start_page = reverse_reader.edges_count(start)
-    links_to_final_page = reverse_reader.edges_count(final)
-    if links_to_start_page >= outer_links and links_to_final_page >= outer_links:
-        final_name = zim[final].title
-        if start_name is None:
-            start_name = zim[start].title
-            if not ok_name(start_name):
-                return
-        if ok_name(final_name):
-            pairs.append((start, final))
-            paths.append(visited[:steps - 1])
+def enough_outer_links(index):
+    links_amount = reverse_reader.edges_count(index)
+    return links_amount >= MINIMAL_OUTER_LINKS
 
 
-for walk in range(args.iter_num):
+def ok_vertex(index):
+    name = zim[index].title
+    return enough_outer_links(index) and title_checker.is_title_ok(name)
+
+
+for iter_id in range(args.iter_num):
     start_vertex = choose_start_vertex(reader)
-    dist, go_to = bfs(start_vertex, reader, walk=walk)
+    dist, go_to = precalc.bfs(start_vertex, reader)
     for cur_vertex in range(VERTICES_COUNT):
-        if cur_vertex % 10000 == 0:
-            print('walk', walk, cur_vertex, 'ready')
         if dist[cur_vertex] > 5:
             continue
-        cur_name = zim[cur_vertex].title
-        if not ok_name(cur_name):
+        if not ok_vertex(cur_vertex):
             continue
-        visited = []
-        max_steps = 5
-        v = cur_vertex
-        while len(visited) < max_steps:
-            if len(go_to[v]) == 0:
-                break
-            next_vertex = go_to[v][randrange(0, len(go_to[v]))]
-            visited.append(next_vertex)
-            v = next_vertex
-        add_pair_if_ok(cur_vertex, visited, 'easy',
-                       easy_pairs, easy_paths, start_name=cur_name)
-        add_pair_if_ok(cur_vertex, visited, 'medium',
-                       medium_pairs, medium_paths, start_name=cur_name)
+        max_steps = dist_range['medium'].stop - 1
+        path = get_a_path(cur_vertex, go_to, max_steps)
+        easy_path = choose_path_from_start(path, dist_range['easy'])
+        final_vertex = easy_path[-1]
+        if ok_vertex(final_vertex):
+            easy_data.add_pair(easy_path)
 
 easy_data.write_to_files()
 medium_data.write_to_files()
