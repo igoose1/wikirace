@@ -11,6 +11,9 @@ MAX_PATH_LENGTH = 13
 class HardBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
         super().__init__(iteration_id)
+        self.clear()
+    
+    def clear(self):
         self._go_to = [-1 for i in range(VERTICES_COUNT)]
     
     def add_edge(self, start_vertex, final_vertex):
@@ -74,7 +77,7 @@ class GenIterationHard:
             self.paths.append(path)
             return
         from_root_part = []
-        cur_vertex = self.dir_go_to[sink]
+        cur_vertex = sink
         while cur_vertex != -1:
             from_root_part.append(cur_vertex)
             cur_vertex = self.dir_go_to[cur_vertex]

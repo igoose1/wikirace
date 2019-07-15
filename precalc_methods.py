@@ -44,8 +44,11 @@ class BFSOperator:
         self._go_to = None
         logging.basicConfig(level=logging.INFO)
     
+    def clear(self):
+        raise NotImplementedError("This is super class, implement clear() child class.")
+    
     def add_edge(self, start_vertex, final_vertex):
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        raise NotImplementedError("This is super class, implement add_edge() child class.")
     
     @property
     def go_to(self):
@@ -60,6 +63,7 @@ class BFSOperator:
 MAX_BFS_DEPTH = 9
 
 def bfs(start_page_id, reader, bfs_operator: BFSOperator):
+    bfs_operator.clear()
     dist = [None] * VERTICES_COUNT
     dist_cnt = dict()
     queue = [start_page_id]

@@ -13,10 +13,13 @@ dist_range = {
 class EasyBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
         super().__init__(iteration_id)
-        self._go_to = [-1 for i in range(VERTICES_COUNT)]
+        self.clear()
+    
+    def clear(self):
+        self._go_to = [[] for i in range(VERTICES_COUNT)]    
     
     def add_edge(self, start_vertex, final_vertex):
-        self._go_to[final_vertex] = start_vertex 
+        self._go_to[start_vertex].append(final_vertex) 
 
 
 class GenIteration:
