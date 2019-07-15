@@ -245,19 +245,20 @@ class PlayingTest(TestCase):
             '/Куба_на_летних_Олимпийских_играх_1992.html'
         ]
 
-        ind = 0
+        url_stack = []
         for url in url_way:
             resp = self.client.get(url)
 
             # '/back' before playing checks in GetWikiPageTest.testImpossibleBack
-            if url == back_url and ind >= 2:
-                self.assertRedirects(resp, quote(url_way[ind - 2]))
-            else:
+            if url == back_url and len(url_stack) >= 2:
+                url_stack.pop()
+                self.assertRedirects(resp, quote(url_stack[-1]))
+            elif url != back_url:
+                url_stack.append(url)
                 self.assertEqual(resp.status_code, 200)
 
             if url == url_way[-1]:
                 self.assertTrue('class="win_title"' in resp.content.decode())
-            ind += 1
 
 
 class FileLeaksTest(TestCase):
