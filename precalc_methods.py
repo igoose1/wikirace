@@ -39,15 +39,20 @@ class DifficultyData:
         
         
 class BFSOperator:
+    def __init__(self, iteration_id):
+        self.iteration_id = iteration_id
+        self._go_to = None
+        logging.basicConfig(level=logging.INFO)
+    
     def add_edge(self, start_vertex, final_vertex):
         raise NotImplementedError("This is super class, implement this field in child class.")
     
     @property
     def go_to(self):
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        return self._go_to
     
     def log(self, msg):
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        logging.info('iteration {}: '.format(self.iteration_id) + msg)  
     
     def bad_root(self, dist_ready, dist_cnt):
         return False
