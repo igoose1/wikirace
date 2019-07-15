@@ -1,9 +1,11 @@
 from django.test import TestCase, Client
-import wiki.ZIMFile
 from django.conf import settings
 from unittest.mock import Mock, patch
-from wiki import GameOperator, models, get_wiki_page
-from wiki.file_holder import file_holder
+from urllib.parse import quote
+
+import wiki.ZIMFile
+from . import GameOperator, models, get_wiki_page
+from .file_holder import file_holder
 
 
 class TestZIMFile(TestCase):
@@ -135,9 +137,6 @@ class GameOperatorTest(TestCase):
 
 class GetWikiPageTest(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-
     def testSmoke(self):
         urls_case = ('/', '/game_start', '/', '/continue')
         for url in urls_case:
@@ -165,6 +164,85 @@ class GetWikiPageTest(TestCase):
             self.assertEqual(resp.status_code, 400)
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
+
+    def testImpossibleBack(self):
+        for url in ('/', '/game_start'):
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/continue', follow=True)
+        article_url = resp.redirect_chain[-1][0]
+        if not article_url.startswith('/'):
+            article_url = '/' + article_url
+
+        resp = self.client.get('/back')
+        self.assertRedirects(resp, article_url)
+
+
+class PlayingTest(TestCase):
+
+    def setUp(self):
+        zim = wiki.ZIMFile.ZIMFile(
+            settings.WIKI_ZIMFILE_PATH,
+            settings.WIKI_ARTICLES_INDEX_FILE_PATH
+        )
+        pages = 'Глоксин,_Беньямин_Петер.html', 'Куба_на_летних_Олимпийских_играх_1992.html'
+        start_page_id, end_page_id = (zim[page].index for page in pages)
+        self.patches = [
+            patch.object(
+                GameOperator.DifficultGameTaskGenerator,
+                'choose_start_and_end_pages',
+                Mock(return_value=(start_page_id, end_page_id))
+            )
+        ]
+
+        session = self.client.session
+        session['settings'] = {
+            'difficulty': 'easy',
+            'name': 'test'
+        }
+        session.save()
+
+        for p in self.patches:
+            p.start()
+
+        for url in ('/', '/game_start', '/'):
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    def testSmoke(self):
+        url_way = [
+            '/Глоксин,_Беньямин_Петер.html',
+            '/1765_год.html',
+            '/XX_век.html',
+            '/1992_год.html',
+            '/XXV_летние_Олимпийские_игры.html',
+            '/Куба_на_летних_Олимпийских_играх_1992.html'
+        ]
+
+        for url in url_way:
+            resp = self.client.get(url)
+            self.assertEqual(resp.status_code, 200)
+            if url == url_way[-1]:
+                self.assertTrue('class="win_title"' in resp.content.decode())
+
+    def testBackButtons(self):
+        url_way = [
+            '/Глоксин,_Беньямин_Петер.html',
+            '/1765_год.html',
+            '/XX_век.html'
+        ]
+
+        tuple(map(self.client.get, url_way))
+        resp = self.client.get('/back')
+        self.assertRedirects(
+            resp,
+            quote(url_way[-2])
+        )
 
 
 class FileLeaksTest(TestCase):
