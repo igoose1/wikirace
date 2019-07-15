@@ -174,7 +174,9 @@ class GetWikiPageTest(TestCase):
             self.assertEqual(resp.status_code, 200)
 
         resp = self.client.get('/continue', follow=True)
-        article_url = '/' + resp.redirect_chain[-1][0]
+        article_url = resp.redirect_chain[-1][0]
+        if not article_url.startswith('/'):
+            article_url = '/' + article_url
 
         resp = self.client.get('/back')
         self.assertRedirects(resp, article_url)
