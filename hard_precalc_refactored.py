@@ -6,7 +6,7 @@ VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 DESTINATION_LEVEL = 2
 SOURCE_LEVEL = 7
 MIN_DESTINATION_COUNT = 100
-
+MAX_PATH_LENGTH = 13
 
 class HardBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
@@ -42,10 +42,13 @@ class GenIterationHard:
                                                     self.rev_graph, hard=True)
 
     def is_good_sink(self, vertex):
-        return 0 < self.dir_dist[vertex] < 5 and self.rev_dist[vertex] == 2
+        max_dir_dist = MAX_PATH_LENGTH - SOURCE_LEVEL
+        return (self.dir_dist[vertex] is not None and 
+                self.dir_dist[vertex] <= max_dir_dist and 
+                self.rev_dist[vertex] == DESTINATION_LEVEL)
 
     def is_good_source(self, vertex):
-        return self.rev_dist[vertex] == 7
+        return self.rev_dist[vertex] == SOURCE_LEVEL
 
     def gen_sources(self):
         for vertex in range(VERTICES_COUNT):
