@@ -1,10 +1,11 @@
 from django.test import TestCase, Client
-import wiki.ZIMFile
 from django.conf import settings
 from unittest.mock import Mock, patch
 from urllib.parse import quote
-from wiki import GameOperator, models, get_wiki_page
-from wiki.file_holder import file_holder
+
+import wiki.ZIMFile
+from . import GameOperator, models, get_wiki_page
+from .file_holder import file_holder
 
 
 class TestZIMFile(TestCase):
