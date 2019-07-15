@@ -72,10 +72,6 @@ class GameOperator:
     def game(self):
         return self._game
 
-    @property
-    def game_pair(self):
-        return self._game_pair
-
     def jump_back(self):
         if len(self._history) >= 2:
             self._history.pop()  # pop current page
