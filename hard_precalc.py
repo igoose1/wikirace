@@ -1,82 +1,115 @@
-#!/usr/bin/python3
-import os
-from wiki.GraphReader import GraphReader
 from random import choice
-from precalc_methods import write_to_files, choose_start_vertex, bfs
-from time import time
+import precalc_methods as precalc
 from settings_import import settings
-import argparse
+import logging
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
+DESTINATION_LEVEL = 2
+SOURCE_LEVEL = 7
+MIN_DESTINATION_COUNT = 100
+MAX_PATH_LENGTH = 13
 
-parser = argparse.ArgumentParser()
-parser.add_argument('iter_num', help='iterations amount', type=int)
-parser.add_argument('out_dir', help='output directory')
-args = parser.parse_args()
+class HardBFSOperator(precalc.BFSOperator):
+    def __init__(self, iteration_id):
+        super().__init__(iteration_id)
+        self.clear()
+    
+    def clear(self):
+        self._go_to = [-1 for i in range(VERTICES_COUNT)]
+    
+    def add_edge(self, start_vertex, final_vertex):
+        self._go_to[final_vertex] = start_vertex
+    
+    def bad_root(self, dist_ready, dist_cnt):
+        return dist_ready == DESTINATION_LEVEL and dist_cnt < MIN_DESTINATION_COUNT
 
-pairs, paths = [], []
-start_time = time()
 
-for walk in range(args.iter_num):
-    reader = GraphReader(settings.REVERSE_GRAPH_OFFSET_PATH, settings.REVERSE_GRAPH_EDGES_PATH)
+class GenIterationHard:
+    def __init__(self, graph, reversed_graph, iteration_id=0):
+        self.graph = graph
+        self.reversed_graph = reversed_graph
+        self._paths = []
+        self.start_page_id = precalc.choose_start_vertex(self.graph)
+        self.title_checker = precalc.TitleChecker()
+        self.rev_dist = []
+        self.rev_go_to = []
+        self.dir_dist = []
+        self.dir_go_to = []
+        self.good_sources = []
+        self.good_sinks = []
+        self.bfs_operator = HardBFSOperator(iteration_id)
+        self._init_dists()
 
-    start_page_id = choose_start_vertex(reader)
-    print(start_page_id)
+    def _init_dists(self):
+        self.dir_dist, self.dir_go_to = precalc.bfs(self.start_page_id,
+                                            self.graph, self.bfs_operator)
+        self.rev_dist, self.rev_go_to = precalc.bfs(self.start_page_id,
+                                            self.reversed_graph, self.bfs_operator)
 
-    rev_dist, rev_go_to = bfs(start_page_id, reader, walk=walk, hard=True)
-    if rev_dist is None:
-        continue
-    reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-    dir_dist, dir_go_to = bfs(start_page_id, reader, walk=walk, hard=True)
-    if dir_dist is None:
-        continue
+    def is_good_sink(self, vertex):
+        max_dir_dist = MAX_PATH_LENGTH - SOURCE_LEVEL
+        return (self.dir_dist[vertex] is not None and 
+                self.dir_dist[vertex] <= max_dir_dist and 
+                self.rev_dist[vertex] == DESTINATION_LEVEL)
 
-    dist_from_root_is_2, dist_from_root_is_7 = [], []
+    def is_good_source(self, vertex):
+        return self.rev_dist[vertex] == SOURCE_LEVEL
 
-    for v in range(VERTICES_COUNT):
-        if dir_dist[v] != -1 and dir_dist[v] < 5 and rev_dist[v] == 2:
-            dist_from_root_is_2.append(v)
-        if rev_dist[v] == 7:
-            dist_from_root_is_7.append(v)
+    def gen_sources(self):
+        for vertex in range(VERTICES_COUNT):
+            if self.is_good_source(vertex):
+                self.good_sources.append(vertex)
 
-    for from_vertex in dist_from_root_is_7:
-        to_vertex = choice(dist_from_root_is_2)
-        path = []
-        v = rev_go_to[from_vertex]
-        ready = False
+    def gen_sinks(self):
+        for vertex in range(VERTICES_COUNT):
+            if self.is_good_sink(vertex):
+                self.good_sinks.append(vertex)
 
-        while v != -1:
-            path.append(v)
-            v = rev_go_to[v]
-            if v == to_vertex:
-                ready = True
+    def create_path(self, source, sink):
+        path = [source]
+        cur_vertex = self.rev_go_to[source]
+        while cur_vertex != -1:
+            path.append(cur_vertex)
+            cur_vertex = self.rev_go_to[cur_vertex]
+            if cur_vertex == sink:
                 break
-
-        if ready:
-            pairs.append([from_vertex, to_vertex])
-            paths.append(path)
-            continue
-
+        if cur_vertex == sink:
+            path.append(sink)
+            self._paths.append(path)
+            return
         from_root_part = []
-        v = dir_go_to[to_vertex]
-        while v != -1:
-            from_root_part.append(v)
-            v = dir_go_to[v]
-
+        cur_vertex = sink
+        while cur_vertex != -1:
+            from_root_part.append(cur_vertex)
+            cur_vertex = self.dir_go_to[cur_vertex]
         from_root_part.pop()
-        path += from_root_part[::-1]
-        for i in range(len(path)):
-            path_slice = path[i + 1:]
-            if path[i] in path_slice:
-                idx = path_slice.index(path[i])
-                path = path[:i] + path_slice[idx:]
-                break
+        path += list(reversed(from_root_part))
+        self._paths.append(path)
 
-        pairs.append([from_vertex, to_vertex])
-        paths.append(path)
+    def cut_cycles(self):
+        for j in range(len(self._paths)):
+            path = self._paths[j]
+            for i in range(len(path)):
+                path_slice = path[i+1:]
+                if path[i] in path_slice:
+                    idx = path_slice.index(path[i])
+                    path = path[:i] + path_slice[idx:]
+                    break
+            self._paths[j] = path
 
-write_to_files(os.path.join(args.out_dir, 'hard'),
-               os.path.join(args.out_dir, 'hard_paths'),
-               pairs, paths)
+    def gen_paths(self):
+        for source in self.good_sources:
+            sink = choice(self.good_sinks)
+            self.create_path(source, sink)
 
-print('Time of execution: ', time() - start_time)
+    def run(self):
+        self.gen_sources()
+        self.gen_sinks()
+        logging.debug('sources and sinks generated')
+        self.gen_paths()
+        self.cut_cycles()
+        logging.debug('paths generated')
+    
+    @property
+    def generated_paths(self):
+        return self._paths

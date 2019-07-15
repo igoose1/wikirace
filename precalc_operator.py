@@ -2,8 +2,8 @@ import argparse
 from wiki.GraphReader import GraphReader
 from django.conf import settings
 from precalc_methods import DifficultyData
-from hard_precalc_refactored import GenIterationHard
-from precalc_refactored import GenIteration
+from hard_precalc import GenIterationHard
+from precalc import GenIteration
 import logging, sys
 
 parser = argparse.ArgumentParser()
