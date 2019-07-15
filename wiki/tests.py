@@ -137,9 +137,6 @@ class GameOperatorTest(TestCase):
 
 class GetWikiPageTest(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-
     def testSmoke(self):
         urls_case = ('/', '/game_start', '/', '/continue')
         for url in urls_case:
@@ -185,8 +182,6 @@ class GetWikiPageTest(TestCase):
 class PlayingTest(TestCase):
 
     def setUp(self):
-        self.client = Client()
-
         start_page_id, end_page_id = 993636, 1680165
         self.patches = [
             patch.object(
