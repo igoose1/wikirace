@@ -39,6 +39,7 @@ class Game(models.Model):
                                     on_delete=models.SET_NULL)
     session = models.ForeignKey(Session, null=True,
                                 on_delete=models.SET_NULL)
+    session_key = models.CharField(default='', max_length=128)
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)

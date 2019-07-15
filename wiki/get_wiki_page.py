@@ -41,6 +41,7 @@ class PreVariables:
             if self.game_operator is not None:
                 session = Session.objects.get(session_key=request.session.session_key)
                 self.game_operator.game.session = session
+                self.game_operator.game.session_key = session.session_key
             self.session_operator = None
             self.request = request
         except Exception:
@@ -224,7 +225,6 @@ def get(prevars, title_name):
     game_key = None
     if prevars.game_operator.game.multiplayer is not None:
         game_key = prevars.game_operator.game.multiplayer.game_key
-        print(prevars.game_operator.game.multiplayer.game_key)
 
     template = loader.get_template('wiki/page.html')
     context = {
@@ -324,7 +324,7 @@ def get_multiplayer_results_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def get_multiplayer_results_table(multiplayer, session_key):
+def get_multiplayer_results_table(multiplayer, session_key, top_n=5):
     games = multiplayer.game_set\
         .extra(where=['current_page_id == end_page_id'])\
         .order_by('steps').all()
@@ -332,18 +332,18 @@ def get_multiplayer_results_table(multiplayer, session_key):
     results_table = []
     used_keys = set()
     for game in games:
-        if len(used_keys) == 5:
+        if len(used_keys) == top_n:
             break
 
+        game_session_key = game.session_key
+        if game_session_key in used_keys:
+            continue
+        used_keys.add(game_session_key)
         if game.session is not None:
             session = game.session.get_decoded()
-            game_session_key = game.session.session_key
-            if game_session_key in used_keys:
-                continue
             used_keys.add(game_session_key)
         else:
             session = {'settings': {'name': 'expired'}}
-            used_key.add('gameid_' + str(game.game_id))
 
         name = get_settings(session.get('settings', dict())).get('name', 'no name')
 
