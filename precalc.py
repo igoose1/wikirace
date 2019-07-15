@@ -19,14 +19,13 @@ VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 reverse_reader = GraphReader(settings.REVERSE_GRAPH_EDGES_PATH, settings.REVERSE_GRAPH_OFFSET_PATH)
 reader = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
 zim = ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)
-easy_pairs = []
-medium_pairs = []
-easy_paths = []
-medium_paths = []
+
 dist_range = {
     'easy': [2, 2],
     'medium': [3, 4]
 }
+easy_data = DifficultyData(args.out_dir, 'easy')
+medium_data = DifficultyData(args.out_dir, 'medium')
 
 
 def ok_name(name):
@@ -76,12 +75,7 @@ for walk in range(args.iter_num):
         add_pair_if_ok(cur_vertex, visited, 'medium',
                        medium_pairs, medium_paths, start_name=cur_name)
 
-
-write_to_files(os.path.join(args.out_dir, 'medium'),
-               os.path.join(args.out_dir, 'medium_paths'),
-               medium_pairs, medium_paths)
-write_to_files(os.path.join(args.out_dir, 'easy'),
-               os.path.join(args.out_dir, 'easy_paths'),
-               easy_pairs, easy_paths)
+easy_data.write_to_files()
+medium_data.write_to_files()
 
 print('Execution time:', time() - start_time)
