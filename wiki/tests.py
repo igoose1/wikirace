@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 import wiki.ZIMFile
 from django.conf import settings
 from unittest.mock import Mock, patch
+from urllib.parse import quote
 from wiki import GameOperator, models, get_wiki_page
 from wiki.file_holder import file_holder
 
@@ -214,6 +215,33 @@ class PlayingTest(TestCase):
             self.assertEqual(resp.status_code, 200)
             if url == url_way[-1]:
                 self.assertTrue('class="win_title"' in resp.content.decode())
+
+    def testBackButtons(self):
+        back_url = '/back'
+        url_way = [
+            '/Глоксин,_Беньямин_Петер.html',
+            '/1765_год.html',
+            '/XX_век.html',
+            back_url,
+            '/XX_век.html',
+            '/1999_год.html',
+            back_url,
+            '/1992_год.html',
+            '/XXV_летние_Олимпийские_игры.html',
+            '/Куба_на_летних_Олимпийских_играх_1992.html'
+        ]
+
+        ind = 0
+        for url in url_way:
+            resp = self.client.get(url)
+            if url == back_url:
+                self.assertRedirects(resp, quote(url_way[ind - 2]))
+            else:
+                self.assertEqual(resp.status_code, 200)
+
+            if url == url_way[-1]:
+                self.assertTrue('class="win_title"' in resp.content.decode())
+            ind += 1
 
 
 class FileLeaksTest(TestCase):
