@@ -1,15 +1,44 @@
 from django.db import models
+from django.contrib.sessions.models import Session
+from django.conf import settings
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+import hashlib
 
 
 class MultiplayerPair(models.Model):
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
-    game_id = models.CharField(max_length=30, primary_key=True)
+    game_id = models.AutoField(primary_key=True)
+    game_key = models.CharField(default='', max_length=64)
+
+    def game_key_calculate(self):
+        if self.game_key != '' and self.game_key is not None:
+            return
+        suffix = settings.SECRET_KEY
+        hashed = hashlib.sha256((str(self.game_id) + suffix).encode()).hexdigest()
+        game_key = hashed[:6]
+        counter = 0
+        while MultiplayerPair.objects.filter(game_key=game_key).count() > 0:
+            counter += 1
+            suffix += 'a'
+            hashed = hashlib.sha256((str(self.game_id) + suffix).encode()).hexdigest()
+            game_key = hashed[:min(6 + counter // 1024, 16)]
+        self.game_key = game_key
+        self.save()
+
+
+@receiver(post_save, sender=MultiplayerPair)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        instance.game_key_calculate()
 
 
 class Game(models.Model):
     multiplayer = models.ForeignKey(MultiplayerPair, null=True,
                                     on_delete=models.SET_NULL)
+    session = models.ForeignKey(Session, null=True,
+                                on_delete=models.SET_NULL)
     game_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)

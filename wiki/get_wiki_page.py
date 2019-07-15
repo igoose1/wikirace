@@ -16,8 +16,7 @@ from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .models import MultiplayerPair, Game
-from random import choice
-from django.db.models import ExpressionWrapper, F, fields
+from django.contrib.sessions.models import Session
 
 
 class PreVariables:
@@ -39,6 +38,9 @@ class PreVariables:
                 self.graph,
                 'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
             )
+            if self.game_operator is not None:
+                session = Session.objects.get(session_key=request.session.session_key)
+                self.game_operator.game.session = session
             self.session_operator = None
             self.request = request
         except Exception:
@@ -219,9 +221,10 @@ def get(prevars, title_name):
         else:
             return get_multiplayer_results(prevars)
 
-    game_id = None
+    game_key = None
     if prevars.game_operator.game.multiplayer is not None:
-        game_id = prevars.game_operator.game.multiplayer.game_id
+        game_key = prevars.game_operator.game.multiplayer.game_key
+        print(prevars.game_operator.game.multiplayer.game_key)
 
     template = loader.get_template('wiki/page.html')
     context = {
@@ -231,7 +234,7 @@ def get(prevars, title_name):
         'counter': prevars.game_operator.game.steps,
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty,
-        'game_id': game_id
+        'game_id': game_key
     }
     return HttpResponse(
         template.render(context, prevars.request),
@@ -256,27 +259,11 @@ def get_feedback_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def guid(length):
-    g, s = ('аоиеуюя', 'бвгджзклмнпрстфхц')
-    return ''.join([choice(g if i % 2 else s) for i in range(length)])
-
-
 def generate_multiplayer(prevars):
-    multiplayer = None
-    counter = 0
-    while True:
-        gid = guid(5 + counter // 10)
-        try:
-            multiplayer = MultiplayerPair.objects.create(
-                from_page_id=prevars.game_operator.game.start_page_id,
-                to_page_id=prevars.game_operator.game.end_page_id,
-                game_id=gid
-            )
-            break
-        except Exception:
-            pass
-        finally:
-            counter += 1
+    multiplayer = MultiplayerPair.objects.create(
+        from_page_id=prevars.game_operator.game.start_page_id,
+        to_page_id=prevars.game_operator.game.end_page_id
+    )
     prevars.game_operator.game.multiplayer = multiplayer
 
 
@@ -288,13 +275,20 @@ def get_multiplayer_generate(prevars):
     return response
 
 
+def get_multiplayer_from_GET(request):
+    game_key = request.GET.get('id', '')
+    try:
+        multiplayer = MultiplayerPair.objects.get(game_key=game_key)
+    except Exception:
+        return None
+    return multiplayer
+
+
 @load_prevars
 def get_multiplayer_join(prevars):
-    game_id = prevars.request.GET.get('id', '')
-    try:
-        multiplayer = MultiplayerPair.objects.get(game_id=game_id)
-    except Exception:
-        return HttpResponseBadRequest()
+    multiplayer = get_multiplayer_from_GET(prevars.request)
+    if multiplayer is None:
+        return HttpResponseNotFound()
 
     prevars.game_operator = GameOperator.create_game(
         FixedGameTaskGenerator(
@@ -310,16 +304,18 @@ def get_multiplayer_join(prevars):
 
 @load_prevars
 def get_multiplayer_results_page(prevars):
-    game_id = prevars.request.GET.get('id', '')
+    multiplayer = get_multiplayer_from_GET(prevars.request)
 
-    if prevars.session_operator is not None and game_id == '':
+    if prevars.session_operator is not None and multiplayer is None:
         return get_multiplayer_results(prevars)
 
-    try:
-        multiplayer = MultiplayerPair.objects.get(game_id=game_id)
-    except Exception:
-        return HttpResponseBadRequest()
-    results_table = get_multiplayer_results_table(multiplayer, None)
+    if multiplayer is None:
+        return HttpResponseNotFound()
+
+    results_table = get_multiplayer_results_table(
+        multiplayer,
+        prevars.request.session.session_key
+    )
 
     context = {
         'results_table': results_table,
@@ -328,19 +324,34 @@ def get_multiplayer_results_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def get_multiplayer_results_table(multiplayer, pk):
+def get_multiplayer_results_table(multiplayer, session_key):
     games = multiplayer.game_set\
         .extra(where=['current_page_id == end_page_id'])\
-        .order_by('steps').all()[:5]
+        .order_by('steps').all()
 
     results_table = []
+    used_keys = set()
     for game in games:
+        if len(used_keys) == 5:
+            break
+
+        if game.session is not None:
+            session = game.session.get_decoded()
+            game_session_key = game.session.session_key
+            if game_session_key in used_keys:
+                continue
+            used_keys.add(game_session_key)
+        else:
+            session = {'settings': {'name': 'expired'}}
+            used_key.add('gameid_' + str(game.game_id))
+
+        name = get_settings(session.get('settings', dict())).get('name', 'no name')
+
         results_table.append({
-            'name': game.game_id,
+            'name': name,
             'steps': game.steps,
-            'is_me': game.pk == pk
+            'is_me': game_session_key == session_key
         })
-    print(results_table)
     return results_table
 
 
@@ -350,7 +361,7 @@ def get_multiplayer_results(prevars):
     prevars.game_operator._game.save()
     results_table = get_multiplayer_results_table(
         prevars.game_operator.game.multiplayer,
-        prevars.game_operator.game.pk
+        prevars.request.session.session_key
     )
     context = {
         'results_table': results_table,
