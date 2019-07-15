@@ -1,8 +1,6 @@
 from random import choice
 import precalc_methods as precalc
-from time import time
 from settings_import import settings
-import logging
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 DESTINATION_LEVEL = 2
@@ -27,8 +25,8 @@ class GenIterationHard:
         self.graph = graph
         self.reversed_graph = reversed_graph
         self.paths = []
-        self.start_page_id = choose_start_vertex(self.graph)
-        self.title_checker = TitleChecker()
+        self.start_page_id = precalc.choose_start_vertex(self.graph)
+        self.title_checker = precalc.TitleChecker()
         self.rev_dist = []
         self.rev_go_to = []
         self.dir_dist = []
@@ -38,10 +36,10 @@ class GenIterationHard:
         self._init_dists()
 
     def _init_dists(self):
-        self.dir_dist, self.dir_go_to = bfs(self.start_page_id,
-                                            self.graph, hard=True)
-        self.rev_dist, self.rev_go_to = bfs(self.start_page_id,
-                                            self.rev_graph, hard=True)
+        self.dir_dist, self.dir_go_to = precalc.bfs(self.start_page_id,
+                                                    self.graph, hard=True)
+        self.rev_dist, self.rev_go_to = precalc.bfs(self.start_page_id,
+                                                    self.rev_graph, hard=True)
 
     def is_good_sink(self, vertex):
         return 0 < self.dir_dist[vertex] < 5 and self.rev_dist[vertex] == 2

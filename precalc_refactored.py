@@ -1,6 +1,5 @@
 from random import choice
-from precalc_methods import bfs, TitleChecker,\
-    choose_start_vertex, BFSOperator
+import precalc_methods as precalc
 from settings_import import settings
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
@@ -11,7 +10,7 @@ dist_range = {
 }
 
 
-class EasyBFSOperator(BFSOperator):
+class EasyBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
         super().__init__(iteration_id)
         self._go_to = [-1 for i in range(VERTICES_COUNT)]
@@ -24,16 +23,16 @@ class GenIteration:
     def __init__(self, graph, reversed_graph, difficulty):
         self.graph = graph
         self.reversed_graph = reversed_graph
-        self.title_checker = TitleChecker()
+        self.title_checker = precalc.TitleChecker()
         self.paths = []
-        self.start_page_id = choose_start_vertex(self.graph)
+        self.start_page_id = precalc.choose_start_vertex(self.graph)
         self.difficulty = difficulty
         self.dist = []
         self.go_to = []
         self._init_dist()
 
     def _init_dist(self):
-        self.dist, self.go_to = bfs(self.start_page_id, self.graph)
+        self.dist, self.go_to = precalc.bfs(self.start_page_id, self.graph)
 
     def enough_outer_links(self, index):
         links_amount = self.reversed_graph.edges_count(index)
