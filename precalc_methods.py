@@ -46,10 +46,10 @@ class BFSOperator:
         logging.basicConfig(level=logging.INFO)
     
     def clear(self):
-        raise NotImplementedError("This is super class, implement clear() child class.")
+        raise NotImplementedError("This is super class, implement clear() in child class.")
     
     def add_edge(self, start_vertex, final_vertex):
-        raise NotImplementedError("This is super class, implement add_edge() child class.")
+        raise NotImplementedError("This is super class, implement add_edge() in child class.")
     
     @property
     def go_to(self):
