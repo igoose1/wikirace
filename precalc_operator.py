@@ -21,10 +21,10 @@ if args.debug:
 lg.handlers.append(logging.StreamHandler(sys.stderr))
 logging.root = lg
 
-reversed_graph = GraphReader(settings.GRAPH_OFFSET_PATH,
-                             settings.GRAPH_EDGES_PATH)
-graph = GraphReader(settings.REVERSE_GRAPH_OFFSET_PATH,
-                    settings.REVERSE_GRAPH_EDGES_PATH)
+reversed_graph = GraphReader(settings.REVERSE_GRAPH_OFFSET_PATH,
+                             settings.REVERSE_GRAPH_EDGES_PATH)
+graph = GraphReader(settings.GRAPH_OFFSET_PATH,
+                    settings.GRAPH_EDGES_PATH)
 
 data = DifficultyData(args.out_dir, args.difficulty)
 iter_num = args.iter_num
