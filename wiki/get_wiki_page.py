@@ -270,7 +270,9 @@ def get_multiplayer_generate(prevars):
 
 
 def get_multiplayer_from_GET(request):
-    game_key = request.GET.get('id', '')
+    game_key = request.GET.get('id', None)
+    if game_key is None:
+        return None
     multiplayer = get_object_or_404(MultiplayerPair, game_key=game_key)
     return multiplayer
 
