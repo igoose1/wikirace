@@ -9,6 +9,17 @@ SOURCE_LEVEL = 7
 MIN_DESTINATION_COUNT = 100
 MAX_PATH_LENGTH = 13
 
+
+def cut_cycles(path):
+    for i in range(len(path)):
+        path_slice = path[i + 1:]
+        if path[i] in path_slice:
+            idx = path_slice.index(path[i])
+            path = path[:i] + path_slice[idx:]
+            break
+    return path
+
+
 class HardBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
         super().__init__(iteration_id)
@@ -98,21 +109,10 @@ class GenIterationHard:
         path += list(reversed(from_root_part))
         return path
 
-    def cut_cycles(self):
-        for j in range(len(self._paths)):
-            path = self._paths[j]
-            for i in range(len(path)):
-                path_slice = path[i+1:]
-                if path[i] in path_slice:
-                    idx = path_slice.index(path[i])
-                    path = path[:i] + path_slice[idx:]
-                    break
-            self._paths[j] = path
-
     def gen_paths(self):
         for source in self.good_sources:
             sink = choice(self.good_sinks)
-            self._paths += self.create_path(source, sink)
+            self._paths += [cut_cycles(path) for path in self.create_path(source, sink)]
 
     def run(self):
         self.gen_sources()
