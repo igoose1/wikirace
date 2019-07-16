@@ -96,7 +96,7 @@ class GenIterationHard:
             cur_vertex = self.dir_go_to[cur_vertex]
         from_root_part.pop()
         path += list(reversed(from_root_part))
-        self._paths.append(path)
+        return path
 
     def cut_cycles(self):
         for j in range(len(self._paths)):
@@ -112,7 +112,7 @@ class GenIterationHard:
     def gen_paths(self):
         for source in self.good_sources:
             sink = choice(self.good_sinks)
-            self.create_path(source, sink)
+            self._paths += self.create_path(source, sink)
 
     def run(self):
         self.gen_sources()
