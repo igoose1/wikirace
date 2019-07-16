@@ -2,6 +2,7 @@ from random import choice
 import precalc_methods as precalc
 from settings_import import settings
 import logging
+from new_precalc import GenIteration
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 DESTINATION_LEVEL = 2
@@ -23,41 +24,38 @@ def cut_cycles(path):
 class HardBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
         super().__init__(iteration_id)
-        self.clear()
-    
-    def clear(self):
-        self._go_to = [-1 for i in range(VERTICES_COUNT)]
+        self._parent = [-1 for i in range(VERTICES_COUNT)]
+
+    @property
+    def parent(self):
+        return self._parent
     
     def add_edge(self, start_vertex, final_vertex):
-        self._go_to[final_vertex] = start_vertex
+        self._parent[final_vertex] = start_vertex
     
     def bad_root(self, dist_ready, dist_cnt):
         return dist_ready == DESTINATION_LEVEL and dist_cnt < MIN_DESTINATION_COUNT
 
 
-class GenIterationHard:
+class GenIterationHard(GenIteration):
     def __init__(self, graph, reversed_graph, iteration_id=0):
-        self.graph = graph
-        self.reversed_graph = reversed_graph
-        self._paths = []
-        self.start_page_id = precalc.choose_start_vertex(self.graph)
-        self.title_checker = precalc.TitleChecker()
+        super().__init__(graph, reversed_graph, iteration_id)
         self.rev_dist = []
-        self.rev_go_to = []
-        self.dir_dist = []
-        self.dir_go_to = []
+        self.rev_parent = []
+        self.dir_parent = []
         self.good_sources = []
         self.good_sinks = []
-        self.bfs_operator = HardBFSOperator(iteration_id)
+        self.rev_bfs_operator = HardBFSOperator(iteration_id)
+        self.dir_bfs_operator = HardBFSOperator(iteration_id)
         self._init_dists()
 
     def _init_dists(self):
         self.dir_dist = precalc.bfs(self.start_page_id, 
-                                    self.graph, self.bfs_operator)
-        self.dir_go_to = self.bfs_operator.go_to
+                                    self.graph, self.dir_bfs_operator)
+        self.dir_parent = self.dir_bfs_operator.parent
         self.rev_dist = precalc.bfs(self.start_page_id,
-                                    self.reversed_graph, self.bfs_operator)
-        self.rev_go_to = self.bfs_operator.go_to
+                                    self.reversed_graph, self.rev_bfs_operator)
+        self.rev_parent = self.rev_bfs_operator.parent
 
     def is_good_sink(self, vertex):
         '''
@@ -92,10 +90,10 @@ class GenIterationHard:
 
     def create_path(self, source, sink):
         path = [source]
-        cur_vertex = self.rev_go_to[source]
+        cur_vertex = self.rev_parent[source]
         while cur_vertex != -1:
             path.append(cur_vertex)
-            cur_vertex = self.rev_go_to[cur_vertex]
+            cur_vertex = self.rev_parent[cur_vertex]
             if cur_vertex == sink:
                 break
         if cur_vertex == sink:
@@ -105,7 +103,7 @@ class GenIterationHard:
         cur_vertex = sink
         while cur_vertex != -1:
             from_root_part.append(cur_vertex)
-            cur_vertex = self.dir_go_to[cur_vertex]
+            cur_vertex = self.dir_parent[cur_vertex]
         from_root_part.pop()
         path += list(reversed(from_root_part))
         return path
@@ -122,7 +120,3 @@ class GenIterationHard:
         self.gen_paths()
         self.cut_cycles()
         logging.info('paths generated')
-    
-    @property
-    def generated_paths(self):
-        return self._paths

@@ -1,6 +1,7 @@
 from random import choice
 import precalc_methods as precalc
 from settings_import import settings
+from new_precalc import GenIteration
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 MINIMAL_OUTER_LINKS = 50
@@ -13,32 +14,28 @@ dist_range = {
 class EasyBFSOperator(precalc.BFSOperator):
     def __init__(self, iteration_id):
         super().__init__(iteration_id)
-        self.clear()
-    
-    def clear(self):
-        self._go_to = [[] for i in range(VERTICES_COUNT)]    
-    
+        self._children = [[] for i in range(VERTICES_COUNT)]
+
     def add_edge(self, start_vertex, final_vertex):
-        self._go_to[start_vertex].append(final_vertex) 
+        self._children[start_vertex].append(final_vertex)
+
+    @property
+    def children(self):
+        return self._children
 
 
-class GenIteration:
+class GenIterationEasy(GenIteration):
     def __init__(self, graph, reversed_graph, difficulty, iteration_id=0):
-        self.graph = graph
-        self.reversed_graph = reversed_graph
-        self.title_checker = precalc.TitleChecker()
-        self._paths = []
-        self.start_page_id = precalc.choose_start_vertex(self.graph)
+        super().__init__(graph, reversed_graph, iteration_id)
         self.difficulty = difficulty
-        self.dist = []
-        self.go_to = []
+        self.children = []
         self.bfs_operator = EasyBFSOperator(iteration_id)
         self._init_dist()
 
     def _init_dist(self):
-        self.dist = precalc.bfs(self.start_page_id, self.graph,
-                                self.bfs_operator)
-        self.go_to = self.bfs_operator.go_to
+        self.dir_dist = precalc.bfs(self.start_page_id, self.graph,
+                                    self.bfs_operator)
+        self.children = self.bfs_operator.children
 
     def enough_outer_links(self, index):
         links_amount = self.reversed_graph.edges_count(index)
@@ -47,18 +44,18 @@ class GenIteration:
     def is_vertex_good(self, vertex):
         return (self.enough_outer_links(vertex) and
                 self.title_checker.is_title_ok(vertex) and
-                self.dist[vertex] <= 5)
+                self.dir_dist[vertex] <= 5)
 
     def get_path_by_vertex(self, start_vertex):
         max_steps = choice(dist_range[self.difficulty]) + 1
         cur_vertex = start_vertex
         path = [start_vertex]
         while len(path) < max_steps:
-            if len(self.go_to[cur_vertex]) == 0:
-                if len(path) in dist_range[self.difficulty]:
+            if len(self.children[cur_vertex]) == 0:
+                if len(path) - 1 in dist_range[self.difficulty]:
                     return path
                 return None
-            next_vertex = choice(self.go_to[cur_vertex])
+            next_vertex = choice(self.children[cur_vertex])
             path.append(next_vertex)
             cur_vertex = next_vertex
         return path
@@ -70,7 +67,3 @@ class GenIteration:
             current_path = self.get_path_by_vertex(vertex)
             if current_path is not None and self.is_vertex_good(current_path[-1]):
                 self._paths.append(current_path)
-
-    @property
-    def generated_paths(self):
-        return self._paths

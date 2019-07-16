@@ -2,10 +2,12 @@ from random import randrange, shuffle
 import struct
 from settings_import import settings
 from wiki.ZIMFile import ZIMFile
-import logging, os, sys
+import logging
+import os
 import collections
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
+
 
 class DifficultyData:
     def __init__(self, out_directory, difficulty):
@@ -41,18 +43,10 @@ class DifficultyData:
 class BFSOperator:
     def __init__(self, iteration_id):
         self.iteration_id = iteration_id
-        self._go_to = None
         logging.basicConfig(level=logging.INFO)
-    
-    def clear(self):
-        raise NotImplementedError("This is super class, implement clear() in child class.")
     
     def add_edge(self, start_vertex, final_vertex):
         raise NotImplementedError("This is super class, implement add_edge() in child class.")
-    
-    @property
-    def go_to(self):
-        return self._go_to
     
     def log(self, msg: str):
         logging.info('iteration {}: '.format(self.iteration_id) + msg)  
@@ -60,10 +54,11 @@ class BFSOperator:
     def bad_root(self, dist_ready, dist_cnt):
         return False
 
+
 MAX_BFS_DEPTH = 9
 
+
 def bfs(start_page_id, reader, bfs_operator: BFSOperator):
-    bfs_operator.clear()
     dist = [None] * VERTICES_COUNT
     dist_cnt = dict()
     queue = collections.deque()
