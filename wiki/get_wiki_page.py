@@ -10,7 +10,8 @@ from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
-    GameTypes
+    GameTypes,\
+    ByIdGameTaskGenerator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -95,15 +96,17 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty, prevars):
+def get_game_task_generator(difficulty, prevars, pair_id=None):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
+    if difficulty == GameTypes.by_id:
+        return ByIdGameTaskGenerator(pair_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
 
 @load_prevars
-def get_start(prevars, pair_id=None):
+def get_start(prevars):
     settings = get_settings(
         prevars.request.session.get('settings', dict())
     )
@@ -120,13 +123,29 @@ def get_start(prevars, pair_id=None):
             GameTypes(
                 settings['difficulty']
             ),
-            prevars
+            prevars,
         ),
         prevars.zim_file,
         prevars.graph,
-        pair_id,
     )
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+
+
+@load_prevars
+def get_start_by_id(prevars, pair_id):
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            GameTypes(
+                GameTypes.by_id
+            ),
+            prevars,
+            pair_id,
+        ),
+        prevars.zim_file,
+        prevars.graph,
+    )
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+
 
 @requires_game
 def get_continue(prevars):
@@ -171,7 +190,6 @@ def winpage(prevars):
 
 @requires_game
 def get(prevars, title_name):
-    # print('Get'*100, title_name)
     article = prevars.zim_file[title_name].follow_redirect()
     if article.is_empty or article.is_redirecting:
         return HttpResponseNotFound()
