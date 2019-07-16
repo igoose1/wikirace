@@ -17,6 +17,8 @@ class DifficultyData:
         if path is None:
             return
         self._paths.append(path)
+        print(path)
+        k = input()
     
     def write_to_files(self):
         file_name = os.path.join(self.out_directory, self.difficulty)
@@ -30,9 +32,10 @@ class DifficultyData:
                 pair_file.write(struct.pack('>i', start_vertex))
                 pair_file.write(struct.pack('>i', final_vertex))
                 pair_file.write(struct.pack('>i', offset))
-                path_file.write(struct.pack('>i', len(self._paths[i])))
+                middle = self._paths[1:-1]
+                path_file.write(struct.pack('>i', len(middle)))
                 offset += 4
-                for v in self._paths[i]:
+                for v in middle:
                     path_file.write(struct.pack('>i', v))
                     offset += 4
         
@@ -68,7 +71,7 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
     queue = collections.deque()
     queue.append(start_page_id)
     dist[start_page_id] = 0
-    dist_cnt[0] = 0
+    dist_cnt[0] = 1
     prev_dist = 0
     while len(queue) > 0:
         cur_vertex = queue.popleft()

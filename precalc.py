@@ -55,7 +55,9 @@ class GenIteration:
         path = [start_vertex]
         while len(path) < max_steps:
             if len(self.go_to[cur_vertex]) == 0:
-                return path
+                if len(path) in dist_range[self.difficulty]:
+                    return path
+                return None
             next_vertex = choice(self.go_to[cur_vertex])
             path.append(next_vertex)
             cur_vertex = next_vertex
