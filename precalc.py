@@ -44,6 +44,7 @@ class GenIterationEasy(GenIteration):
     def is_vertex_good(self, vertex):
         return (self.enough_outer_links(vertex) and
                 self.title_checker.is_title_ok(vertex) and
+                self.dir_dist is not None and
                 self.dir_dist[vertex] <= 5)
 
     def get_path_by_vertex(self, start_vertex):
