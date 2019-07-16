@@ -17,6 +17,7 @@ from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .models import MultiplayerPair, Game
 from django.contrib.sessions.models import Session
+from django.shortcuts import get_object_or_404
 from wiki.file_holder import file_holder
 
 
@@ -270,10 +271,7 @@ def get_multiplayer_generate(prevars):
 
 def get_multiplayer_from_GET(request):
     game_key = request.GET.get('id', '')
-    try:
-        multiplayer = MultiplayerPair.objects.get(game_key=game_key)
-    except Exception:
-        return None
+    multiplayer = get_object_or_404(MultiplayerPair, game_key=game_key)
     return multiplayer
 
 
