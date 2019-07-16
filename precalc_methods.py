@@ -92,7 +92,7 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
             queue.append(next_vertex)
             bfs_operator.add_edge(cur_vertex, next_vertex)
     bfs_operator.log('dist calculation executed')
-    return dist, bfs_operator.go_to
+    return dist
 
 
 MIN_LINKS_FROM_ROOT = 5

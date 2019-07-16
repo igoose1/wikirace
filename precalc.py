@@ -36,7 +36,9 @@ class GenIteration:
         self._init_dist()
 
     def _init_dist(self):
-        self.dist, self.go_to = precalc.bfs(self.start_page_id, self.graph, self.bfs_operator)
+        self.dist = precalc.bfs(self.start_page_id, self.graph,
+                                self.bfs_operator)
+        self.go_to = self.bfs_operator.go_to
 
     def enough_outer_links(self, index):
         links_amount = self.reversed_graph.edges_count(index)

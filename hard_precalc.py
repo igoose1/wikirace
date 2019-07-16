@@ -52,10 +52,12 @@ class GenIterationHard:
         self._init_dists()
 
     def _init_dists(self):
-        self.dir_dist, self.dir_go_to = precalc.bfs(self.start_page_id,
-                                            self.graph, self.bfs_operator)
-        self.rev_dist, self.rev_go_to = precalc.bfs(self.start_page_id,
-                                            self.reversed_graph, self.bfs_operator)
+        self.dir_dist = precalc.bfs(self.start_page_id, 
+                                    self.graph, self.bfs_operator)
+        self.dir_go_to = self.bfs_operator.go_to
+        self.rev_dist = precalc.bfs(self.start_page_id,
+                                    self.reversed_graph, self.bfs_operator)
+        self.rev_go_to = self.bfs_operator.go_to
 
     def is_good_sink(self, vertex):
         '''
