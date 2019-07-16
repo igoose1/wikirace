@@ -30,7 +30,7 @@ class DifficultyData:
                 pair_file.write(struct.pack('>i', start_vertex))
                 pair_file.write(struct.pack('>i', final_vertex))
                 pair_file.write(struct.pack('>i', offset))
-                middle = self._paths[1:-1]
+                middle = self._paths[i][1:-1]
                 path_file.write(struct.pack('>i', len(middle)))
                 offset += 4
                 for v in middle:
