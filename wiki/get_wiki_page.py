@@ -161,7 +161,7 @@ def get_continue(prevars):
 @requires_game
 def get_back(prevars):
     prevars.game_operator.jump_back()
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -205,7 +205,7 @@ def get(prevars, title_name):
 
     if not prevars.game_operator.is_jump_allowed(article):
         return HttpResponseRedirect(
-            prevars.game_operator.current_page.url
+            '/' + prevars.game_operator.current_page.url
         )
     prevars.game_operator.jump_to(article)
 
