@@ -112,7 +112,7 @@ class ZIMFile:
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
         self._article_indexes.seek(offset)
-        index = struct.unpack('>I', os.read(self._article_indexes, BLOCK_SIZE))[0]
+        index = struct.unpack('>I', self._article_indexes.read(BLOCK_SIZE))[0]
         return self[index]
 
     def __getitem__(self, key):
