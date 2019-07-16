@@ -19,24 +19,22 @@ class DifficultyData:
     
     def write_to_files(self):
         file_name = os.path.join(self.out_directory, self.difficulty)
-        pair_file = open(file_name, 'wb')
-        path_file = open(file_name + '_path', 'wb')
-        number_of_pairs = len(self._paths)
-        pair_file.write(struct.pack('>i', number_of_pairs))
-        offset = 0
-        for i in range(number_of_pairs):
-            start_vertex = self._paths[i][0]
-            final_vertex = self._paths[i][-1]
-            pair_file.write(struct.pack('>i', start_vertex))
-            pair_file.write(struct.pack('>i', final_vertex))
-            pair_file.write(struct.pack('>i', offset))
-            path_file.write(struct.pack('>i', len(self._paths[i])))
-            offset += 4
-            for v in self._paths[i]:
-                path_file.write(struct.pack('>i', v))
+        with (open(file_name, 'wb') as pair_file, 
+              open(file_name + '_path', 'wb') as path_file):
+            number_of_pairs = len(self._paths)
+            pair_file.write(struct.pack('>i', number_of_pairs))
+            offset = 0
+            for i in range(number_of_pairs):
+                start_vertex = self._paths[i][0]
+                final_vertex = self._paths[i][-1]
+                pair_file.write(struct.pack('>i', start_vertex))
+                pair_file.write(struct.pack('>i', final_vertex))
+                pair_file.write(struct.pack('>i', offset))
+                path_file.write(struct.pack('>i', len(self._paths[i])))
                 offset += 4
-        pair_file.close()
-        path_file.close()
+                for v in self._paths[i]:
+                    path_file.write(struct.pack('>i', v))
+                    offset += 4
         
         
 class BFSOperator:
