@@ -188,11 +188,13 @@ class PlayingTest(TestCase):
         )
         pages = 'Глоксин,_Беньямин_Петер.html', 'Куба_на_летних_Олимпийских_играх_1992.html'
         start_page_id, end_page_id = (zim[page].index for page in pages)
+        pair = models.GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
+        pair.save()
         self.patches = [
             patch.object(
                 GameOperator.DifficultGameTaskGenerator,
                 'choose_start_and_end_pages',
-                Mock(return_value=(start_page_id, end_page_id))
+                Mock(return_value=pair)
             )
         ]
 
