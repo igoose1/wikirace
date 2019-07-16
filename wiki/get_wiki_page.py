@@ -5,7 +5,6 @@ from django.http import HttpResponse,\
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
-
 from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
@@ -81,18 +80,15 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
-    NAME_LEN = 16
+    name_len = 16
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
-    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
+    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > name_len):
         return HttpResponseBadRequest()
 
-    prevars.request.session['settings'] = {
-        'difficulty': GameTypes(difficulty).value,
-        'name': name
-    }
+    prevars.request.session['settings'] = {'difficulty': GameTypes(difficulty).value, 'name': name}
     return HttpResponse('Ok')
 
 
@@ -178,7 +174,7 @@ def winpage(prevars):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
-        'pair_id': prevars.game_operator.game_pair.pair_id,
+        'pair_id': prevars.game_operator.game.game_pair.pair_id,
         'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.game.steps
         ),
