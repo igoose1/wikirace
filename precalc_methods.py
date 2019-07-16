@@ -76,7 +76,7 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
                 break
             if bfs_operator.bad_root(dist_ready, dist_cnt[dist_ready]):
                 bfs_operator.log('bad root vertex')
-                return None, None
+                return None
         prev_dist = dist[cur_vertex]
         dist_cnt[dist[cur_vertex]] += 1
         edges = list(reader.edges(cur_vertex))

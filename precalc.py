@@ -47,10 +47,10 @@ class GenIterationEasy(GenIteration):
                 self.dir_dist[vertex] <= 5)
 
     def get_path_by_vertex(self, start_vertex):
-        max_steps = choice(dist_range[self.difficulty]) + 1
+        max_steps = choice(dist_range[self.difficulty])
         cur_vertex = start_vertex
         path = [start_vertex]
-        while len(path) < max_steps:
+        while len(path) - 1 < max_steps:
             if len(self.children[cur_vertex]) == 0:
                 if len(path) - 1 in dist_range[self.difficulty]:
                     return path
