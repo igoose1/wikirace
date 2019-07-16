@@ -3,6 +3,7 @@ import struct
 from settings_import import settings
 from wiki.ZIMFile import ZIMFile
 import logging, os, sys
+import collections
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 
@@ -64,13 +65,14 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
     bfs_operator.clear()
     dist = [None] * VERTICES_COUNT
     dist_cnt = dict()
-    queue = [start_page_id]
-    queue_beginning = 0
+    queue = collections.deque()
+    queue.append(start_page_id)
     dist[start_page_id] = 0
     dist_cnt[0] = 0
+    prev_dist = 0
     while queue_beginning < len(queue):
-        cur_vertex = queue[queue_beginning]
-        if dist[cur_vertex] > dist[queue[queue_beginning - 1]]:
+        cur_vertex = queue.popLeft()
+        if dist[cur_vertex] > prev_dist:
             dist_ready = dist[cur_vertex] - 1
             bfs_operator.log('dist {} calculated'.format(dist_ready))
             dist_cnt[dist[cur_vertex]] = 0
@@ -79,7 +81,7 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
             if bfs_operator.bad_root(dist_ready, dist_cnt[dist_ready]):
                 bfs_operator.log('bad root vertex')
                 return None, None
-        queue_beginning += 1
+        prev_dist = dist[cur_vertex]
         dist_cnt[dist[cur_vertex]] += 1
         edges = list(reader.edges(cur_vertex))
         shuffle(edges)
