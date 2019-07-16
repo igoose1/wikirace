@@ -1,6 +1,6 @@
+from settings_import import settings
 import argparse
 from wiki.GraphReader import GraphReader
-from django.conf import settings
 from precalc_methods import DifficultyData
 from hard_precalc import GenIterationHard
 from precalc import GenIterationEasy
