@@ -5,7 +5,6 @@ from django.conf import settings
 
 def get_path(pair_id, complexity, bytes_count=4):
     if complexity not in settings.LEVEL_FILE_NAMES_V2.keys():
-        print('complexity', complexity)
         return []
 
     offset_file = open(settings.LEVEL_FILE_NAMES_V2[complexity], 'rb')

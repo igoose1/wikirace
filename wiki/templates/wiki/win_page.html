@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>WikiRace - Победа</title>
-    <link href="../../static/wiki/win_page_style.css" rel="stylesheet">
-    <script src="../../static/wiki/clear_state.js"></script>
+    <link href="{% static "wiki/win_page_style.css" %}" rel="stylesheet">
+    <script src="{% static "wiki/clear_state.js" %}"></script>
 </head>
 <body>
 <div class="win_title">
@@ -13,7 +14,7 @@
 <div class="move_time_block">
     <div class="move_block">
         {{ counter }} ход{{move_end}}
-        <a href="/show_path_page">Возможный путь</a>
+		<a href="/show_path_page">Возможный путь</a>
     </div>
     <div class="time_block">
         {{ time }}
@@ -23,14 +24,14 @@
     <div class="from_block">
         {{ from }}
     </div>
-    <img src="../../static/wiki/baseline-arrow_forward_ios-24px.svg" class="arrow_block">
+    <img src="{% static "wiki/baseline-arrow_forward_ios-24px.svg" %}" class="arrow_block">
     <div class="to_block">
         <a href="/hint_page">{{ to }}</a>
     </div>
 </div>
 <a href="/game_start">
     <div class="play_block">
-        <img src="../../static/wiki/baseline-play_arrow-24px.svg" class="play_block_icon"/>
+        <img src="{% static "wiki/baseline-play_arrow-24px.svg" %}" class="play_block_icon"/>
     </div>
 </a>
 <div class="name_field">

@@ -15,7 +15,7 @@
                 <span>{{ from }}</span>
             </div>
             {% for article in our_path %}
-                <img src="../../static/wiki/arrow.png" alt='undo'>
+                <img src="{% static "wiki/arrow.png" %}" alt='undo'>
                 <div class="div">
                     <span>{{ article }}</span>
                 </div>
@@ -31,7 +31,7 @@
                 <span>{{ from }}</span>
             </div>
             {% for article in user_path %}
-                <img src="../../static/wiki/arrow.png" alt='undo'>
+                <img src="{% static "wiki/arrow.png" %}" alt='undo'>
                 <div class="div">
                     <span>{{ article }}</span>
                 </div>
