@@ -48,7 +48,7 @@ class Turn(models.Model):
 
 
 class Trial(models.Model):
-    game_id = models.AutoField(primary_key=True)
+    trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()

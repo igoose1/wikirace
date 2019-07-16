@@ -18,8 +18,8 @@ class TurnAdmin(admin.ModelAdmin):
     ordering = ['time']
 
 class TrialAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'trial_name', 'from_page_id', 'to_page_id']
-    ordering = ['game_id']
+    list_display = ['trial_id', 'trial_name', 'from_page_id', 'to_page_id']
+    ordering = ['trial_id']
 
 
 

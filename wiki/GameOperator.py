@@ -47,11 +47,10 @@ class RandomGameTaskGenerator(GameTaskGenerator):
 class TrialGameTaskGenerator(GameTaskGenerator):
 
     def choose_start_and_end_pages(self) -> (int, int):
-        trial = Trial.objects.get(game_id=self._game_id)
-        return trial.from_page_id, trial.to_page_id
+        return self._trial.from_page_id, self._trial.to_page_id
 
-    def __init__(self, game_id):
-        self._game_id = game_id
+    def __init__(self, trial):
+        self._trial = trial
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):
