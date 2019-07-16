@@ -50,7 +50,7 @@ class GenIteration:
                 self.dist[vertex] <= 5)
 
     def get_path_by_vertex(self, start_vertex):
-        max_steps = choice(dist_range[self.difficulty])
+        max_steps = choice(dist_range[self.difficulty]) + 1
         cur_vertex = start_vertex
         path = [start_vertex]
         while len(path) < max_steps:
