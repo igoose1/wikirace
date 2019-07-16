@@ -111,7 +111,7 @@ class GenIterationHard(GenIteration):
     def gen_paths(self):
         for source in self.good_sources:
             sink = choice(self.good_sinks)
-            self._paths += [cut_cycles(path) for path in self.create_path(source, sink)]
+            self._paths += cut_cycles(self.create_path(source, sink))
 
     def run(self):
         self.gen_sources()
