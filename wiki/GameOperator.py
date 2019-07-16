@@ -6,7 +6,7 @@ from django.utils import timezone
 from struct import unpack
 from enum import Enum
 
-from .models import Game, Turn, Trial
+from .models import Game, Turn, Trial, GamePair
 from wiki.GraphReader import *
 
 
@@ -47,7 +47,7 @@ class RandomGameTaskGenerator(GameTaskGenerator):
 class TrialGameTaskGenerator(GameTaskGenerator):
 
     def choose_start_and_end_pages(self) -> (int, int):
-        return self._trial.from_page_id, self._trial.to_page_id
+        return self._trial.game_pair.start_page_id, self._trial.game_pair.end_page_id
 
     def __init__(self, trial):
         self._trial = trial
@@ -87,7 +87,7 @@ class GameOperator:
     def jump_back(self):
         if len(self._history) >= 2:
             self._history.pop()  # pop current page
-            self.game.steps += 1
+            self._game.steps += 1
             self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
     @property
@@ -96,15 +96,15 @@ class GameOperator:
 
     @property
     def first_page(self):
-        return self._zim[self.game.start_page_id]
+        return self._zim[self.game.game_pair.start_page_id]
 
     @property
     def last_page(self):
-        return self._zim[self.game.end_page_id]
+        return self._zim[self.game.game_pair.end_page_id]
 
     @property
     def finished(self):
-        return self._game.current_page_id == self._game.end_page_id
+        return self._game.current_page_id == self._game.game_pair.end_page_id
 
     @property
     def is_history_empty(self) -> bool:
@@ -137,9 +137,13 @@ class GameOperator:
         if True in (el.is_redirecting for el in (start_article, end_article)):
             return None
 
-        game = Game.objects.create(
+        game_pair = GamePair.objects.create(
             start_page_id=start_article.index,
-            end_page_id=end_article.index,
+            end_page_id=end_article.index
+        )
+        game_pair.save()
+        game = Game.objects.create(
+            game_pair=game_pair,
             current_page_id=start_article.index,
             start_time=timezone.now(),
             last_action_time=timezone.now()
@@ -169,9 +173,13 @@ class GameOperator:
             steps = data[4]
             history = data[5]
             if len(data) <= 6:
-                game = Game.objects.create(
+                game_pair = GamePair.objects.create(
                     start_page_id=start_page_id,
-                    end_page_id=end_page_id,
+                    end_page_id=end_page_id
+                )
+                game_pair.save()
+                game = Game.objects.create(
+                    game_pair=game_pair,
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,

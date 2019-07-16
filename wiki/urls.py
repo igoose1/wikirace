@@ -6,7 +6,7 @@ from . import get_wiki_page
 
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    # path('admin', admin.site.urls),
     path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
