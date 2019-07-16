@@ -2,11 +2,11 @@ from wiki.ZIMFile import ZIMFile, Article
 from random import randrange
 from django.conf import settings
 from django.utils import timezone
-
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseServerError
 from struct import unpack
 from enum import Enum
-
-from .models import Game, Turn
+from .models import Game, Turn, GamePair
 from wiki.GraphReader import *
 
 
@@ -15,31 +15,38 @@ class GameTypes(Enum):
     easy = "easy"
     medium = "medium"
     hard = "hard"
+    by_id = "by_id"
 
 
 class GameTaskGenerator(object):
 
-    def choose_start_and_end_pages(self) -> (int, int):
+    def choose_start_and_end_pages(self) -> GamePair:
         raise NotImplementedError("This is super class, implement this field in child class.")
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
 
-    def choose_start_and_end_pages(self) -> (int, int):
-        start_page_id = self._zim_file.random_article().index
-        end_page_id = start_page_id
-        for step in range(5):
-            edges = list(self._graph_reader.edges(end_page_id))
-            next_id = randrange(0, len(edges))
-            if edges[next_id] == start_page_id:
-                continue
-            end_page_id = edges[next_id]
-
-        return start_page_id, end_page_id
-
-    def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
+    def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader, max_trying_count=10):
         self._zim_file = zim_file
         self._graph_reader = graph_reader
+        self.max_trying_count = max_trying_count
+
+    def choose_start_and_end_pages(self) -> GamePair:
+        for i in range(self.max_trying_count):
+            start_page_id = self._zim_file.random_article().index
+            end_page_id = start_page_id
+            for step in range(5):
+                edges = list(self._graph_reader.edges(end_page_id))
+                next_id = randrange(0, len(edges))
+                if edges[next_id] == start_page_id:
+                    continue
+                end_page_id = edges[next_id]
+            start_article = self._zim_file[start_page_id].follow_redirect()
+            end_article = self._zim_file[end_page_id].follow_redirect()
+            if start_article.is_redirecting or end_article.is_redirecting:  # articles are cycle redirecting
+                continue
+            return GamePair.objects.get_or_create(start_page_id=start_article.index, end_page_id=start_article.index)[0]
+        raise HttpResponseServerError("All articles are cycle redirecting.")
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):
@@ -47,7 +54,7 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
     def __init__(self, difficult):
         self._difficulty = difficult
 
-    def choose_start_and_end_pages(self) -> (int, int):
+    def choose_start_and_end_pages(self) -> GamePair:
         with open(
             settings.LEVEL_FILE_NAMES[self._difficulty.value],
             'rb'
@@ -58,7 +65,16 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
             start_page_id = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
             end_page_id = unpack('>I', diff_file.read(EDGE_BLOCK_SIZE))[0]
 
-        return start_page_id, end_page_id
+        return GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
+
+
+class ByIdGameTaskGenerator(GameTaskGenerator):
+
+    def __init__(self, pair_id):
+        self.pair_id = pair_id
+
+    def choose_start_and_end_pages(self) -> GamePair:
+        return get_object_or_404(GamePair, pair_id=self.pair_id)
 
 
 class GameOperator:
@@ -74,10 +90,11 @@ class GameOperator:
         return self._game
 
     def jump_back(self):
-        if len(self._history) >= 2:
-            self._history.pop()  # pop current page
-            self.game.steps += 1
-            self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
+        if len(self._history) < 2:
+            return
+        self._history.pop()  # pop current page
+        self.game.steps += 1
+        self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
     @property
     def current_page(self):
@@ -98,42 +115,48 @@ class GameOperator:
     @property
     def is_history_empty(self) -> bool:
         return len(self._history) <= 1
+    
+    def update_history(self, article_id: Article):
+        history_index = self._history[::-1].index(article_id)
+        self.game.steps += max(0, history_index - 1)
+        self._history = self._history[:len(self._history) - history_index - 1]
 
     def is_jump_allowed(self, article: Article):
         if article.is_empty or article.is_redirecting or article.namespace != "A":
             return False
         valid_edges = list(self._reader.edges(self._game.current_page_id))
-        return article.index in valid_edges or self._load_testing or article.index == self.game.current_page_id
+        if article.index in valid_edges or self._load_testing or article.index == self.game.current_page_id:
+            return True
+        elif article.index in self._history:
+            self.update_history(article.index)
+        else:
+            return False
 
     def jump_to(self, article: Article):
-        if article.index != self.game.current_page_id:
-            self._game.steps += 1
-            Turn.objects.create(
-                from_page_id=self._game.current_page_id,
-                to_page_id=article.index,
-                game_id=self._game.game_id,
-                time=timezone.now(),
-            )
-            self._game.current_page_id = article.index
-
-            self._history.append(article.index)
+        if article.index == self.game.current_page_id:
+            return
+        self._game.steps += 1
+        Turn.objects.create(
+            start_page_id=self._game.current_page_id,
+            end_page_id=article.index,
+            game_id=self._game.game_id,
+            time=timezone.now(),
+        )
+        self._game.current_page_id = article.index
+        self._history.append(article.index)
 
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        start_page_id, end_page_id = game_task_generator.choose_start_and_end_pages()
-        start_article = zim_file[start_page_id].follow_redirect()
-        end_article = zim_file[end_page_id].follow_redirect()
-        if True in (el.is_redirecting for el in (start_article, end_article)):
-            return None
-
+        game_pair = game_task_generator.choose_start_and_end_pages()
         game = Game.objects.create(
-            start_page_id=start_article.index,
-            end_page_id=end_article.index,
-            current_page_id=start_article.index,
+            start_page_id=game_pair.start_page_id,
+            end_page_id=game_pair.end_page_id,
+            current_page_id=game_pair.start_page_id,
             start_time=timezone.now(),
-            last_action_time=timezone.now()
+            last_action_time=timezone.now(),
+            game_pair=game_pair,
         )
-        return GameOperator(game, [start_page_id], graph_reader, zim_file)
+        return GameOperator(game, [game_pair.start_page_id], graph_reader, zim_file)
 
     def serialize_game_operator(self) -> dict:
         self._game.save()
@@ -143,8 +166,8 @@ class GameOperator:
         }
 
     @staticmethod
-    def deserialize_game_operator(data, zim_file: ZIMFile, graph_reader: GraphReader, load_testing=False):
-        if data is None:
+    def deserialize_game_operator(data=None, zim_file=None, graph_reader=None, load_testing=False):
+        if not data:
             return None
         # this ugly if for backward compatibility
         if not isinstance(data, list) and not isinstance(data, dict):
@@ -166,15 +189,13 @@ class GameOperator:
                     current_page_id=current_page_id,
                     last_action_time=timezone.now()
                 )
+                game.game_pair = GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
             else:
-                game = Game.objects.get(
-                    game_id=data[6]
-                )
+                game = Game.objects.get(game_id=data[6])
                 game.current_page_id = current_page_id
+        elif "game_id" in data.keys() and 'history' in data.keys():
+            game = Game.objects.get(game_id=data["game_id"])
+            history = data['history']
         else:
-            if "game_id" in data.keys() and 'history' in data.keys():
-                game = Game.objects.get(game_id=data["game_id"])
-                history = data['history']
-            else:
-                return None
+            return None
         return GameOperator(game, history, graph_reader, zim_file, load_testing)

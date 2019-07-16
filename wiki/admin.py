@@ -14,7 +14,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 class TurnAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'from_page_id', 'to_page_id', 'time']
+    list_display = ['game_id', 'start_page_id', 'end_page_id', 'time']
     ordering = ['time']
 
 
