@@ -17,8 +17,6 @@ class DifficultyData:
         if path is None:
             return
         self._paths.append(path)
-        print(path)
-        k = input()
     
     def write_to_files(self):
         file_name = os.path.join(self.out_directory, self.difficulty)
