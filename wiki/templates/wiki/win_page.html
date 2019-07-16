@@ -1,40 +1,22 @@
-<!DOCTYPE html>
+{% extends 'wiki/base_page.html' %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
-    <script src="{% static 'wiki/drawer_logic.js' %}"></script>
-    <title>WikiRace - Победа</title>
-</head>
-<body>
-<div class="toolbar">
-    <div class="menu-container mobile">
-        <div id="menu-toggle">
-            <input type="checkbox" id="checkbox" onchange="move_left_bar()"/>
-            <span></span>
-            <span></span>
-            <span></span>
-            <div> {# НЕ УБИРАТЬ, ДЕРЖИТ КРЕСТИК #}
-            </div>
-        </div>
-    </div>
-    <div class="title">
-        <div class="logo-wikirace">
-            <span>WikiRace</span>
-        </div>
-    </div>
-    <div class="button-bar">
-        <div class="button">
-            <a href="/settings" class="image-button">
-                <img src="{% static 'wiki/icons/baseline-settings-20px.svg' %}" alt="Settings">
-            </a>
-        </div>
-    </div>
-</div>
-<div class="container">
-    <div class="card">
+
+{% block head %}
+<title>WikiRace - Победа</title>
+<link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
+{% endblock %}
+
+{% block buttonBar %}
+{% endblock %}
+
+{% block drawerContent %}
+{% endblock %}
+
+{% block extra %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
         <a href="/game_start">
             <div class="card-image-box card-image-box-continue">
                 <img src="{% static 'wiki/icons/baseline-play_arrow-24px.svg' %}" alt="Play">
@@ -98,6 +80,4 @@
             </div>
         </div>
     </div>
-</div>
-</body>
-</html>
+{% endblock %}

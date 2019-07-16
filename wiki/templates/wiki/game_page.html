@@ -1,81 +1,64 @@
-<!DOCTYPE html>
+{% extends 'wiki/base_page.html' %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <title>{{ title }}</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/game_page_style.css' %}">
-    <script src="{% static 'wiki/static/drawer_logic.js' %}"></script>
-</head>
-<body>
-<div class="toolbar">
-    <div class="menu-container mobile">
-        <div id="menu-toggle">
-            <input type="checkbox" id="checkbox" onchange="move_left_bar()"/>
-            <span></span>
-            <span></span>
-            <span></span>
-            <div> {# НЕ УБИРАТЬ, ДЕРЖИТ КРЕСТИК #}
-            </div>
+
+{% block head %}
+<title>{{ title }}</title>
+<link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/game_page_style.css' %}">
+<script src="{% static 'wiki/external_link_remover.js' %}"></script>
+{% endblock %}
+
+{% block buttonBar %}
+<div class="button">
+    <a href="/" class="image-button">
+        <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
+    </a>
+</div>
+<div class="button">
+    <a href="/game_start" class="image-button">
+        <img src="{% static 'wiki/icons/baseline-autorenew-24px.svg' %}" alt="заново" title="заново">
+    </a>
+</div>
+{% endblock %}
+
+{% block drawerContent %}
+<div class="directions">
+    <div class="outline">
+        <div class="start_page">
+            <span>{{ from }}</span>
         </div>
     </div>
-    <div class="title">
-        <div class="logo-wikirace">
-            <span>WikiRace</span>
-        </div>
+    <div class="dots">
+        <img src="{% static 'wiki/icons/down-arrow.png' %}" alt="down_arrow">
     </div>
-    <div class="button-bar">
-        <div class="button">
-            <a href="/" class="image-button">
-                <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
-            </a>
-        </div>
-        <div class="button">
-            <a href="/game_start" class="image-button">
-                <img src="{% static 'wiki/icons/baseline-autorenew-24px.svg' %}" alt="заново" title="заново">
-            </a>
+    <div class="outline">
+        <div class="finish-page">
+            <span><a href="/hint_page" target="_blank">{{ to }}</a></span>
         </div>
     </div>
 </div>
-<div class="drawer" id="menu">
-    <div class="directions">
-        <div class="outline">
-            <div class="start_page">
-                <span>{{ from }}</span>
-            </div>
-        </div>
-        <div class="dots">
-            <img src="{% static 'wiki/icons/down-arrow.png' %}" alt="down_arrow">
-        </div>
-        <div class="outline">
-            <div class="finish-page">
-                <span><a href="/hint_page" target="_blank">{{ to }}</a></span>
-            </div>
-        </div>
-    </div>
-    <div class="extra-info">
-        <div class="moves">
-            <span>Ходов:&nbsp;{{ counter }}</span>
-        </div>
+<div class="extra-info">
+    <div class="moves">
+        <span>Ходов:&nbsp;{{ counter }}</span>
     </div>
 </div>
-<div id="menu-background"></div>
+{% endblock %}
+
+{% block extra %}
 <div class="target mobile">
     <span>Цель:&nbsp;<a href="/hint_page" target="_blank">{{ to }}</a></span>
     <span>Ходов:&nbsp;{{ counter }}</span>
 </div>
 {% if not history_empty %}
-    <div class="back-button">
-        <a href="/back">
-            <img src="{% static 'wiki/icons/baseline-arrow_back_ios-24px.svg' %}" alt="undo">
-        </a>
-    </div>
-{% endif %}
-<div class="container">
-    <div class="wiki-content">
-        {{ wiki_content|safe }}
-    </div>
+<div class="back-button">
+    <a href="/back">
+        <img src="{% static 'wiki/icons/baseline-arrow_back_ios-24px.svg' %}" alt="undo">
+    </a>
 </div>
-</body>
-</html>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="wiki-content">
+    {{ wiki_content|safe }}
+</div>
+{% endblock %}
