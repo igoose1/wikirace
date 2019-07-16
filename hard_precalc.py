@@ -100,8 +100,7 @@ class GenIterationHard:
                 break
         if cur_vertex == sink:
             path.append(sink)
-            self._paths.append(path)
-            return
+            return path
         from_root_part = []
         cur_vertex = sink
         while cur_vertex != -1:
