@@ -5,6 +5,7 @@ from django.http import HttpResponse, \
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 from . import inflection
 from .GameOperator import GameOperator,\
@@ -103,11 +104,11 @@ def change_settings(prevars):
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty, prevars):
+def get_game_task_generator(difficulty, prevars, game_id=None):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == GameTypes.trial:
-        return TrialGameTaskGenerator(prevars.request.GET.get('id', None))
+        return TrialGameTaskGenerator(game_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -139,13 +140,13 @@ def get_start(prevars):
 
 
 @load_prevars
-def custom_game_start(prevars):
-    if Trial.objects.get(game_id=prevars.request.GET.get("id",None)) is None:
-        return HttpResponseNotFound()
+def custom_game_start(prevars, game_id):
+    get_object_or_404(Trial.objects.all(), game_id=game_id)
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             GameTypes.trial,
             prevars,
+            game_id=game_id,
         ),
         prevars.zim_file,
         prevars.graph
@@ -220,7 +221,6 @@ def get(prevars, title_name):
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty
     }
-    print("Id = " + str(prevars.game_operator.game.current_page_id))
     return HttpResponse(
         template.render(context, prevars.request),
         content_type=article.mimetype
