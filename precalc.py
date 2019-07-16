@@ -59,16 +59,13 @@ class GenIteration:
             cur_vertex = next_vertex
         return path
 
-    def gen_paths(self):
+    def run(self):
         for vertex in range(VERTICES_COUNT):
             if not self.is_vertex_good(vertex):
                 continue
             current_path = self.get_path_by_vertex(vertex)
             if self.is_vertex_good(current_path[-1]):
                 self._paths.append(current_path)
-
-    def run(self):
-        self.gen_paths()
 
     @property
     def generated_paths(self):
