@@ -68,7 +68,7 @@ class GenIteration:
             if not self.is_vertex_good(vertex):
                 continue
             current_path = self.get_path_by_vertex(vertex)
-            if self.is_vertex_good(current_path[-1]):
+            if current_path is not None and self.is_vertex_good(current_path[-1]):
                 self._paths.append(current_path)
 
     @property
