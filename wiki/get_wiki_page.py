@@ -129,11 +129,11 @@ def generate_game(prevars):
     )
 
     if settings.get('difficulty', None) is None:
-        return HttpResponseRedirect('/'), False
+        return False
 
     if isinstance(settings['difficulty'], int):
         prevars.request.session['settings'] = get_settings(dict())
-        return HttpResponseBadRequest(), False
+        return False
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
@@ -145,24 +145,32 @@ def generate_game(prevars):
         prevars.zim_file,
         prevars.graph
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url), True
+    return True
+
+
+def current_page_url_redirect(prevars):
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @load_prevars
 def get_start(prevars):
-    response, _ = generate_game(prevars)
+    is_generated = generate_game(prevars)
+    if is_generated:
+        response = current_page_url_redirect(prevars)
+    else:
+        response = HttpResponseRedirect('/')
     return response
 
 
 @requires_game
 def get_continue(prevars):
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return current_page_url_redirect(prevars)
 
 
 @requires_game
 def get_back(prevars):
     prevars.game_operator.jump_back()
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return current_page_url_redirect(prevars)
 
 
 @requires_game
@@ -205,9 +213,7 @@ def get(prevars, title_name):
         return HttpResponse(article.content, content_type=article.mimetype)
 
     if not prevars.game_operator.is_jump_allowed(article):
-        return HttpResponseRedirect(
-            '/' + prevars.game_operator.current_page.url
-        )
+        return current_page_url_redirect(prevars)
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
@@ -263,9 +269,12 @@ def generate_multiplayer(prevars):
 
 @load_prevars
 def get_multiplayer_generate(prevars):
-    response, state = generate_game(prevars)
-    if state:
+    is_generated = generate_game(prevars)
+    if is_generated:
         generate_multiplayer(prevars)
+        response = current_page_url_redirect(prevars)
+    else:
+        response = HttpResponseRedirect('/')
     return response
 
 
@@ -292,7 +301,7 @@ def get_multiplayer_join(prevars):
         prevars.graph
     )
     prevars.game_operator.game.multiplayer = multiplayer
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return current_page_url_redirect(prevars)
 
 
 @load_prevars
