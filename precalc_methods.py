@@ -20,7 +20,7 @@ class DifficultyData:
     
     def write_to_files(self):
         file_name = os.path.join(self.out_directory, self.difficulty)
-        with open(file_name, 'wb') as pair_file, open(file_name + '_path', 'wb') as path_file:
+        with open(file_name, 'wb') as pair_file, open(file_name + '_paths', 'wb') as path_file:
             number_of_pairs = len(self._paths)
             pair_file.write(struct.pack('>i', number_of_pairs))
             offset = 0
@@ -70,8 +70,8 @@ def bfs(start_page_id, reader, bfs_operator: BFSOperator):
     dist[start_page_id] = 0
     dist_cnt[0] = 0
     prev_dist = 0
-    while queue_beginning < len(queue):
-        cur_vertex = queue.popLeft()
+    while len(queue) > 0:
+        cur_vertex = queue.popleft()
         if dist[cur_vertex] > prev_dist:
             dist_ready = dist[cur_vertex] - 1
             bfs_operator.log('dist {} calculated'.format(dist_ready))
