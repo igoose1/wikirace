@@ -95,7 +95,6 @@ def change_settings(prevars):
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
-
     if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
         return HttpResponseBadRequest()
 
@@ -154,6 +153,7 @@ def custom_game_start(prevars, trial_id):
         prevars.graph
     )
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+
 
 @load_prevars
 def get_random_start(prevars):

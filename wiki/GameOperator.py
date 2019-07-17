@@ -7,9 +7,8 @@ from django.utils import timezone
 from struct import unpack
 from enum import Enum
 
-from .models import Game, Turn, Trial, GamePair
+from .models import Game, Turn, GamePair
 from wiki.GraphReader import *
-
 
 
 class GameTypes(Enum):
