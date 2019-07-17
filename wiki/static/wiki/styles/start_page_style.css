@@ -587,6 +587,9 @@ a {
 .card-image-box-diff {
   background: #d44f00;
 }
+.card-image-box-trial {
+  background: #666611;
+}
 
 .tutorial-screen {
   transition: height 0.2s;
@@ -651,6 +654,10 @@ form {
   background: #001199;
 }
 
+#close-trial {
+  background: #666611;
+}
+
 /* * Delete when need to add drawer
  * */
 .menu-container {
@@ -659,6 +666,28 @@ form {
 
 .drawer {
   display: none;
+}
+
+.trial-play {
+  padding-left: 40px;
+  width: auto;
+  height: 50px;
+}
+.trial-play:hover {
+  background: #110011;
+}
+.trial-play span {
+  display: inline;
+  vertical-align: center;
+  position: relative;
+  top: 15px;
+}
+
+.card-opened {
+  min-height: fit-content;
+}
+.card-opened img {
+  top: -20px;
 }
 
 /*# sourceMappingURL=start_page_style.css.map */

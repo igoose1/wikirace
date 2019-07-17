@@ -17,7 +17,8 @@ from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .PathReader import get_path
-from .models import Turn
+from .models import Turn, \
+    Trial
 from wiki.file_holder import file_holder
 from .models import Trial
 
@@ -79,11 +80,13 @@ def get_settings(settings_user):
 @load_prevars
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
+    trial_list = Trial.objects.all()
     context = {
         'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
         'settings': get_settings(
             prevars.request.session.get('settings', dict())
-        )
+        ),
+        'trial_list': trial_list,
     }
     return HttpResponse(template.render(context, prevars.request))
 

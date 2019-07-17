@@ -13,7 +13,7 @@ $(document).ready(() => {
         changeVisible($('.card'));
     }
 
-    let closableCardList = ['tutorial', 'user-game'];
+    let closableCardList = ['tutorial', 'user-game', 'trial'];
     closableCardList.forEach((value) => {
         $('#close-' + value).on('click', (event) => {
             toggleGameCard(value);

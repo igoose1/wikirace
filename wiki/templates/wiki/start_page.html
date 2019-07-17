@@ -133,5 +133,32 @@
         </div>
     </div>
 </div>
+<div class="card visible" id="card-trial">
+    <div class="close-button invisible" id="close-trial">
+        <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
+    </div>
+    <div class="card-image-box card-image-box-trial">
+        <img src="{% static 'wiki/icons/baseline-videogame_asset-24px.svg' %}" alt="random">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Испытания
+        </div>
+        <div class="card-content-box card-content-box-text block-trial visible">
+            Пройдите испытания, придуманные разработчиками
+        </div>
+        <div class="block-trial invisible" id="trials">
+            {% for trial in trial_list %}
+            <a href="/custom_game_start/{{ trial.trial_id }}">
+                <div class="card-content-box trial-play">
+                    <span>
+                        {{ trial.trial_name }}
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 </div>
 {% endblock %}
