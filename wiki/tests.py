@@ -161,8 +161,8 @@ class GetWikiPageTest(TestCase):
         for num in range(-1, 3):
             session['settings'] = {'difficulty': num, 'name': 'test'}
             session.save()
-            resp = self.client.get('/game_start', follow=True)
-            self.assertEqual(resp.status_code, 400)
+            resp = self.client.get('/game_start', follow=False)
+            self.assertRedirects(resp, '/')
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
 

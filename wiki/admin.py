@@ -1,5 +1,5 @@
 from django.contrib import admin
-from wiki.models import Game, Feedback, Turn
+from wiki.models import Game, Feedback, Turn, MultiplayerPair
 
 
 class GameStatAdmin(admin.ModelAdmin):
@@ -18,6 +18,12 @@ class TurnAdmin(admin.ModelAdmin):
     ordering = ['time']
 
 
+class MultiplayerPairAdmin(admin.ModelAdmin):
+    list_display = ['game_id', 'from_page_id', 'to_page_id']
+    ordering = ['game_id']
+
+
 admin.site.register(Game, GameStatAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Turn, TurnAdmin)
+admin.site.register(MultiplayerPair, MultiplayerPairAdmin)
