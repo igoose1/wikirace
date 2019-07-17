@@ -35,7 +35,7 @@ class TestZIMFile(TestCase):
         self.assertEqual(article_followed.title, 'Факториал')
 
     def testRandomArticle(self):
-        page_id = self.zim['(405)_Тейа'].index
+        page_id = self.zim['Москва.html'].index
         wiki.ZIMFile.randrange = Mock(return_value=page_id)
         article_random = self.zim.random_article()
         self.assertEqual(article_random.namespace, "A")
