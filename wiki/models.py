@@ -16,7 +16,7 @@ class GamePair(models.Model):
 
 class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
-    game_pair = models.ForeignKey(GamePair, models.SET_NULL, null=True, default=1)
+    game_pair = models.ForeignKey(GamePair, models.SET_NULL, null=True)
     current_page_id = models.IntegerField(null=True, default=None)
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)

@@ -153,7 +153,7 @@ def custom_game_start(prevars, trial_id):
     )
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
-
+@load_prevars
 def get_random_start(prevars):
     prevars.game_operator = GameOperator.create_game(
         RandomGameTaskGenerator(prevars.zim_file, prevars.graph),
