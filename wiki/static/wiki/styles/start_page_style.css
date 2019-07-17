@@ -606,6 +606,7 @@ a {
   width: auto;
   background: #221122;
   height: 40px;
+  cursor: pointer;
 }
 
 form {
@@ -623,6 +624,7 @@ form {
   background: #00BB55;
   padding: 8px;
   width: fit-content;
+  cursor: pointer;
 }
 
 #game-id {
@@ -638,9 +640,11 @@ form {
   display: none;
   width: 100%;
   height: 30px;
+  cursor: default;
 }
 .close-button img {
   height: 30px;
+  cursor: pointer;
 }
 .close-button-visible {
   display: block;
@@ -686,8 +690,13 @@ form {
   min-height: fit-content;
 }
 
+#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
+  cursor: pointer;
+}
+
 .card-opened {
   min-height: fit-content;
+  cursor: default !important;
 }
 .card-opened img {
   top: -20px;

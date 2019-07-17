@@ -62,4 +62,11 @@ $(document).ready(() => {
             input.toggleClass("wrong-input");
         }
     });
+
+    $('#card-random').on('click', () => {
+        window.location.href = '/game_random_start';
+    });
+    $('#card-continue').on('click', () => {
+        window.location.href = '/continue';
+    });
 });
