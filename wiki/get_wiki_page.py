@@ -17,7 +17,8 @@ from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .PathReader import get_path
-from .models import Turn
+from .models import Turn, \
+    Trial
 from wiki.file_holder import file_holder
 from .models import Trial
 
@@ -79,11 +80,13 @@ def get_settings(settings_user):
 @load_prevars
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
+    trial_list = Trial.objects.all()
     context = {
         'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
         'settings': get_settings(
             prevars.request.session.get('settings', dict())
-        )
+        ),
+        'trial_list': trial_list,
     }
     return HttpResponse(template.render(context, prevars.request))
 
@@ -210,10 +213,11 @@ def show_path_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def get_win_page(prevars):
+def get_end_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
     )
+    surrendered = prevars.game_operator.surrendered
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
@@ -222,10 +226,17 @@ def get_win_page(prevars):
             prevars.game_operator.game.steps
         ),
         'name': settings_user['name'],
-        'game_id': prevars.game_operator.game.game_id
+        'game_id': prevars.game_operator.game.game_id,
+        'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
-    template = loader.get_template('wiki/win_page.html')
+    template = loader.get_template('wiki/end_page.html')
     return HttpResponse(template.render(context, prevars.request))
+
+
+@requires_game
+def surrender(prevars):
+    prevars.game_operator.surrender()
+    return get_end_page(prevars)
 
 
 @requires_game
@@ -244,7 +255,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        return get_win_page(prevars)
+        return get_end_page(prevars)
 
     template = loader.get_template('wiki/game_page.html')
     context = {
