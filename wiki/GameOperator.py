@@ -129,6 +129,7 @@ class GameOperator:
             return True
         elif article.index in self._history:
             self.update_history(article.index)
+            return True
         else:
             return False
 
