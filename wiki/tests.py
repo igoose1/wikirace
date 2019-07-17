@@ -17,17 +17,17 @@ class TestZIMFile(TestCase):
         self.zim.close()
 
     def testSmoke(self):
-        article_Moscow = self.zim[2029658]
-        self.assertEqual(article_Moscow.title, 'Москва')
-        article_Moscow = self.zim['Москва.html']
-        self.assertEqual(article_Moscow.title, 'Москва')
+        article_moscow = self.zim[self.zim['Москва.html'].index]
+        self.assertEqual(article_moscow.title, 'Москва')
+        article_moscow = self.zim['Москва.html']
+        self.assertEqual(article_moscow.title, 'Москва')
 
     def testArticleWithNamespace(self):
-        article_Moscow = self.zim['A/Москва.html']
-        self.assertEqual(article_Moscow.title, 'Москва')
+        article_moscow = self.zim['A/Москва.html']
+        self.assertEqual(article_moscow.title, 'Москва')
 
     def testRedirect(self):
-        article_redirecting = self.zim[47]
+        article_redirecting = self.zim[self.zim['!!.html'].index]
         self.assertEqual(article_redirecting.title, '!!')
         article_followed = article_redirecting.follow_redirect()
         self.assertFalse(article_followed.is_redirecting)
@@ -60,11 +60,12 @@ class TestZIMFile(TestCase):
             smth = article.content
 
     def testImage(self):
-        article = self.zim[3407948]
+        article_id = self.zim._impl._get_entry_by_url('I', 'favicon.png')[0]['index']
+        article = self.zim[article_id]
         self.assertFalse(article.is_redirecting)
         self.assertFalse(article.is_empty)
         self.assertEqual(article.namespace, 'I')
-        self.assertEqual(article.index, 3407948)
+        self.assertEqual(article.index, article_id)
         self.assertEqual(article.url, 'favicon.png')
 
 
