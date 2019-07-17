@@ -7,7 +7,7 @@ from django.utils import timezone
 from struct import unpack
 from enum import Enum
 
-from .models import Game, Turn
+from .models import Game, Turn, GamePair
 from wiki.GraphReader import *
 
 
@@ -16,17 +16,18 @@ class GameTypes(Enum):
     easy = "easy"
     medium = "medium"
     hard = "hard"
+    trial = "trial"
 
 
 class GameTaskGenerator(object):
 
-    def choose_path(self) -> list:
+    def choose_game_pair(self) -> GamePair:
         raise NotImplementedError("This is super class, implement this field in child class.")
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
 
-    def choose_path(self) -> list:
+    def choose_game_pair(self) -> GamePair:
         start_page_id = self._zim_file.random_article().index
         end_page_id = start_page_id
         path = [start_page_id]
@@ -40,11 +41,20 @@ class RandomGameTaskGenerator(GameTaskGenerator):
             end_page_id = edges[next_id]
             path.append(end_page_id)
 
-        return path
+        return GamePair.get_or_create_by_path(path)
 
     def __init__(self, zim_file: ZIMFile, graph_reader: GraphReader):
         self._zim_file = zim_file
         self._graph_reader = graph_reader
+
+
+class TrialGameTaskGenerator(GameTaskGenerator):
+
+    def choose_game_pair(self) -> GamePair:
+        return self._trial.game_pair
+
+    def __init__(self, trial):
+        self._trial = trial
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):
@@ -52,7 +62,7 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
     def __init__(self, difficult):
         self._difficulty = difficult
 
-    def choose_path(self) -> list:
+    def choose_game_pair(self) -> GamePair:
         # to use old version remove '_V2'
         file_names = settings.LEVEL_FILE_NAMES_V2
         with open(
@@ -63,7 +73,7 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
             pair_id = randrange(0, cnt)
             path = get_path(pair_id, self._difficulty.value)
 
-        return path
+        return GamePair.get_or_create_by_path(path)
 
 
 class GameOperator:
@@ -81,7 +91,7 @@ class GameOperator:
     def jump_back(self):
         if len(self._history) >= 2:
             self._history.pop()  # pop current page
-            self.game.steps += 1
+            self._game.steps += 1
             self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
     @property
@@ -136,22 +146,19 @@ class GameOperator:
 
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        path = game_task_generator.choose_path()
-        start_page_id = path[0]
-        end_page_id = path[-1]
+        game_pair = game_task_generator.choose_game_pair()
+        start_page_id = game_pair.start_page_id
+        end_page_id = game_pair.end_page_id
         start_article = zim_file[start_page_id].follow_redirect()
         end_article = zim_file[end_page_id].follow_redirect()
         if True in (el.is_redirecting for el in (start_article, end_article)):
             return None
 
-        path_str = ' '.join(map(str, path))
         game = Game.objects.create(
-            start_page_id=start_article.index,
-            end_page_id=end_article.index,
+            game_pair=game_pair,
             current_page_id=start_article.index,
             start_time=timezone.now(),
-            last_action_time=timezone.now(),
-            possible_path=path_str
+            last_action_time=timezone.now()
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)
 
@@ -178,9 +185,12 @@ class GameOperator:
             steps = data[4]
             history = data[5]
             if len(data) <= 6:
-                game = Game.objects.create(
+                game_pair = GamePair.get_or_create(
                     start_page_id=start_page_id,
                     end_page_id=end_page_id,
+                )
+                game = Game.objects.create(
+                    game_pair=game_pair,
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
