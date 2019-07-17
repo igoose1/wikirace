@@ -1,49 +1,45 @@
-def _bytes_to_int(byte_array: bytes):
-    ret = 0
-    ret |= byte_array[0] << 24
-    ret |= byte_array[1] << 16
-    ret |= byte_array[2] << 8
-    ret |= byte_array[3] << 0
-    return ret
+import struct
+
+OFFSET_BLOCK_SIZE = 4
+EDGE_BLOCK_SIZE = 4
 
 
-def _int_to_bytes(x: int):
-    b1 = ((x & (255 << 24)) >> 24)
-    b2 = ((x & (255 << 16)) >> 16)
-    b3 = ((x & (255 << 8)) >> 8)
-    b4 = (x & 255)
-    return bytes([b1, b2, b3, b4])
+def read_int_from_file(file, block_size: int) -> int:
+    byte = file.read(block_size)
+    return struct.unpack('>I', byte)[0]
 
 
 class GraphReader:
-    def __init__(self, offset_file: str, edges_file: str):
-        self.offset = open(offset_file, 'rb')
-        self.edges = open(edges_file, 'rb')
-        self.offset_block = 4
-        self.edge_b_count = 4
+    def __init__(self, offset_file_name: str, edges_file_name: str):
+        self.offset_file = None
+        self.edges_file = None
+        try:
+            self.offset_file = open(offset_file_name, 'rb')
+            self.edges_file = open(edges_file_name, 'rb')
+        except:
+            if self.edges_file is not None:
+                self.edges_file.close()
+            if self.offset_file is not None:
+                self.edges_file.close()
+            raise
+
+    def _get_offset_by_id(self, parent_id: int):
+        self.offset_file.seek(OFFSET_BLOCK_SIZE * parent_id)
+        offset_begin = read_int_from_file(self.offset_file, OFFSET_BLOCK_SIZE)
+        offset_end = read_int_from_file(self.offset_file, OFFSET_BLOCK_SIZE)
+        return offset_begin, offset_end
 
     def edges_count(self, parent_id: int):
-        self.offset.seek(self.offset_block * parent_id)
-        offset_begin = self.offset.read(4)
-        offset_begin = _bytes_to_int(offset_begin)
-        offset_end = self.offset.read(4)
-        offset_end = _bytes_to_int(offset_end)
-        edges_count = (offset_end - offset_begin) // self.edge_b_count
-        return edges_count
+        offset_begin, offset_end = self._get_offset_by_id(parent_id)
+        return (offset_end - offset_begin) // EDGE_BLOCK_SIZE
 
-    def Edges(self, parent_id: int):
-        self.offset.seek(self.offset_block * parent_id)
-        offset_begin = self.offset.read(4)
-        offset_begin = _bytes_to_int(offset_begin)
-        offset_end = self.offset.read(4)
-        offset_end = _bytes_to_int(offset_end)
-        self.edges.seek(offset_begin)
-        edges_count = (offset_end - offset_begin) // self.edge_b_count
-        for edge_id in range(edges_count):
-            child_id = self.edges.read(4)
-            child_id = _bytes_to_int(child_id)
+    def edges(self, parent_id: int):
+        offset_begin = self._get_offset_by_id(parent_id)[0]
+        self.edges_file.seek(offset_begin)
+        for idx in range(self.edges_count(parent_id)):
+            child_id = read_int_from_file(self.edges_file, EDGE_BLOCK_SIZE)
             yield child_id
 
-    def close(self, *_):
-        self.offset.close()
-        self.edges.close()
+    def close(self):
+        self.offset_file.close()
+        self.edges_file.close()

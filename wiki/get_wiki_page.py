@@ -1,193 +1,227 @@
+from django.http import HttpResponse,\
+    HttpResponseRedirect,\
+    HttpResponseNotFound,\
+    HttpResponseBadRequest
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.utils import timezone
 
-from .GameOperator import GameOperator
+from . import inflection
+from .GameOperator import GameOperator,\
+    DifficultGameTaskGenerator,\
+    RandomGameTaskGenerator,\
+    GameTypes
 from .GraphReader import GraphReader
-from .ZIMFile import MyZIMFile
+from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 
 
-def get(request, title_name):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
-
-    content = zim_file.get_by_url('/' + title_name)
-    if content is None:
-        zim_file.close()
-        raise Http404()
-
-    data, namespace, mime_type = content
-    if namespace == 'A':
-        graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-
-        game_operator = GameOperator(zim_file, graph)
-        game_operator.load_testing = (
-                "loadtesting" in request.GET and request.META["REMOTE_ADDR"].startswith("127.0.0.1")
-        )
-        if request.session.get('operator', None) is None:
-            zim_file.close()
-            graph.close()
-            return HttpResponseRedirect('/')
-        game_operator.load(request.session['operator'])
-
-        next_page_result = game_operator.next_page('/' + title_name)
-        request.session['operator'] = game_operator.save()
-
-        if next_page_result:
-            zim_file.close()
-            graph.close()
-            return winpage(request)
-        elif next_page_result is None:
-            url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
-            zim_file.close()
-            graph.close()
-            return HttpResponseRedirect(
-                url
+class PreVariables:
+    def __init__(self, request):
+        self.zim_file = None
+        self.graph = None
+        try:
+            self.zim_file = ZIMFile(
+                settings.WIKI_ZIMFILE_PATH,
+                settings.WIKI_ARTICLES_INDEX_FILE_PATH
             )
+            self.graph = GraphReader(
+                settings.GRAPH_OFFSET_PATH,
+                settings.GRAPH_EDGES_PATH
+            )
+            self.game_operator = GameOperator.deserialize_game_operator(
+                request.session.get('operator', None),
+                self.zim_file,
+                self.graph,
+                'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
+            )
+            self.session_operator = None
+            self.request = request
+        except:
+            if self.zim_file is not None:
+                self.zim_file.close()
+            if self.graph is not None:
+                self.graph.close()
+            raise
 
-        template = loader.get_template('wiki/page.html')
-        context = {
-            'title': zim_file.read_directory_entry_by_index(game_operator.current_page_id)['title'],
-            'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
-            'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
-            'counter': game_operator.steps,
-            'wiki_content': zim_file.get_by_index(game_operator.current_page_id).data.decode('utf-8'),
-            'history_empty': game_operator.is_history_empty()
-        }
-        zim_file.close()
-        graph.close()
-        return HttpResponse(
-            template.render(context, request),
-            content_type=mime_type
-        )
-    zim_file.close()
-    return HttpResponse(
-        data,
-        content_type=mime_type
-    )
-
-
-def get_start(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
-    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-    game_operator = GameOperator(zim_file, graph)
-    game_operator.initialize_game()
-    request.session['operator'] = game_operator.save()
-    redirect_url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
-    zim_file.close()
-    graph.close()
-    return HttpResponseRedirect(
-        redirect_url
-    )
+    def close(self):
+        self.zim_file.close()
+        self.graph.close()
 
 
-def get_back(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
-    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-    game_operator = GameOperator(zim_file, graph)
-    session_operator = request.session.get('operator', None)
-    if session_operator is None:
-        zim_file.close()
-        graph.close()
-        return HttpResponseRedirect('/')
-    game_operator.load(session_operator)
-    game_operator.prev_page()
-    request.session['operator'] = game_operator.save()
-    url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
-    zim_file.close()
-    graph.close()
-    return HttpResponseRedirect(
-        url
-    )
+def load_prevars(func):
+    def wrapper(request, *args, **kwargs):
+        prevars = PreVariables(request)
+        try:
+            prevars.session_operator = prevars.request.session.get('operator', None)
+            res = func(prevars, *args, **kwargs)
+            if prevars.game_operator is not None and not prevars.game_operator.finished:
+                prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
+            else:
+                prevars.request.session['operator'] = None
+        finally:
+            prevars.close()
+        return res
+
+    return wrapper
 
 
-def get_continue(request):
-    session_operator = request.session.get('operator', None)
-    if session_operator is None:
-        return HttpResponseRedirect('/')
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
-    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-    game_operator = GameOperator(zim_file, graph)
-    game_operator.load(session_operator)
-    url = zim_file.read_directory_entry_by_index(game_operator.current_page_id)['url']
-    zim_file.close()
-    graph.close()
-    return HttpResponseRedirect(
-        url
-    )
+def requires_game(func):
+    def wrapper(prevars, *args, **kwargs):
+        if prevars.session_operator is None:
+            return HttpResponseRedirect('/')
+        return func(prevars, *args, **kwargs)
+
+    return load_prevars(wrapper)
 
 
-def winpage(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
-    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-    game_operator = GameOperator(zim_file, graph)
-    session_operator = request.session.get('operator', None)
-    if session_operator is None:
-        zim_file.close()
-        graph.close()
-        return HttpResponseRedirect('/')
-    game_operator.load(session_operator)
-    ending = ''
-    if game_operator.steps % 10 == 1 and game_operator.steps % 100 != 11:
-        pass
-    elif game_operator.steps % 10 in [2, 3, 4] and game_operator.steps % 100 not in [12, 13, 14]:
-        ending = 'а'
-    else:
-        ending = 'ов'
-    context = {
-        'from': zim_file.read_directory_entry_by_index(game_operator.start_page_id)['title'],
-        'to': zim_file.read_directory_entry_by_index(game_operator.end_page_id)['title'],
-        'counter': game_operator.steps,
-        'move_end': ending
-    }
-    template = loader.get_template('wiki/win_page.html')
-    zim_file.close()
-    graph.close()
-    return HttpResponse(
-        template.render(context, request),
-    )
+def get_settings(settings_user):
+    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
+    for key in default.keys():
+        settings_user[key] = settings_user.get(key, default[key])
+    return settings_user
 
 
-def get_main_page(request) -> HttpResponse:
+@load_prevars
+def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
-    session_operator = request.session.get('operator', None)
-    is_playing = False
-    if session_operator and not session_operator[2]:
-        is_playing = True
-    return HttpResponse(template.render({'is_playing': is_playing}, request))
-
-
-def get_hint_page(request):
-    zim_file = MyZIMFile(settings.WIKI_ZIMFILE_PATH)
-    graph = GraphReader(settings.GRAPH_OFFSET_PATH, settings.GRAPH_EDGES_PATH)
-
-    game_operator = GameOperator(zim_file, graph)
-    if request.session.get('operator', None) is None:
-        zim_file.close()
-        graph.close()
-        return HttpResponseRedirect('/')
-    game_operator.load(request.session['operator'])
-
-    content = zim_file.get_by_index(game_operator.end_page_id)
-    data, namespace, mime_type = content
-
     context = {
-        'content': data.decode('utf-8'),
+        'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
+        'settings': get_settings(
+            prevars.request.session.get('settings', dict())
+        )
     }
+    return HttpResponse(template.render(context, prevars.request))
+
+
+@load_prevars
+def change_settings(prevars):
+    NAME_LEN = 16
+
+    difficulty = prevars.request.POST.get('difficulty', None)
+    name = prevars.request.POST.get('name')
+
+    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
+        return HttpResponseBadRequest()
+
+    prevars.request.session['settings'] = {
+        'difficulty': GameTypes(difficulty).value,
+        'name': name
+    }
+    return HttpResponse('Ok')
+
+
+def get_game_task_generator(difficulty, prevars):
+    if difficulty == GameTypes.random:
+        return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
+    else:
+        return DifficultGameTaskGenerator(difficulty)
+
+
+@load_prevars
+def get_start(prevars):
+    settings = get_settings(
+        prevars.request.session.get('settings', dict())
+    )
+
+    if settings.get('difficulty', None) is None:
+        return HttpResponseRedirect('/')
+
+    if isinstance(settings['difficulty'], int):
+        prevars.request.session['settings'] = get_settings(dict())
+        return HttpResponseBadRequest()
+
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            GameTypes(
+                settings['difficulty']
+            ),
+            prevars
+        ),
+        prevars.zim_file,
+        prevars.graph
+    )
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
+@requires_game
+def get_continue(prevars):
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
+@requires_game
+def get_back(prevars):
+    prevars.game_operator.jump_back()
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
+@requires_game
+def get_hint_page(prevars):
+    article = prevars.game_operator.last_page
 
     template = loader.get_template('wiki/hint_page.html')
-    zim_file.close()
-    graph.close()
-    return HttpResponse(template.render(context, request))
+    context = {
+        'content': article.content.decode(),
+    }
+    return HttpResponse(template.render(context, prevars.request))
 
 
-def get_feedback_page(request):
-    if request.method == "POST":
-        form = FeedbackForm(request.POST)
-        post = form.save()
-        post.time = timezone.now()
-        post.save()
+def winpage(prevars):
+    settings_user = get_settings(
+        prevars.request.session.get('settings', dict())
+    )
+    context = {
+        'from': prevars.game_operator.first_page.title,
+        'to': prevars.game_operator.last_page.title,
+        'counter': prevars.game_operator.game.steps,
+        'move_end': inflection.mupltiple_suffix(
+            prevars.game_operator.game.steps
+        ),
+        'name': settings_user['name']
+    }
+    template = loader.get_template('wiki/win_page.html')
+    return HttpResponse(template.render(context, prevars.request))
+
+
+@requires_game
+def get(prevars, title_name):
+    article = prevars.zim_file[title_name].follow_redirect()
+    if article.is_empty or article.is_redirecting:
+        return HttpResponseNotFound()
+
+    if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
+        return HttpResponse(article.content, content_type=article.mimetype)
+
+    if not prevars.game_operator.is_jump_allowed(article):
+        return HttpResponseRedirect(
+            prevars.game_operator.current_page.url
+        )
+    prevars.game_operator.jump_to(article)
+
+    if prevars.game_operator.finished:
+        return winpage(prevars)
+
+    template = loader.get_template('wiki/page.html')
+    context = {
+        'title': article.title,
+        'from': prevars.game_operator.first_page.title,
+        'to': prevars.game_operator.last_page.title,
+        'counter': prevars.game_operator.game.steps,
+        'wiki_content': article.content.decode(),
+        'history_empty': prevars.game_operator.is_history_empty
+    }
+    return HttpResponse(
+        template.render(context, prevars.request),
+        content_type=article.mimetype
+    )
+
+
+@load_prevars
+def get_feedback_page(prevars):
+    if prevars.request.method == "POST":
+        form = FeedbackForm(prevars.request.POST).save()
+        form.time = timezone.now()
+        form.save()
         return HttpResponseRedirect('/')
     else:
         form = FeedbackForm()
@@ -196,4 +230,4 @@ def get_feedback_page(request):
         'form': form,
     }
     template = loader.get_template('wiki/feedback_page.html')
-    return HttpResponse(template.render(context=context, request=request))
+    return HttpResponse(template.render(context, prevars.request))
