@@ -14,6 +14,7 @@ urlpatterns = [
     path('custom_game_start/<int:trial_id>', get_wiki_page.custom_game_start),
     url('game_random_start', get_wiki_page.get_random_start),
     url('game_start', get_wiki_page.get_start),
+    path('start_by_id/<int:pair_id>', get_wiki_page.get_start_by_id),
     url('continue', get_wiki_page.get_continue),
     url('back', get_wiki_page.get_back),
     url('hint_page', get_wiki_page.get_hint_page),

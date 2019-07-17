@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.conf import settings
 from unittest.mock import Mock, patch
 from urllib.parse import quote
-
+from django.http import HttpResponseServerError, HttpResponseNotFound
 import wiki.ZIMFile
 from . import GameOperator, models, get_wiki_page
 from .file_holder import file_holder
@@ -68,7 +68,6 @@ class TestZIMFile(TestCase):
         self.assertEqual(article.namespace, 'I')
         self.assertEqual(article.index, article_id)
         self.assertEqual(article.url, 'favicon.png')
-
 
 class GameOperatorTest(TestCase):
     GAME_ID = 6
@@ -184,7 +183,7 @@ class GetWikiPageTest(TestCase):
 class PlayingTest(TestCase):
 
     def setUp(self):
-        zim = wiki.ZIMFile.ZIMFile(
+        self.zim = wiki.ZIMFile.ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
         )
@@ -194,7 +193,7 @@ class PlayingTest(TestCase):
                  '1992_год.html',
                  'XXV_летние_Олимпийские_игры.html',
                  'Куба_на_летних_Олимпийских_играх_1992.html')
-        game_pair = GamePair.get_or_create_by_path(list(zim[page].index for page in pages))
+        game_pair = GamePair.get_or_create_by_path(list(self.zim[page].index for page in pages))
         self.patches = [
             patch.object(
                 GameOperator.DifficultGameTaskGenerator,
@@ -220,6 +219,7 @@ class PlayingTest(TestCase):
     def tearDown(self):
         for p in self.patches:
             p.stop()
+        self.zim.close()
 
     def testSmoke(self):
         url_way = [
@@ -250,6 +250,21 @@ class PlayingTest(TestCase):
             resp,
             quote(url_way[-2])
         )
+
+    def testStartById(self):
+        start_page_id = self.zim['Цензура_Википедии.html'].index
+        end_page_id = self.zim['Москва.html'].index
+        game_pair = models.GamePair.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)
+        resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
+        self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
+
+    def test404ById(self):
+        resp = self.client.get('/start_by_id/9999999')
+        self.assertEqual(resp.status_code, 404)
+
+    def test404ByIdLong(self):
+        resp = self.client.get('/start_by_id/999999999999999999999999999999')
+        self.assertEqual(resp.status_code, 404)
 
 
 class FileLeaksTest(TestCase):

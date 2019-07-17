@@ -1,7 +1,11 @@
 from django.db import models
+import datetime
 
 
 class GamePair(models.Model):
+    """
+    Ids of all pairs. Uniquely representable structure of game.
+    """
     pair_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
@@ -41,6 +45,7 @@ class Game(models.Model):
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
+    # last_action_time = models.DateTimeField(default=datetime.datetime.now())
 
     @property
     def start_page_id(self):
@@ -84,11 +89,21 @@ class Feedback(models.Model):
 
 
 class Turn(models.Model):
+    """
+    Saving of user's steps
+    """
     game_id = models.IntegerField()
+    time = models.DateTimeField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
-    time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
+
+    def __str__(self):
+        return '{id}: {fp} -> {tp}'.format(
+            id=self.turn_id,
+            fp=self.from_page_id,
+            tp=self.to_page_id,
+        )
 
 
 class Trial(models.Model):
@@ -103,3 +118,6 @@ class Trial(models.Model):
             from_page_id=self.game_pair.start_page_id,
             to_page_id=self.game_pair.end_page_id
         )
+
+
+
