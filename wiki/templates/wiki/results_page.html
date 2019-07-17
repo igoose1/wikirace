@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>WikiRace - Результаты</title>
-	<link href="../../static/wiki/results_page_style.css" rel="stylesheet">
-    <script src="../../static/wiki/clear_state.js"></script>
+	<link href="{% static 'wiki/results_page_style.css' %}" rel="stylesheet">
+    <script src="{% static 'wiki/clear_state.js' %}"></script>
 </head>
 <body>
 <div class="win_title">
@@ -34,7 +35,7 @@
 </div>
 <a href="/">
     <div class="play_block">
-        <img src="../../static/wiki/icons/baseline-home-24px.svg" class="play_block_icon"/>
+        <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" class="play_block_icon"/>
     </div>
 </a>
 

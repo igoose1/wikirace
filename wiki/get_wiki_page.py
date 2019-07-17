@@ -393,7 +393,7 @@ def get_multiplayer_results_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def get_multiplayer_results_table(multiplayer, session_key, top_n=5):
+def get_multiplayer_results_table(multiplayer, session_key, top_n=-1):
     games = multiplayer.game_set\
         .extra(where=[
             "current_page_id == (SELECT end_page_id FROM 'wiki_gamepair' WHERE pair_id == game_pair_id LIMIT 1)"
