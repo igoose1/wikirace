@@ -34,3 +34,7 @@ class GraphReader:
         for idx in range(self.edges_count(parent_id)):
             child_id = read_int_from_file(self.edges_file, EDGE_BLOCK_SIZE)
             yield child_id
+
+    def close(self):
+        self.offset_file.close()
+        self.edges_file.close()

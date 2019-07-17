@@ -14,6 +14,8 @@ from .GameOperator import GameOperator,\
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
+from .PathReader import get_path
+from .models import Turn
 from wiki.file_holder import file_holder
 
 
@@ -44,7 +46,7 @@ def load_prevars(func):
         try:
             prevars.session_operator = prevars.request.session.get('operator', None)
             res = func(prevars, *args, **kwargs)
-            if prevars.game_operator is not None and not prevars.game_operator.finished:
+            if prevars.game_operator is not None:
                 prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
             else:
                 prevars.request.session['operator'] = None
@@ -155,6 +157,29 @@ def get_hint_page(prevars):
     context = {
         'content': article.content.decode(),
     }
+    return HttpResponse(template.render(context, prevars.request))
+
+
+@requires_game
+def show_path_page(prevars):
+    page_id = prevars.game_operator.game.start_page_id
+    start = prevars.zim_file[page_id].title
+    our_path = [
+        prevars.zim_file[idx].title for idx in prevars.game_operator.path
+    ]
+    if len(our_path) == 0:
+        our_path = [start]
+    user_path = [start]
+    game_id = prevars.game_operator.game.game_id
+    turns = Turn.objects.filter(game_id=game_id).order_by('time')
+
+    user_path += [prevars.zim_file[turn.to_page_id].title for turn in turns]
+    context = {
+        'from': our_path[0],
+        'our_path': our_path[1:],
+        'user_path': user_path[1:],
+    }
+    template = loader.get_template('wiki/show_path_page.html')
     return HttpResponse(template.render(context, prevars.request))
 
 
