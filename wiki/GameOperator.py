@@ -33,6 +33,8 @@ class RandomGameTaskGenerator(GameTaskGenerator):
         path = [start_page_id]
         for step in range(5):
             edges = list(self._graph_reader.edges(end_page_id))
+            if len(edges) == 0:
+                return path
             next_id = randrange(0, len(edges))
             if edges[next_id] == start_page_id:
                 continue
@@ -106,7 +108,14 @@ class GameOperator:
 
     @property
     def finished(self):
-        return self._game.current_page_id == self._game.end_page_id
+        return self._game.current_page_id == self._game.end_page_id or self._game.surrendered
+
+    def surrender(self):
+        self._game.surrendered = True
+
+    @property
+    def surrendered(self):
+        return self._game.surrendered
 
     @property
     def is_history_empty(self) -> bool:
