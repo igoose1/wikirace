@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.conf import settings
 from unittest.mock import Mock, patch
 from urllib.parse import quote
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, HttpResponseNotFound
 import wiki.ZIMFile
 from . import GameOperator, models, get_wiki_page
 from .file_holder import file_holder
@@ -252,8 +252,8 @@ class PlayingTest(TestCase):
         self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
 
     def test404ById(self):
-        with self.assertRaises(Exception):  # HttpResponseServerError):
-            resp = self.client.get('/start_by_id/478476347657645374653')
+        resp = self.client.get('/start_by_id/9999999')
+        self.assertEqual(resp.status_code, 404)
 
 
 class FileLeaksTest(TestCase):
