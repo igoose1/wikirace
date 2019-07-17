@@ -203,7 +203,6 @@ class PlayingTest(TestCase):
         session = self.client.session
         session['settings'] = {
             'difficulty': 'easy',
-            'current_difficulty': 'easy',
             'name': 'test'
         }
         session.save()

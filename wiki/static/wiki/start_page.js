@@ -36,26 +36,24 @@ $(document).ready(() => {
 
     $('#diff-play').on('click', () => {
         let difficulty = $("#diff-field").val();
-        postSettings(difficulty, difficulty, () => {
+        postSettings(difficulty, () => {
             window.location.href = '/game_start'
         })
-
     });
 
     $('#card-random').on('click', () => {
-        postSettings('none', 'random', () => {
+        postSettings('random', () => {
             window.location.href = '/game_start'
         })
     });
 
-    function postSettings(difficulty, current_difficulty, onSuccess) {
+    function postSettings(difficulty, onSuccess) {
         let CSRF = $('input[name=csrfmiddlewaretoken]').val();
         $.ajax({
             url: '/set_settings',
             type: 'POST',
             data: {
                 difficulty: difficulty,
-                current_difficulty: current_difficulty,
                 csrfmiddlewaretoken: CSRF
             },
             success: function (msg) {

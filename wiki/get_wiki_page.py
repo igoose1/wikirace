@@ -70,7 +70,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': GameTypes.easy.value, 'current_difficulty': GameTypes.random.value, 'name': 'no name'}
+    default = {'difficulty': GameTypes.easy.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -93,7 +93,6 @@ def change_settings(prevars):
     NAME_LEN = 16
 
     difficulty = prevars.request.POST.get('difficulty', None)
-    current_difficulty = prevars.request.POST.get('current_difficulty', None)
     name = prevars.request.POST.get('name')
     if isinstance(name, str) and len(name) > NAME_LEN:
         return HttpResponseBadRequest()
@@ -102,8 +101,6 @@ def change_settings(prevars):
     settings['name'] = name
     if difficulty in [el.value for el in GameTypes]:
         settings['difficulty'] = GameTypes(difficulty).value
-    if current_difficulty in [el.value for el in GameTypes]:
-        settings['current_difficulty'] = GameTypes(current_difficulty).value
     prevars.request.session['settings'] = settings
     return HttpResponse('Ok')
 
@@ -123,14 +120,15 @@ def get_start(prevars):
         prevars.request.session.get('settings', dict())
     )
 
-    if isinstance(settings['current_difficulty'], int):
-        prevars.request.session['settings'] = get_settings(dict())
-        return HttpResponseBadRequest()
+    if isinstance(settings['difficulty'], int):
+        settings = get_settings(dict())
+
+    prevars.request.session['settings'] = settings
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             GameTypes(
-                settings['current_difficulty']
+                settings['difficulty']
             ),
             prevars,
         ),
@@ -224,7 +222,6 @@ def get_win_page(prevars):
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game.game_id,
-        'settings': prevars.request.session.get('settings', dict())
     }
     template = loader.get_template('wiki/win_page.html')
     return HttpResponse(template.render(context, prevars.request))
@@ -256,7 +253,6 @@ def get(prevars, title_name):
         'counter': prevars.game_operator.game.steps,
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty,
-        'settings': prevars.request.session.get('settings', dict())
     }
     return HttpResponse(
         template.render(context, prevars.request),
