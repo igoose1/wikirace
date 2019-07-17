@@ -45,7 +45,6 @@ class Game(models.Model):
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
-    # last_action_time = models.DateTimeField(default=datetime.datetime.now())
 
     @property
     def start_page_id(self):
