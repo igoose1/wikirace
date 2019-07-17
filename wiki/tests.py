@@ -17,7 +17,7 @@ class TestZIMFile(TestCase):
         self.zim.close()
 
     def testSmoke(self):
-        article_moscow = self.zim[2029658]
+        article_moscow = self.zim[self.zim['Москва.html'].index]
         self.assertEqual(article_moscow.title, 'Москва')
         article_moscow = self.zim['Москва.html']
         self.assertEqual(article_moscow.title, 'Москва')
