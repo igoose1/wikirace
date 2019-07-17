@@ -117,6 +117,3 @@ class Trial(models.Model):
             from_page_id=self.game_pair.start_page_id,
             to_page_id=self.game_pair.end_page_id
         )
-
-
-
