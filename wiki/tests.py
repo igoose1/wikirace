@@ -1,6 +1,72 @@
 from django.test import TestCase, Client
+from django.conf import settings
 from unittest.mock import Mock, patch
-from wiki import GameOperator, models
+from urllib.parse import quote
+
+import wiki.ZIMFile
+from . import GameOperator, models, get_wiki_page
+from .file_holder import file_holder
+from .models import GamePair
+
+
+class TestZIMFile(TestCase):
+    def setUp(self):
+        self.zim = wiki.ZIMFile.ZIMFile(settings.WIKI_ZIMFILE_PATH,
+                                        settings.WIKI_ARTICLES_INDEX_FILE_PATH)
+
+    def tearDown(self):
+        self.zim.close()
+
+    def testSmoke(self):
+        article_Moscow = self.zim[2029658]
+        self.assertEqual(article_Moscow.title, 'Москва')
+        article_Moscow = self.zim['Москва.html']
+        self.assertEqual(article_Moscow.title, 'Москва')
+
+    def testArticleWithNamespace(self):
+        article_Moscow = self.zim['A/Москва.html']
+        self.assertEqual(article_Moscow.title, 'Москва')
+
+    def testRedirect(self):
+        article_redirecting = self.zim[47]
+        self.assertEqual(article_redirecting.title, '!!')
+        article_followed = article_redirecting.follow_redirect()
+        self.assertFalse(article_followed.is_redirecting)
+        self.assertFalse(article_followed.is_empty)
+        self.assertEqual(article_followed.title, 'Факториал')
+
+    def testRandomArticle(self):
+        wiki.ZIMFile.randrange = Mock(return_value=1539)
+        article_random = self.zim.random_article()
+        self.assertEqual(article_random.namespace, "A")
+        self.assertFalse(article_random.is_redirecting)
+        self.assertFalse(article_random.is_empty)
+
+    def testEmptyArticle(self):
+        article = self.zim['A/smth smth']
+        self.assertTrue(article.is_empty)
+        article_followed = article.follow_redirect()
+        self.assertTrue(article_followed.is_empty)
+
+    def testEmptyFields(self):
+        article = self.zim['A/smth smth']
+        smth = article.index
+        smth = article.is_redirecting
+        smth = article.is_empty
+        smth = article.namespace
+        smth = article.mimetype
+        smth = article.url
+        smth = article.title
+        with self.assertRaises(Exception):
+            smth = article.content
+
+    def testImage(self):
+        article = self.zim[3407948]
+        self.assertFalse(article.is_redirecting)
+        self.assertFalse(article.is_empty)
+        self.assertEqual(article.namespace, 'I')
+        self.assertEqual(article.index, 3407948)
+        self.assertEqual(article.url, 'favicon.png')
 
 
 class GameOperatorTest(TestCase):
@@ -72,9 +138,6 @@ class GameOperatorTest(TestCase):
 
 class GetWikiPageTest(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-
     def testSmoke(self):
         urls_case = ('/', '/game_start', '/', '/continue')
         for url in urls_case:
@@ -102,3 +165,125 @@ class GetWikiPageTest(TestCase):
             self.assertEqual(resp.status_code, 400)
             resp = self.client.get('/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
+
+    def testImpossibleBack(self):
+        for url in ('/', '/game_start'):
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/continue', follow=True)
+        article_url = resp.redirect_chain[-1][0]
+        if not article_url.startswith('/'):
+            article_url = '/' + article_url
+
+        resp = self.client.get('/back')
+        self.assertRedirects(resp, article_url)
+
+
+class PlayingTest(TestCase):
+
+    def setUp(self):
+        zim = wiki.ZIMFile.ZIMFile(
+            settings.WIKI_ZIMFILE_PATH,
+            settings.WIKI_ARTICLES_INDEX_FILE_PATH
+        )
+        pages = ('Глоксин,_Беньямин_Петер.html',
+                 '1765_год.html',
+                 'XX_век.html',
+                 '1992_год.html',
+                 'XXV_летние_Олимпийские_игры.html',
+                 'Куба_на_летних_Олимпийских_играх_1992.html')
+        game_pair = GamePair.get_or_create_by_path(list(zim[page].index for page in pages))
+        self.patches = [
+            patch.object(
+                GameOperator.DifficultGameTaskGenerator,
+                'choose_game_pair',
+                Mock(return_value=game_pair)
+            )
+        ]
+
+        session = self.client.session
+        session['settings'] = {
+            'difficulty': 'easy',
+            'name': 'test'
+        }
+        session.save()
+
+        for p in self.patches:
+            p.start()
+
+        for url in ('/', '/game_start', '/'):
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200)
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    def testSmoke(self):
+        url_way = [
+            '/Глоксин,_Беньямин_Петер.html',
+            '/1765_год.html',
+            '/XX_век.html',
+            '/1992_год.html',
+            '/XXV_летние_Олимпийские_игры.html',
+            '/Куба_на_летних_Олимпийских_играх_1992.html'
+        ]
+
+        for url in url_way:
+            resp = self.client.get(url)
+            self.assertEqual(resp.status_code, 200)
+            if url == url_way[-1]:
+                self.assertTrue('<title>WikiRace - Победа</title>' in resp.content.decode())
+
+    def testBackButtons(self):
+        url_way = [
+            '/Глоксин,_Беньямин_Петер.html',
+            '/1765_год.html',
+            '/XX_век.html'
+        ]
+
+        tuple(map(self.client.get, url_way))
+        resp = self.client.get('/back')
+        self.assertRedirects(
+            resp,
+            quote(url_way[-2])
+        )
+
+
+class FileLeaksTest(TestCase):
+
+    def testSmoke(self):
+
+        @file_holder
+        class Fake(object):
+            def __init__(self):
+                self.mock_file1 = Mock()
+                self.mock_file1.close = Mock()
+
+                self.mock_file2 = Mock()
+                self.mock_file2.close = Mock()
+
+                self._add_file(self.mock_file1)
+                self._add_file(self.mock_file2)
+
+        test_class = Fake()
+        test_class.close()
+
+        self.assertTrue(test_class.mock_file1.close.called)
+        self.assertTrue(test_class.mock_file2.close.called)
+
+    def testException(self):
+
+        @file_holder
+        class Fake(object):
+            def __init__(self):
+                self.mock_file1 = Mock()
+                self.mock_file1.close = Mock()
+
+                self._add_file(self.mock_file1)
+                raise FileNotFoundError
+
+        with self.assertRaises(FileNotFoundError):
+            test_class = Fake()
+            self.assertTrue(test_class.mock_file1.close.called)

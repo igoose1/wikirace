@@ -18,8 +18,9 @@ logging.baseConfig = saved_basicConfig
 
 from django.conf import settings
 from random import randrange
-from byte_convert import bytes_to_int
 import os
+import struct
+from wiki.file_holder import file_holder
 
 BLOCK_SIZE = 4
 
@@ -46,7 +47,8 @@ class Article:
         entry = self._entry
         while 'redirectIndex' in entry.keys():
             redirect_index = entry['redirectIndex']
-            entry = self._zim_file.read_directory_entry_by_index(redirect_index)
+            entry = self._zim_file.read_directory_entry_by_index(
+                redirect_index)
             redirect_counter += 1
             if redirect_counter == max_redirects_count:
                 break
@@ -63,7 +65,8 @@ class Article:
     @property
     def _article(self):
         if self._article_cached is None:
-            article = self._zim_file._get_article_by_index(self.index, follow_redirect=False)
+            article = self._zim_file._get_article_by_index(
+                self.index, follow_redirect=False)
             self._article_cached = article
         return self._article_cached
 
@@ -92,27 +95,24 @@ class Article:
         return self._entry.get('url', '')
 
 
+@file_holder
 class ZIMFile:
     NAMESPACE_ARTICLE = "A"
 
     def __init__(self, filename, index_filename, encoding='utf-8'):
         self._impl = None
         self._article_indexes = None
-        try:
-            self._impl = zimply.zimply.ZIMFile(filename, encoding)
-            self._article_indexes = os.open(index_filename, os.O_RDONLY)
-            self._good_article_count = os.fstat(self._article_indexes).st_size // BLOCK_SIZE
-        except:
-            if self._article_indexes is not None:
-                os.close(self._article_indexes)
-            if self._impl is not None:
-                self._impl.close()
-            raise
+        self._impl = self._add_file(zimply.zimply.ZIMFile(filename, encoding))
+        self._article_indexes = self._open_file(index_filename, "rb")
+        self._good_article_count = os.path.getsize(index_filename) // BLOCK_SIZE
+
+    def __enter__(self):
+        return self
 
     def random_article(self):
         offset = randrange(0, self._good_article_count) * BLOCK_SIZE
-        os.lseek(self._article_indexes, offset, 0)
-        index = bytes_to_int(os.read(self._article_indexes, BLOCK_SIZE))
+        self._article_indexes.seek(offset)
+        index = struct.unpack('>I', self._article_indexes.read(BLOCK_SIZE))[0]
         return self[index]
 
     def __getitem__(self, key):
@@ -129,3 +129,6 @@ class ZIMFile:
     def close(self):
         self._impl.close()
         os.close(self._article_indexes)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()

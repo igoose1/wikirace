@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <script src="{% static 'wiki/jquery.js' %}"></script>
+    <script src="{% static 'wiki/drawer_toggle.js' %}"></script>
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+<div class="toolbar">
+    <div class="menu-container mobile">
+        <div id="menu-toggle">
+            <input type="checkbox" id="checkbox" onchange="move_left_bar()"/>
+            <span></span>
+            <span></span>
+            <span></span>
+            <div> {# НЕ УБИРАТЬ, ДЕРЖИТ КРЕСТИК #}
+            </div>
+        </div>
+    </div>
+    <div class="title">
+        <div class="logo-wikirace">
+            <span>WikiRace</span>
+        </div>
+    </div>
+    <div class="button-bar">
+        {% block buttonBar %}
+        {% endblock %}
+    </div>
+</div>
+<div class="drawer" id="menu">
+    {% block drawerContent %}
+    {% endblock %}
+</div>
+<div id="menu-background"></div>
+{% block extra %}
+{% endblock %}
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+</html>
