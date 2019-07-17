@@ -11,7 +11,7 @@ urlpatterns = [
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
     url('choose_custom_game', get_wiki_page.choose_custom_game),
-    url('custom_game_start/([0-9]+)', get_wiki_page.custom_game_start),
+    path('custom_game_start/<int:trial_id>', get_wiki_page.custom_game_start),
     url('game_random_start', get_wiki_page.get_random_start),
     url('game_start', get_wiki_page.get_start),
     url('continue', get_wiki_page.get_continue),

@@ -99,15 +99,15 @@ class GameOperator:
 
     @property
     def first_page(self):
-        return self._zim[self.game.game_pair.start_page_id]
+        return self._zim[self.game.start_page_id]
 
     @property
     def last_page(self):
-        return self._zim[self.game.game_pair.end_page_id]
+        return self._zim[self.game.end_page_id]
 
     @property
     def finished(self):
-        return self._game.current_page_id == self._game.game_pair.end_page_id
+        return self._game.current_page_id == self._game.end_page_id
 
     @property
     def is_history_empty(self) -> bool:
