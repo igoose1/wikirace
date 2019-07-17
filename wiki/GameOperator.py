@@ -11,17 +11,17 @@ from wiki.GraphReader import *
 
 
 class GameTypes(Enum):
-    random = "random"
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
-    by_id = "by_id"
+    random = 'random'
+    easy = 'easy'
+    medium = 'medium'
+    hard = 'hard'
+    by_id = 'by_id'
 
 
 class GameTaskGenerator(object):
 
     def choose_start_and_end_pages(self) -> GamePair:
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        raise NotImplementedError('This is super class, implement this field in child class.')
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
@@ -46,7 +46,7 @@ class RandomGameTaskGenerator(GameTaskGenerator):
             if start_article.is_redirecting or end_article.is_redirecting:  # articles are cycle redirecting
                 continue
             return GamePair.objects.get_or_create(start_page_id=start_article.index, end_page_id=start_article.index)[0]
-        raise HttpResponseServerError("All articles are cycle redirecting.")
+        raise HttpResponseServerError('All articles are cycle redirecting.')
 
 
 class DifficultGameTaskGenerator(GameTaskGenerator):
@@ -122,7 +122,7 @@ class GameOperator:
         self._history = self._history[:len(self._history) - history_index - 1]
 
     def is_jump_allowed(self, article: Article):
-        if article.is_empty or article.is_redirecting or article.namespace != "A":
+        if article.is_empty or article.is_redirecting or article.namespace != 'A':
             return False
         valid_edges = list(self._reader.edges(self._game.current_page_id))
         if article.index in valid_edges or self._load_testing or article.index == self.game.current_page_id:
@@ -159,8 +159,8 @@ class GameOperator:
     def serialize_game_operator(self) -> dict:
         self._game.save()
         return {
-            "history": self._history,
-            "game_id": self._game.game_id
+            'history': self._history,
+            'game_id': self._game.game_id
         }
 
     @staticmethod
@@ -191,8 +191,8 @@ class GameOperator:
             else:
                 game = Game.objects.get(game_id=data[6])
                 game.current_page_id = current_page_id
-        elif "game_id" in data.keys() and 'history' in data.keys():
-            game = Game.objects.get(game_id=data["game_id"])
+        elif 'game_id' in data.keys() and 'history' in data.keys():
+            game = Game.objects.get(game_id=data['game_id'])
             history = data['history']
         else:
             return None

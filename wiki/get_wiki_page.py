@@ -1,7 +1,8 @@
 from django.http import HttpResponse,\
     HttpResponseRedirect,\
     HttpResponseNotFound,\
-    HttpResponseBadRequest
+    HttpResponseBadRequest,\
+    Http404
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
@@ -86,7 +87,6 @@ def get_main_page(prevars):
 @load_prevars
 def change_settings(prevars):
     name_len = 16
-
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
@@ -101,6 +101,8 @@ def get_game_task_generator(difficulty, prevars, pair_id=None):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     if difficulty == GameTypes.by_id:
+        if not pair_id:
+            raise Http404()
         return ByIdGameTaskGenerator(pair_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
@@ -225,7 +227,7 @@ def get(prevars, title_name):
 
 @load_prevars
 def get_feedback_page(prevars):
-    if prevars.request.method == "POST":
+    if prevars.request.method == 'POST':
         form = FeedbackForm(prevars.request.POST).save()
         form.time = timezone.now()
         form.save()
