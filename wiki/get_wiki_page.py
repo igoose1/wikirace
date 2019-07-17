@@ -166,7 +166,6 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@requires_game
 def winpage(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
@@ -200,7 +199,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        return winpage(prevars.request)
+        return winpage(prevars)
 
     template = loader.get_template('wiki/page.html')
     context = {
