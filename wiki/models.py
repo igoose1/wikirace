@@ -43,7 +43,7 @@ class MultiplayerPair(models.Model):
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     game_id = models.AutoField(primary_key=True)
     game_key = models.CharField(default='', max_length=64)
-    
+
     @property
     def from_page_id(self):
         return self.game_pair.start_page_id
@@ -51,7 +51,7 @@ class MultiplayerPair(models.Model):
     @property
     def to_page_id(self):
         return self.game_pair.end_page_id
-    
+
     def game_key_calculate(self):
         if self.game_key != '':
             return
@@ -61,7 +61,8 @@ class MultiplayerPair(models.Model):
         while hashed_string is None or MultiplayerPair.objects.filter(game_key=self.game_key).count() > 0:
             counter += 1
             suffix += 'a'
-            hashed_string = hashlib.sha256((str(self.game_id) + suffix).encode()).hexdigest()
+            hashed_string = hashlib.sha256(
+                (str(self.game_id) + suffix).encode()).hexdigest()
             self.game_key = hashed_string[:min(6 + counter // 1024, 16)]
         self.save()
 

@@ -17,9 +17,11 @@ class TurnAdmin(admin.ModelAdmin):
     list_display = ['game_id', 'time']
     ordering = ['time']
 
+
 class MultiplayerPairAdmin(admin.ModelAdmin):
     list_display = ['game_id', 'from_page_id', 'to_page_id']
     ordering = ['game_id']
+
 
 class TrialAdmin(admin.ModelAdmin):
     list_display = ['trial_id', 'trial_name', 'game_pair']

@@ -41,10 +41,12 @@ class PreVariables:
             request.session.get('operator', None),
             self.zim_file,
             self.graph,
-            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
+            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith(
+                '127.0.0.1')
         )
         if self.game_operator is not None:
-            session = Session.objects.get(session_key=request.session.session_key)
+            session = Session.objects.get(
+                session_key=request.session.session_key)
             self.game_operator.game.session = session
             self.game_operator.game.session_key = session.session_key
         self.session_operator = None
@@ -55,7 +57,8 @@ def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
         try:
-            prevars.session_operator = prevars.request.session.get('operator', None)
+            prevars.session_operator = prevars.request.session.get(
+                'operator', None)
             res = func(prevars, *args, **kwargs)
             if prevars.save_operator:
                 finished = True
@@ -327,7 +330,7 @@ def get_feedback_page(prevars):
 
 def generate_multiplayer(prevars):
     multiplayer = MultiplayerPair.objects.create(
-        game_pair = prevars.game_operator.game.game_pair
+        game_pair=prevars.game_operator.game.game_pair
     )
     prevars.game_operator.game.multiplayer = multiplayer
 
@@ -392,7 +395,9 @@ def get_multiplayer_results_page(prevars):
 
 def get_multiplayer_results_table(multiplayer, session_key, top_n=5):
     games = multiplayer.game_set\
-        .extra(where=["current_page_id == (SELECT end_page_id FROM 'wiki_gamepair' WHERE pair_id == game_pair_id LIMIT 1)"])\
+        .extra(where=[
+            "current_page_id == (SELECT end_page_id FROM 'wiki_gamepair' WHERE pair_id == game_pair_id LIMIT 1)"
+        ])\
         .order_by('steps').all()
 
     results_table = []
@@ -411,7 +416,8 @@ def get_multiplayer_results_table(multiplayer, session_key, top_n=5):
         else:
             session = {'settings': {'name': 'expired'}}
 
-        name = get_settings(session.get('settings', dict())).get('name', 'no name')
+        name = get_settings(session.get('settings', dict())
+                            ).get('name', 'no name')
 
         results_table.append({
             'name': name,
