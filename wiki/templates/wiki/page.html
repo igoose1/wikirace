@@ -5,17 +5,17 @@
     <meta charset="UTF-8">
     <title>{{ title }}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
-    <link href="../../static/wiki/styles.css" rel="stylesheet">
+    <link href="{% static "wiki/styles.css" %}" rel="stylesheet">
     <link href="" rel="script">
-    <script src="../../static/wiki/jquery.js"></script>
-    <script src="../../static/wiki/card_behaviour.js"></script>
+    <script src="{% static "wiki/jquery.js" %}"></script>
+    <script src="{% static "wiki/card_behaviour.js" %}"></script>
 </head>
 <body>
 <div class="toolbar">
 	{% if not history_empty %}
 	<div class="button_bar_left">
 		<a href="/back" class="image_button">
-			 <img src="../../static/wiki/baseline-arrow_back_ios-24px.svg" alt="undo">
+			 <img src="{% static "wiki/baseline-arrow_back_ios-24px.svg" %}" alt="undo">
 		</a>
 	</div>
 	{% endif %}
@@ -25,10 +25,10 @@
     <div class="button_bar_right">
 		
         <a href="/" class="image_button">
-            <img src="../../static/wiki/baseline-home-24px.svg" alt="undo">
+            <img src="{% static "wiki/baseline-home-24px.svg" %}" alt="undo">
         </a>
         <a href="/game_start" class="image_button">
-            <img src="../../static/wiki/baseline-autorenew-24px.svg" alt="home">
+            <img src="{% static "wiki/baseline-autorenew-24px.svg" %}" alt="home">
         </a>
     </div>
 </div>
@@ -48,7 +48,7 @@
             Ходы: {{ counter }}
         </div>
         <div class="expand">
-            <img src="../../static/wiki/baseline-expand_more-24px.svg" class="expand_icon expand_icon_up">
+            <img src="{% static "wiki/baseline-expand_more-24px.svg" %}" class="expand_icon expand_icon_up">
         </div>
     </div>
 </div>
