@@ -13,7 +13,7 @@ $(document).ready(() => {
         changeVisible($('.card'));
     }
 
-    let closableCardList = ['tutorial', 'user-game'];
+    let closableCardList = ['tutorial', 'user-game', 'trial'];
     closableCardList.forEach((value) => {
         $('#close-' + value).on('click', (event) => {
             toggleGameCard(value);
@@ -61,5 +61,12 @@ $(document).ready(() => {
         if (((game_id == null) || (game_id < 0)) ^ input.hasClass("wrong-input")) {
             input.toggleClass("wrong-input");
         }
+    });
+
+    $('#card-random').on('click', () => {
+        window.location.href = '/game_random_start';
+    });
+    $('#card-continue').on('click', () => {
+        window.location.href = '/continue';
     });
 });
