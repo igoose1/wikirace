@@ -228,7 +228,7 @@ class PlayingTest(TestCase):
             resp = self.client.get(url)
             self.assertEqual(resp.status_code, 200)
             if url == url_way[-1]:
-                self.assertTrue('class="win_title"' in resp.content.decode())
+                self.assertTrue('<title>WikiRace - Победа</title>' in resp.content.decode())
 
     def testBackButtons(self):
         url_way = [
