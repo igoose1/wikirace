@@ -1,6 +1,5 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
-
 {% block head %}
 <title>WikiRace - Победа</title>
 <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
@@ -60,7 +59,8 @@
                     <br/>
                     из {{from}}
                     <br/>
-                    в {{to}}
+                    в <a href="/hint_page"> {{to}} </a>
+					<a href="/show_path_page">Возможный путь</a>
                 </span>
             </div>
         </div>
