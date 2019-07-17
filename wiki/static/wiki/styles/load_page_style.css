@@ -9,7 +9,7 @@
 }
 
 .loading_circle {
-    background: url("baseline-autorenew-24px_black.svg") no-repeat;
+    background: url("../icons/baseline-autorenew-24px_black.svg") no-repeat;
     background-size: contain;
     animation-name: anim;
     -webkit-animation:spin 4s linear infinite;

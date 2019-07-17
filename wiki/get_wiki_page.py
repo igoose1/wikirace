@@ -15,9 +15,10 @@ from .GameOperator import GameOperator,\
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
-from .models import MultiplayerPair, Game
+from .models import MultiplayerPair, Game, Turn
 from django.contrib.sessions.models import Session
 from django.shortcuts import get_object_or_404
+from .PathReader import get_path
 from wiki.file_holder import file_holder
 
 
@@ -162,6 +163,16 @@ def get_start(prevars):
     return response
 
 
+@load_prevars
+def get_random_start(prevars):
+    prevars.game_operator = GameOperator.create_game(
+        RandomGameTaskGenerator(prevars.zim_file, prevars.graph),
+        prevars.zim_file,
+        prevars.graph
+    )
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
 @requires_game
 def get_continue(prevars):
     return current_page_url_redirect(prevars)
@@ -184,7 +195,31 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-def winpage(prevars):
+
+@requires_game
+def show_path_page(prevars):
+    page_id = prevars.game_operator.game.start_page_id
+    start = prevars.zim_file[page_id].title
+    our_path = [
+        prevars.zim_file[idx].title for idx in prevars.game_operator.path
+    ]
+    if len(our_path) == 0:
+        our_path = [start]
+    user_path = [start]
+    game_id = prevars.game_operator.game.game_id
+    turns = Turn.objects.filter(game_id=game_id).order_by('time')
+
+    user_path += [prevars.zim_file[turn.to_page_id].title for turn in turns]
+    context = {
+        'from': our_path[0],
+        'our_path': our_path[1:],
+        'user_path': user_path[1:],
+    }
+    template = loader.get_template('wiki/show_path_page.html')
+    return HttpResponse(template.render(context, prevars.request))
+
+
+def get_win_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
     )
@@ -195,7 +230,8 @@ def winpage(prevars):
         'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.game.steps
         ),
-        'name': settings_user['name']
+        'name': settings_user['name'],
+        'game_id': prevars.game_operator.game.game_id
     }
     template = loader.get_template('wiki/win_page.html')
     return HttpResponse(template.render(context, prevars.request))
@@ -218,7 +254,7 @@ def get(prevars, title_name):
 
     if prevars.game_operator.finished:
         if prevars.game_operator.game.multiplayer is None:
-            return winpage(prevars)
+            return get_win_page(prevars)
         else:
             return get_multiplayer_results(prevars)
 
@@ -226,7 +262,7 @@ def get(prevars, title_name):
     if prevars.game_operator.game.multiplayer is not None:
         game_key = prevars.game_operator.game.multiplayer.game_key
 
-    template = loader.get_template('wiki/page.html')
+    template = loader.get_template('wiki/game_page.html')
     context = {
         'title': article.title,
         'from': prevars.game_operator.first_page.title,

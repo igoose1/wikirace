@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 
 from . import get_wiki_page
 
@@ -12,10 +12,12 @@ urlpatterns = [
     url('multiplayer/results', get_wiki_page.get_multiplayer_results_page),
     url('multiplayer/join', get_wiki_page.get_multiplayer_join),
     url('feedback', get_wiki_page.get_feedback_page),
+    url('game_random_start', get_wiki_page.get_random_start),
     url('game_start', get_wiki_page.get_start),
     url('continue', get_wiki_page.get_continue),
     url('back', get_wiki_page.get_back),
     url('hint_page', get_wiki_page.get_hint_page),
+    url('show_path_page', get_wiki_page.show_path_page),
     url('set_settings', get_wiki_page.change_settings),
     url('(.*)', get_wiki_page.get)
 ]
