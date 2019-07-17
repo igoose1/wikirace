@@ -246,10 +246,10 @@ class PlayingTest(TestCase):
             quote(url_way[-2])
         )
 
-    def testStartById(self):
-        game_pair = models.GamePair.objects.get_or_create(start_page_id=3162231, end_page_id=661624)[0]
-        resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
-        self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
+    # def testStartById(self):
+    #     game_pair = models.GamePair.objects.get_or_create(start_page_id=3162231, end_page_id=661624)[0]
+    #     resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
+    #     self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
 
     def test404ById(self):
         resp = self.client.get('/start_by_id/9999999')
