@@ -210,10 +210,6 @@ def show_path_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-msg_win = 'Победа'
-msg_surrender = 'Игра окончена'
-
-
 def get_end_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
@@ -228,9 +224,9 @@ def get_end_page(prevars):
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game.game_id,
-        'title_text': msg_win if not surrendered else msg_surrender
+        'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
-    template = loader.get_template('wiki/win_page.html')
+    template = loader.get_template('wiki/end_page.html')
     return HttpResponse(template.render(context, prevars.request))
 
 
