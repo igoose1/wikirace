@@ -7,11 +7,14 @@ from . import get_wiki_page
 
 urlpatterns = [
     path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('multiplayer/generate', get_wiki_page.get_multiplayer_generate),
     url('multiplayer/results', get_wiki_page.get_multiplayer_results_page),
     url('multiplayer/join', get_wiki_page.get_multiplayer_join),
     url('feedback', get_wiki_page.get_feedback_page),
+    url('choose_custom_game', get_wiki_page.choose_custom_game),
+    path('custom_game_start/<int:trial_id>', get_wiki_page.custom_game_start),
     url('game_random_start', get_wiki_page.get_random_start),
     url('game_start', get_wiki_page.get_start),
     url('continue', get_wiki_page.get_continue),

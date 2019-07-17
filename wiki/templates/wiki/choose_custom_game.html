@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.css' %}">
+</head>
+<body>
+<ul>
+    {% for trial in trials %}
+        <li><a href="custom_game_start/{{ trial.trial_id }}">{{ trial.trial_name }}</a> </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
