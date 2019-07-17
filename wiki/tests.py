@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.conf import settings
 from unittest.mock import Mock, patch
 from urllib.parse import quote
-
+from django.http import HttpResponseServerError
 import wiki.ZIMFile
 from . import GameOperator, models, get_wiki_page
 from .file_holder import file_holder
@@ -17,14 +17,14 @@ class TestZIMFile(TestCase):
         self.zim.close()
 
     def testSmoke(self):
-        article_Moscow = self.zim[2029658]
-        self.assertEqual(article_Moscow.title, 'Москва')
-        article_Moscow = self.zim['Москва.html']
-        self.assertEqual(article_Moscow.title, 'Москва')
+        article_moscow = self.zim[2029658]
+        self.assertEqual(article_moscow.title, 'Москва')
+        article_moscow = self.zim['Москва.html']
+        self.assertEqual(article_moscow.title, 'Москва')
 
     def testArticleWithNamespace(self):
-        article_Moscow = self.zim['A/Москва.html']
-        self.assertEqual(article_Moscow.title, 'Москва')
+        article_moscow = self.zim['A/Москва.html']
+        self.assertEqual(article_moscow.title, 'Москва')
 
     def testRedirect(self):
         article_redirecting = self.zim[47]
@@ -245,6 +245,15 @@ class PlayingTest(TestCase):
             resp,
             quote(url_way[-2])
         )
+
+    def testStartById(self):
+        game_pair = models.GamePair.objects.get_or_create(start_page_id=3162231, end_page_id=661624)[0]
+        resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
+        self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
+
+    def test404ById(self):
+        with self.assertRaises(Exception):  # HttpResponseServerError):
+            resp = self.client.get('/start_by_id/478476347657645374653')
 
 
 class FileLeaksTest(TestCase):
