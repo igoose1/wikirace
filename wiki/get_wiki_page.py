@@ -1,16 +1,17 @@
 from django.http import HttpResponse,\
     HttpResponseRedirect,\
     HttpResponseNotFound,\
-    HttpResponseBadRequest
+    HttpResponseBadRequest,\
+    Http404
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
-
 from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
-    GameTypes
+    GameTypes,\
+    ByIdGameTaskGenerator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -85,24 +86,24 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
-    NAME_LEN = 16
-
+    name_len = 16
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
 
-    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
+    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > name_len):
         return HttpResponseBadRequest()
 
-    prevars.request.session['settings'] = {
-        'difficulty': GameTypes(difficulty).value,
-        'name': name
-    }
+    prevars.request.session['settings'] = {'difficulty': GameTypes(difficulty).value, 'name': name}
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty, prevars):
+def get_game_task_generator(difficulty, prevars, pair_id=None):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
+    if difficulty == GameTypes.by_id:
+        if not pair_id:
+            raise Http404()
+        return ByIdGameTaskGenerator(pair_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -125,12 +126,28 @@ def get_start(prevars):
             GameTypes(
                 settings['difficulty']
             ),
-            prevars
+            prevars,
         ),
         prevars.zim_file,
-        prevars.graph
+        prevars.graph,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+
+
+@load_prevars
+def get_start_by_id(prevars, pair_id):
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            GameTypes(
+                GameTypes.by_id
+            ),
+            prevars,
+            pair_id,
+        ),
+        prevars.zim_file,
+        prevars.graph,
+    )
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -164,6 +181,7 @@ def winpage(prevars):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
+        'pair_id': prevars.game_operator.game.game_pair.pair_id,
         'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.game.steps
         ),
@@ -197,6 +215,7 @@ def get(prevars, title_name):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
+        'pair_id': prevars.game_operator.game.game_pair.pair_id,
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty
     }
@@ -208,7 +227,7 @@ def get(prevars, title_name):
 
 @load_prevars
 def get_feedback_page(prevars):
-    if prevars.request.method == "POST":
+    if prevars.request.method == 'POST':
         form = FeedbackForm(prevars.request.POST).save()
         form.time = timezone.now()
         form.save()
