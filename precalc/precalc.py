@@ -4,7 +4,7 @@ from settings_import import settings
 from new_precalc import GenIteration
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
-MINIMAL_OUTER_LINKS = {'easy': 200, 'medium': 50}
+MINIMAL_OUTER_LINKS = {'easy': 100, 'medium': 50}
 dist_range = {
     'easy': range(2, 3),
     'medium': range(3, 5)
