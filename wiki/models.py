@@ -51,7 +51,7 @@ class Turn(models.Model):
     game_pair = models.ForeignKey('GamePair', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return '{id}: {gi} {gp}'.format(
+        return '{id}: {gp}'.format(
             id=self.turn_id,
             gp=self.game_pair,
         )
