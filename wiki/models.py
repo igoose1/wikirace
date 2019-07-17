@@ -62,7 +62,7 @@ class Game(models.Model):
         return '{id}: {sp} -> {ep} ({la})'.format(
             id=self.game_id,
             sp=self.game_pair.start_page_id,
-            ep=self.game_pair_end_page_id,
+            ep=self.game_pair.end_page_id,
             la=self.last_action_time
         )
 
