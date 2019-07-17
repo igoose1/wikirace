@@ -10,6 +10,7 @@ class Game(models.Model):
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
     possible_path = models.TextField(default="")
+    surrendered = models.BooleanField(default=False)
 
     @property
     def finished(self):
