@@ -3,7 +3,7 @@ from random import randrange
 from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, Http404
 from struct import unpack
 from enum import Enum
 from .models import Game, Turn, GamePair
@@ -74,6 +74,8 @@ class ByIdGameTaskGenerator(GameTaskGenerator):
         self.pair_id = pair_id
 
     def choose_start_and_end_pages(self) -> GamePair:
+        if not isinstance(self.pair_id, int):
+            raise Http404()
         return get_object_or_404(GamePair, pair_id=self.pair_id)
 
 
