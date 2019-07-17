@@ -118,9 +118,6 @@ def get_start(prevars):
         prevars.request.session.get('settings', dict())
     )
 
-    if settings.get('current_difficulty', None) is None:
-        return HttpResponseRedirect('/')
-
     if isinstance(settings['current_difficulty'], int):
         prevars.request.session['settings'] = get_settings(dict())
         return HttpResponseBadRequest()
