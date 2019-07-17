@@ -672,6 +672,8 @@ form {
   padding-left: 40px;
   width: auto;
   height: 50px;
+  min-height: fit-content;
+  padding-bottom: 15px;
 }
 .trial-play:hover {
   background: #110011;
@@ -681,6 +683,7 @@ form {
   vertical-align: center;
   position: relative;
   top: 15px;
+  min-height: fit-content;
 }
 
 .card-opened {
