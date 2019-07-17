@@ -6,6 +6,7 @@ from urllib.parse import quote
 import wiki.ZIMFile
 from . import GameOperator, models, get_wiki_page
 from .file_holder import file_holder
+from .models import GamePair
 
 
 class TestZIMFile(TestCase):
@@ -190,12 +191,12 @@ class PlayingTest(TestCase):
                  '1992_год.html',
                  'XXV_летние_Олимпийские_игры.html',
                  'Куба_на_летних_Олимпийских_играх_1992.html')
-        path = list(zim[page].index for page in pages)
+        game_pair = GamePair.get_or_create_by_path(list(zim[page].index for page in pages))
         self.patches = [
             patch.object(
                 GameOperator.DifficultGameTaskGenerator,
-                'choose_path',
-                Mock(return_value=path)
+                'choose_game_pair',
+                Mock(return_value=game_pair)
             )
         ]
 
