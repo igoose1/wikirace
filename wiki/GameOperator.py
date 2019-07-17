@@ -99,9 +99,13 @@ class GameOperator:
     @property
     def finished(self):
         return self._game.current_page_id == self._game.end_page_id or self._game.surrendered
-    
+
     def surrender(self):
         self._game.surrendered = True
+
+    @property
+    def surrendered(self):
+        return self._game.surrendered
 
     @property
     def is_history_empty(self) -> bool:

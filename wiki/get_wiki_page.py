@@ -194,10 +194,12 @@ msg_win = 'Победа'
 msg_surrender = 'Игра окончена'
 
 
-def get_end_page(prevars, won=False):
+@requires_game
+def get_end_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
     )
+    surrendered = prevars.game_operator.surrendered
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
@@ -207,7 +209,7 @@ def get_end_page(prevars, won=False):
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game.game_id,
-        'title_text': msg_win if won else msg_surrender
+        'title_text': msg_win if not surrendered else msg_surrender
     }
     template = loader.get_template('wiki/win_page.html')
     return HttpResponse(template.render(context, prevars.request))
@@ -216,7 +218,7 @@ def get_end_page(prevars, won=False):
 @requires_game
 def surrender(prevars):
     prevars.game_operator.surrender()
-    return get_end_page(prevars)
+    return get_end_page(prevars.request)
 
 
 @requires_game
@@ -235,7 +237,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        return get_end_page(prevars)
+        return get_end_page(prevars.request)
 
     template = loader.get_template('wiki/game_page.html')
     context = {
