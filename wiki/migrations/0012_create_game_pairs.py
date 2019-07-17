@@ -13,6 +13,7 @@ def create_game_pairs(apps, schema_editor):
         game.game_pair = GamePair.objects.get_or_create(
             start_page_id=game.start_page_id,
             end_page_id=game.end_page_id,
+            possible_path=game.possible_path,
         )[0]
         game.save()
 
@@ -20,7 +21,7 @@ def create_game_pairs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wiki', '0010_auto_20190710_1339'),
+        ('wiki', '0011_game_possible_path'),
     ]
 
     operations = [
@@ -30,6 +31,7 @@ class Migration(migrations.Migration):
                 ('pair_id', models.AutoField(primary_key=True, serialize=False)),
                 ('start_page_id', models.IntegerField(default=0)),
                 ('end_page_id', models.IntegerField(default=0)),
+                ('possible_path', models.TextField(default='', null=True, blank=True)),
             ],
             options={
                 'unique_together': {('start_page_id', 'end_page_id')},

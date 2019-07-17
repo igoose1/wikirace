@@ -5,6 +5,7 @@ class GamePair(models.Model):
     pair_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
+    possible_path = models.TextField(default="", null=True, blank=True)
 
     class Meta:
         unique_together = (('start_page_id', 'end_page_id'),)
@@ -16,14 +17,21 @@ class GamePair(models.Model):
             end=self.end_page_id
         )
 
-
     @staticmethod
-    def get_or_create(start_page_id, end_page_id):
+    def get_or_create(start_page_id, end_page_id, possible_path=''):
         return GamePair.objects.get_or_create(
             start_page_id=start_page_id,
-            end_page_id=end_page_id
+            end_page_id=end_page_id,
+            possible_path=possible_path,
         )[0]
 
+    @staticmethod
+    def get_or_create_by_path(path):
+        return GamePair.objects.get_or_create(
+            start_page_id=path[0],
+            end_page_id=path[-1],
+            possible_path=' '.join(map(str, path)),
+        )[0]
 
 
 class Game(models.Model):
@@ -41,6 +49,10 @@ class Game(models.Model):
     @property
     def end_page_id(self):
         return self.game_pair.end_page_id
+
+    @property
+    def possible_path(self):
+        return self.game_pair.possible_path
 
     @property
     def finished(self):

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wiki', '0011_auto_20190717_1146'),
+        ('wiki', '0012_create_game_pairs'),
     ]
 
     operations = [
@@ -18,6 +18,10 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='game',
             name='start_page_id',
+        ),
+        migrations.RemoveField(
+            model_name='game',
+            name='possible_path',
         ),
         migrations.AlterField(
             model_name='game',
