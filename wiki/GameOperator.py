@@ -102,15 +102,15 @@ class GameOperator:
 
     @property
     def first_page(self):
-        return self._zim[self.game.start_page_id]
+        return self._zim[self.game.game_pair.start_page_id]
 
     @property
     def last_page(self):
-        return self._zim[self.game.end_page_id]
+        return self._zim[self.game.game_pair.end_page_id]
 
     @property
     def finished(self):
-        return self._game.current_page_id == self._game.end_page_id
+        return self._game.current_page_id == self._game.game_pair.end_page_id
 
     @property
     def is_history_empty(self) -> bool:
@@ -137,8 +137,7 @@ class GameOperator:
             return
         self._game.steps += 1
         Turn.objects.create(
-            start_page_id=self._game.current_page_id,
-            end_page_id=article.index,
+            game_pair=self._game.game_pair,
             game_id=self._game.game_id,
             time=timezone.now(),
         )
@@ -149,8 +148,6 @@ class GameOperator:
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
         game_pair = game_task_generator.choose_start_and_end_pages()
         game = Game.objects.create(
-            start_page_id=game_pair.start_page_id,
-            end_page_id=game_pair.end_page_id,
             current_page_id=game_pair.start_page_id,
             start_time=timezone.now(),
             last_action_time=timezone.now(),
