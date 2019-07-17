@@ -70,8 +70,8 @@ class FixedGameTaskGenerator(GameTaskGenerator):
         self._start_page = start_page
         self._end_page = end_page
 
-    def choose_start_and_end_pages(self) -> (int, int):
-        return self._start_page, self._end_page
+    def choose_path(self) -> (int, int):
+        return [self._start_page, self._end_page]
 
 
 class GameOperator:
