@@ -1,18 +1,17 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.conf import settings
 from unittest.mock import Mock, patch
 from urllib.parse import quote
-
-import wiki.ZIMFile
-from . import GameOperator, models, get_wiki_page
+import wiki.ZIMFile as ZIMFile
+from . import GameOperator
 from .file_holder import file_holder
 from .models import GamePair
 
 
 class TestZIMFile(TestCase):
     def setUp(self):
-        self.zim = wiki.ZIMFile.ZIMFile(settings.WIKI_ZIMFILE_PATH,
-                                        settings.WIKI_ARTICLES_INDEX_FILE_PATH)
+        self.zim = ZIMFile.ZIMFile(settings.WIKI_ZIMFILE_PATH,
+                                   settings.WIKI_ARTICLES_INDEX_FILE_PATH)
 
     def tearDown(self):
         self.zim.close()
@@ -36,29 +35,33 @@ class TestZIMFile(TestCase):
         self.assertEqual(article_followed.title, 'Факториал')
 
     def testRandomArticle(self):
-        wiki.ZIMFile.randrange = Mock(return_value=1539)
+        """
+        Note: Random article gets from good_articles that doesn't change.
+        """
+        test_value = 1539
+        ZIMFile.randrange = Mock(return_value=test_value)
         article_random = self.zim.random_article()
-        self.assertEqual(article_random.namespace, "A")
+        self.assertEqual(article_random.namespace, 'A')
         self.assertFalse(article_random.is_redirecting)
         self.assertFalse(article_random.is_empty)
 
     def testEmptyArticle(self):
-        article = self.zim['A/smth smth']
+        article = self.zim['A/test test']
         self.assertTrue(article.is_empty)
         article_followed = article.follow_redirect()
         self.assertTrue(article_followed.is_empty)
 
     def testEmptyFields(self):
-        article = self.zim['A/smth smth']
-        smth = article.index
-        smth = article.is_redirecting
-        smth = article.is_empty
-        smth = article.namespace
-        smth = article.mimetype
-        smth = article.url
-        smth = article.title
+        article = self.zim['A/test test']
+        empty_fields = (article.index,
+                        article.is_redirecting,
+                        article.is_empty,
+                        article.namespace,
+                        article.mimetype,
+                        article.url,
+                        article.title)
         with self.assertRaises(Exception):
-            smth = article.content
+            empty_content = article.content
 
     def testImage(self):
         article_id = self.zim['I/favicon.png'].index
@@ -90,7 +93,7 @@ class GameOperatorTest(TestCase):
             self.graph,
         )
 
-    def setUp(self) -> None:
+    def setUp(self):
         self.zim = Mock()
         self.graph = Mock()
         self.fake_game = self.FakeGame(self.GAME_ID)
@@ -129,9 +132,9 @@ class GameOperatorTest(TestCase):
 
         game_operator = self.generate_operator(
             {
-                "test1": "smth",
-                "test2": "smth",
-                "game_id": self.GAME_ID
+                'test1': 'test',
+                'test2': 'test',
+                'game_id': self.GAME_ID
             }
         )
         self.assertEqual(game_operator, None)
@@ -184,7 +187,7 @@ class GetWikiPageTest(TestCase):
 class PlayingTest(TestCase):
 
     def setUp(self):
-        zim = wiki.ZIMFile.ZIMFile(
+        zim = ZIMFile.ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
         )
@@ -235,7 +238,9 @@ class PlayingTest(TestCase):
             resp = self.client.get(url)
             self.assertEqual(resp.status_code, 200)
             if url == url_way[-1]:
-                self.assertTrue('<title>WikiRace - Игра окончена</title>' in resp.content.decode())
+                self.assertTrue(
+                    '<title>WikiRace - Игра окончена</title>' in resp.content.decode()
+                )
 
     def testBackButtons(self):
         url_way = [
@@ -243,13 +248,10 @@ class PlayingTest(TestCase):
             '/1765_год.html',
             '/XX_век.html'
         ]
-
-        tuple(map(self.client.get, url_way))
+        for url in url_way:
+            self.client.get(url)
         resp = self.client.get('/back')
-        self.assertRedirects(
-            resp,
-            quote(url_way[-2])
-        )
+        self.assertRedirects(resp, quote(url_way[-2]))
 
 
 class FileLeaksTest(TestCase):

@@ -2,13 +2,17 @@ from django.db import models
 
 
 class GamePair(models.Model):
+    """
+    Contains ids of start and end pages that were played any time
+    Also best path from start to end
+    """
     pair_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
-    possible_path = models.TextField(default="", null=True, blank=True)
+    possible_path = models.TextField(default='', null=True, blank=True)
 
     class Meta:
-        unique_together = (('start_page_id', 'end_page_id'),)
+        unique_together = ('start_page_id', 'end_page_id'),
 
     def __str__(self):
         return '{id}: {start} -> {end}'.format(
@@ -69,10 +73,6 @@ class Game(models.Model):
 
 
 class Feedback(models.Model):
-    """
-    Model containing data of feedback
-    """
-
     name = models.CharField(default='Анонимно', max_length=30)
     text = models.TextField(null=True, max_length=1000)
     time = models.DateTimeField(null=True)
@@ -85,6 +85,9 @@ class Feedback(models.Model):
 
 
 class Turn(models.Model):
+    """
+    Contains data of all redirects in links
+    """
     game_id = models.IntegerField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
@@ -93,6 +96,9 @@ class Turn(models.Model):
 
 
 class Trial(models.Model):
+    """
+    Model with custom games. Will be added by admin
+    """
     trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)

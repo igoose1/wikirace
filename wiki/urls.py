@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path
-
 from . import get_wiki_page
 
 
@@ -20,5 +19,5 @@ urlpatterns = [
     url('show_path_page', get_wiki_page.show_path_page),
     url('set_settings', get_wiki_page.change_settings),
     url('surrender', get_wiki_page.surrender),
-    url('(.*)', get_wiki_page.get)
+    url('(.*)', get_wiki_page.get),
 ]

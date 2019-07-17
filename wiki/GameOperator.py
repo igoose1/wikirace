@@ -1,28 +1,26 @@
-from wiki.ZIMFile import ZIMFile, Article
+from wiki.ZIMFile import ZIMFile
 from wiki.PathReader import get_path
 from random import randrange
 from django.conf import settings
 from django.utils import timezone
-
 from struct import unpack
 from enum import Enum
-
 from .models import Game, Turn, GamePair
 from wiki.GraphReader import *
 
 
 class GameTypes(Enum):
-    random = "random"
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
-    trial = "trial"
+    random = 'random'
+    easy = 'easy'
+    medium = 'medium'
+    hard = 'hard'
+    trial = 'trial'
 
 
 class GameTaskGenerator(object):
 
     def choose_game_pair(self) -> GamePair:
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        raise NotImplementedError('This is super class, implement this field in child class.')
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
@@ -65,11 +63,8 @@ class DifficultGameTaskGenerator(GameTaskGenerator):
     def choose_game_pair(self) -> GamePair:
         # to use old version remove '_V2'
         file_names = settings.LEVEL_FILE_NAMES_V2
-        with open(
-                file_names[self._difficulty.value],
-                'rb'
-        ) as file:
-            cnt = unpack('>I', file.read(EDGE_BLOCK_SIZE))[0]
+        with open(file_names[self._difficulty.value], 'rb') as file:
+            cnt = unpack(settings.UNPACK_FORMAT, file.read(settings.EDGE_BLOCK_SIZE))[0]
             pair_id = randrange(0, cnt)
             path = get_path(pair_id, self._difficulty.value)
 
@@ -92,7 +87,7 @@ class GameOperator:
         if len(self._history) >= 2:
             self._history.pop()  # pop current page
             self._game.steps += 1
-            self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
+            self._game.current_page_id = self._history[-1]
 
     @property
     def current_page(self):
@@ -118,20 +113,20 @@ class GameOperator:
         return self._game.surrendered
 
     @property
-    def is_history_empty(self) -> bool:
+    def is_history_empty(self):
         return len(self._history) <= 1
 
     @property
     def path(self):
         return list(map(int, self.game.possible_path.split()))
 
-    def is_jump_allowed(self, article: Article):
-        if article.is_empty or article.is_redirecting or article.namespace != "A":
+    def is_jump_allowed(self, article):
+        if article.is_empty or article.is_redirecting or article.namespace != 'A':
             return False
         valid_edges = list(self._reader.edges(self._game.current_page_id))
         return article.index in valid_edges or self._load_testing or article.index == self.game.current_page_id
 
-    def jump_to(self, article: Article):
+    def jump_to(self, article):
         if article.index != self.game.current_page_id:
             self._game.steps += 1
             Turn.objects.create(
@@ -145,7 +140,7 @@ class GameOperator:
             self._history.append(article.index)
 
     @classmethod
-    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
+    def create_game(cls, game_task_generator, zim_file, graph_reader):
         game_pair = game_task_generator.choose_game_pair()
         start_page_id = game_pair.start_page_id
         end_page_id = game_pair.end_page_id
@@ -162,16 +157,16 @@ class GameOperator:
         )
         return GameOperator(game, [start_page_id], graph_reader, zim_file)
 
-    def serialize_game_operator(self) -> dict:
+    def serialize_game_operator(self):
         self._game.save()
         return {
-            "history": self._history,
-            "game_id": self._game.game_id
+            'history': self._history,
+            'game_id': self._game.game_id
         }
 
     @staticmethod
-    def deserialize_game_operator(data, zim_file: ZIMFile, graph_reader: GraphReader, load_testing=False):
-        if data is None:
+    def deserialize_game_operator(data, zim_file, graph_reader, load_testing=False):
+        if not data:
             return None
         # this ugly if for backward compatibility
         if not isinstance(data, list) and not isinstance(data, dict):
@@ -194,16 +189,14 @@ class GameOperator:
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
-                    last_action_time=timezone.now()
+                    last_action_time=timezone.now(),
                 )
             else:
-                game = Game.objects.get(
-                    game_id=data[6]
-                )
+                game = Game.objects.get(game_id=data[6])
                 game.current_page_id = current_page_id
         else:
-            if "game_id" in data.keys() and 'history' in data.keys():
-                game = Game.objects.get(game_id=data["game_id"])
+            if 'game_id' in data.keys() and 'history' in data.keys():
+                game = Game.objects.get(game_id=data['game_id'])
                 history = data['history']
             else:
                 return None
