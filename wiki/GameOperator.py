@@ -32,6 +32,8 @@ class RandomGameTaskGenerator(GameTaskGenerator):
         path = [start_page_id]
         for step in range(5):
             edges = list(self._graph_reader.edges(end_page_id))
+            if len(edges) == 0:
+                return path
             next_id = randrange(0, len(edges))
             if edges[next_id] == start_page_id:
                 continue

@@ -1,8 +1,14 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
 {% block head %}
-<title>WikiRace - Победа</title>
+<title>WikiRace - Игра окончена</title>
 <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
+{% endblock %}
+
+{% block title %}
+<div>
+	<span>{{title_text}}</span>
+</div>
 {% endblock %}
 
 {% block buttonBar %}
@@ -16,79 +22,79 @@
 
 {% block content %}
 <div class="card">
-        <a href="/game_start">
-            <div class="card-image-box card-image-box-continue">
-                <img src="{% static 'wiki/icons/baseline-play_arrow-24px.svg' %}" alt="Play">
-            </div>
-            <div class="card-content-box">
-                <div class="card-content-box card-content-box-header">
-                    Играть
-                </div>
-                <div class="card-content-box card-content-box-text">
-                    Начать новую игру
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="card">
-        <a href="/">
-            <div class="card-image-box card-image-box-home">
-                <img src="{% static 'wiki/icons/baseline-home-black-24px.svg' %}" alt="Home">
-            </div>
-            <div class="card-content-box">
-                <div class="card-content-box card-content-box-header">
-                    Домой
-                </div>
-                <div class="card-content-box card-content-box-text">
-                    Возврат в главное меню
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="card">
-        <div class="card-image-box card-image-box-stats">
-            <img src="{% static 'wiki/icons/baseline-assessment-24px.svg' %}" alt="stats">
-        </div>
-        <div class="card-content-box">
-            <div class="card-content-box card-content-box-header">
-                Статистика
-            </div>
-            <div class="card-content-box card-content-box-text">
-                <span>
-                    {{counter}} ход{{move_end}}
-                    <br/>
-                    из {{from}}
-                    <br/>
-                    в <a href="/hint_page"> {{to}} </a>
-                </span>
-            </div>
-        </div>
-    </div>
-	<div class="card">
-		<a href="/show_path_page">
-			<div class="card-image-box card-image-box-stats">
-				<img src="{% static 'wiki/icons/baseline-swap_calls-24px.svg' %}" alt="stats">
+	<a href="/game_start">
+		<div class="card-image-box card-image-box-continue">
+			<img src="{% static 'wiki/icons/baseline-play_arrow-24px.svg' %}" alt="Play">
+		</div>
+		<div class="card-content-box">
+			<div class="card-content-box card-content-box-header">
+				Играть
 			</div>
-			<div class="card-content-box">
-				<div class="card-content-box card-content-box-header">
-					Показать возможный путь
-				</div>
+			<div class="card-content-box card-content-box-text">
+				Начать новую игру
 			</div>
-		</a>
+		</div>
+	</a>
+</div>
+<div class="card">
+	<a href="/">
+		<div class="card-image-box card-image-box-home">
+			<img src="{% static 'wiki/icons/baseline-home-black-24px.svg' %}" alt="Home">
+		</div>
+		<div class="card-content-box">
+			<div class="card-content-box card-content-box-header">
+				Домой
+			</div>
+			<div class="card-content-box card-content-box-text">
+				Возврат в главное меню
+			</div>
+		</div>
+	</a>
+</div>
+<div class="card">
+	<div class="card-image-box card-image-box-stats">
+		<img src="{% static 'wiki/icons/baseline-assessment-24px.svg' %}" alt="stats">
 	</div>
-    <div class="card">
-        <div class="card-image-box card-image-box-share">
-            <img src="{% static 'wiki/icons/baseline-share-24px.svg' %}" alt="share">
-        </div>
-        <div class="card-content-box">
-            <div class="card-content-box card-content-box-header">
-                Поделиться
-            </div>
-            <div class="card-content-box card-content-box-text">
-                <span>
-                    id : {{game_id}}
-                </span>
-            </div>
-        </div>
-    </div>
+	<div class="card-content-box">
+		<div class="card-content-box card-content-box-header">
+			Статистика
+		</div>
+		<div class="card-content-box card-content-box-text">
+			<span>
+				{{counter}} ход{{move_end}}
+				<br/>
+				из {{from}}
+				<br/>
+				в <a href="/hint_page"> {{to}} </a>
+			</span>
+		</div>
+	</div>
+</div>
+<div class="card">
+	<a href="/show_path_page">
+		<div class="card-image-box card-image-box-stats">
+			<img src="{% static 'wiki/icons/baseline-swap_calls-24px.svg' %}" alt="stats">
+		</div>
+		<div class="card-content-box">
+			<div class="card-content-box card-content-box-header">
+				Показать возможный путь
+			</div>
+		</div>
+	</a>
+</div>
+<div class="card">
+	<div class="card-image-box card-image-box-share">
+		<img src="{% static 'wiki/icons/baseline-share-24px.svg' %}" alt="share">
+	</div>
+	<div class="card-content-box">
+		<div class="card-content-box card-content-box-header">
+			Поделиться
+		</div>
+		<div class="card-content-box card-content-box-text">
+			<span>
+				id : {{game_id}}
+			</span>
+		</div>
+	</div>
+</div>
 {% endblock %}
