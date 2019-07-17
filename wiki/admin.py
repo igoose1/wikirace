@@ -17,6 +17,7 @@ class TurnAdmin(admin.ModelAdmin):
     list_display = ['game_id', 'time']
     ordering = ['time']
 
+
 class TrialAdmin(admin.ModelAdmin):
     list_display = ['trial_id', 'trial_name', 'game_pair']
     ordering = ['trial_id']
@@ -25,7 +26,6 @@ class TrialAdmin(admin.ModelAdmin):
 class GamePairAdmin(admin.ModelAdmin):
     list_display = ['pair_id', 'start_page_id', 'end_page_id']
     ordering = ['pair_id']
-
 
 
 admin.site.register(Game, GameStatAdmin)
