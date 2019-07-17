@@ -65,7 +65,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
+    default = {'difficulty': GameTypes.easy.value, 'current_difficulty': GameTypes.random.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -88,15 +88,18 @@ def change_settings(prevars):
     NAME_LEN = 16
 
     difficulty = prevars.request.POST.get('difficulty', None)
+    current_difficulty = prevars.request.POST.get('current_difficulty', None)
     name = prevars.request.POST.get('name')
-
-    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
+    if isinstance(name, str) and len(name) > NAME_LEN:
         return HttpResponseBadRequest()
 
-    prevars.request.session['settings'] = {
-        'difficulty': GameTypes(difficulty).value,
-        'name': name
-    }
+    settings = prevars.request.session.get('settings', dict())
+    settings['name'] = name
+    if difficulty in [el.value for el in GameTypes]:
+        settings['difficulty'] = GameTypes(difficulty).value
+    if current_difficulty in [el.value for el in GameTypes]:
+        settings['current_difficulty'] = GameTypes(current_difficulty).value
+    prevars.request.session['settings'] = settings
     return HttpResponse('Ok')
 
 
@@ -113,30 +116,20 @@ def get_start(prevars):
         prevars.request.session.get('settings', dict())
     )
 
-    if settings.get('difficulty', None) is None:
+    if settings.get('current_difficulty', None) is None:
         return HttpResponseRedirect('/')
 
-    if isinstance(settings['difficulty'], int):
+    if isinstance(settings['current_difficulty'], int):
         prevars.request.session['settings'] = get_settings(dict())
         return HttpResponseBadRequest()
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
             GameTypes(
-                settings['difficulty']
+                settings['current_difficulty']
             ),
             prevars
         ),
-        prevars.zim_file,
-        prevars.graph
-    )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
-
-
-@load_prevars
-def get_random_start(prevars):
-    prevars.game_operator = GameOperator.create_game(
-        RandomGameTaskGenerator(prevars.zim_file, prevars.graph),
         prevars.zim_file,
         prevars.graph
     )
@@ -178,7 +171,8 @@ def get_win_page(prevars):
             prevars.game_operator.game.steps
         ),
         'name': settings_user['name'],
-        'game_id': prevars.game_operator.game.game_id
+        'game_id': prevars.game_operator.game.game_id,
+        'settings': prevars.request.session.get('settings', dict())
     }
     template = loader.get_template('wiki/win_page.html')
     return HttpResponse(template.render(context, prevars.request))
@@ -209,7 +203,8 @@ def get(prevars, title_name):
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
         'wiki_content': article.content.decode(),
-        'history_empty': prevars.game_operator.is_history_empty
+        'history_empty': prevars.game_operator.is_history_empty,
+        'settings': prevars.request.session.get('settings', dict())
     }
     return HttpResponse(
         template.render(context, prevars.request),
