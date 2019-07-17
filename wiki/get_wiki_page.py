@@ -154,6 +154,15 @@ def custom_game_start(prevars, trial_id):
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
+def get_random_start(prevars):
+    prevars.game_operator = GameOperator.create_game(
+        RandomGameTaskGenerator(prevars.zim_file, prevars.graph),
+        prevars.zim_file,
+        prevars.graph
+    )
+    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+
+
 @requires_game
 def get_continue(prevars):
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
@@ -177,7 +186,7 @@ def get_hint_page(prevars):
 
 
 @requires_game
-def winpage(prevars):
+def get_win_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
     )
@@ -188,7 +197,8 @@ def winpage(prevars):
         'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.game.steps
         ),
-        'name': settings_user['name']
+        'name': settings_user['name'],
+        'game_id': prevars.game_operator.game.game_id
     }
     template = loader.get_template('wiki/win_page.html')
     return HttpResponse(template.render(context, prevars.request))
@@ -210,9 +220,9 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        return winpage(prevars.request)
+        return get_win_page(prevars.request)
 
-    template = loader.get_template('wiki/page.html')
+    template = loader.get_template('wiki/game_page.html')
     context = {
         'title': article.title,
         'from': prevars.game_operator.first_page.title,
