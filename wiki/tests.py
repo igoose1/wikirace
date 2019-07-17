@@ -60,7 +60,7 @@ class TestZIMFile(TestCase):
             smth = article.content
 
     def testImage(self):
-        article_id = self.zim._impl._get_entry_by_url('I', 'favicon.png')[0]['index']
+        article_id = self.zim['I/favicon.png'].index
         article = self.zim[article_id]
         self.assertFalse(article.is_redirecting)
         self.assertFalse(article.is_empty)
