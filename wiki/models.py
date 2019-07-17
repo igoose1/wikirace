@@ -6,6 +6,9 @@ class GamePair(models.Model):
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
 
+    class Meta:
+        unique_together = (('start_page_id', 'end_page_id'),)
+
     def __str__(self):
         return '{id}: {start} -> {end}'.format(
             id=self.pair_id,
@@ -16,15 +19,23 @@ class GamePair(models.Model):
 
 class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
-    game_pair = models.ForeignKey(GamePair, models.SET_NULL, null=True)
+    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     current_page_id = models.IntegerField(null=True, default=None)
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
 
     @property
+    def start_page_id(self):
+        return self.game_pair.start_page_id
+
+    @property
+    def end_page_id(self):
+        return self.game_pair.end_page_id
+
+    @property
     def finished(self):
-        return self.current_page_id == self.game_pair.end_page_id
+        return self.current_page_id == self.end_page_id
 
     def __str__(self):
         return '{id}: {sp} -> {ep} ({la})'.format(
@@ -55,7 +66,6 @@ class Turn(models.Model):
     game_id = models.IntegerField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
-    game_pair = models.ForeignKey(GamePair, models.SET_NULL, null=True)
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
 
@@ -63,7 +73,7 @@ class Turn(models.Model):
 class Trial(models.Model):
     trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
-    game_pair = models.ForeignKey(GamePair, models.SET_NULL, null=True)
+    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
 
     def __str__(self):
         return '{trial_name}, ind = {trial_id}, path: {from_page_id} -> {to_page_id}'.format(

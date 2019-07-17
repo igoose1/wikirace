@@ -14,7 +14,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 class TurnAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'game_pair', 'time']
+    list_display = ['game_id', 'time']
     ordering = ['time']
 
 class TrialAdmin(admin.ModelAdmin):
