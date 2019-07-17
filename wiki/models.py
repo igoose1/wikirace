@@ -17,6 +17,15 @@ class GamePair(models.Model):
         )
 
 
+    @staticmethod
+    def get_or_create(start_page_id, end_page_id):
+        return GamePair.objects.get_or_create(
+            start_page_id=start_page_id,
+            end_page_id=end_page_id
+        )[0]
+
+
+
 class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)

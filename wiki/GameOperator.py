@@ -137,11 +137,10 @@ class GameOperator:
         if True in (el.is_redirecting for el in (start_article, end_article)):
             return None
 
-        game_pair = GamePair.objects.create(
+        game_pair = GamePair.get_or_create(
             start_page_id=start_article.index,
             end_page_id=end_article.index
         )
-        game_pair.save()
         game = Game.objects.create(
             game_pair=game_pair,
             current_page_id=start_article.index,
@@ -173,11 +172,10 @@ class GameOperator:
             steps = data[4]
             history = data[5]
             if len(data) <= 6:
-                game_pair = GamePair.objects.create(
+                game_pair = GamePair.get_or_create(
                     start_page_id=start_page_id,
                     end_page_id=end_page_id
                 )
-                game_pair.save()
                 game = Game.objects.create(
                     game_pair=game_pair,
                     steps=steps,
