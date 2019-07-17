@@ -195,7 +195,6 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-
 @requires_game
 def show_path_page(prevars):
     page_id = prevars.game_operator.game.start_page_id
