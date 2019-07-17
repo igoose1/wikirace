@@ -74,7 +74,7 @@ class ByIdGameTaskGenerator(GameTaskGenerator):
         self.pair_id = pair_id
 
     def choose_start_and_end_pages(self) -> GamePair:
-        if not isinstance(self.pair_id, int):
+        if not isinstance(self.pair_id, int) or self.pair_id > int(2e9):
             raise Http404()
         return get_object_or_404(GamePair, pair_id=self.pair_id)
 
@@ -91,6 +91,22 @@ class GameOperator:
     def game(self):
         return self._game
 
+    @property
+    def start_page_id(self):
+        return self._game.game_pair.start_page_id
+
+    @property
+    def end_page_id(self):
+        return self._game.game_pair.end_page_id
+
+    @property
+    def game_pair(self):
+        return self._game.game_pair
+
+    @property
+    def game_id(self):
+        return self._game.game_id
+
     def jump_back(self):
         if len(self._history) < 2:
             return
@@ -104,15 +120,15 @@ class GameOperator:
 
     @property
     def first_page(self):
-        return self._zim[self.game.game_pair.start_page_id]
+        return self._zim[self.start_page_id]
 
     @property
     def last_page(self):
-        return self._zim[self.game.game_pair.end_page_id]
+        return self._zim[self.end_page_id]
 
     @property
     def finished(self):
-        return self._game.current_page_id == self._game.game_pair.end_page_id
+        return self._game.current_page_id == self.end_page_id
 
     @property
     def is_history_empty(self) -> bool:
@@ -140,8 +156,8 @@ class GameOperator:
             return
         self._game.steps += 1
         Turn.objects.create(
-            game_pair=self._game.game_pair,
-            game_id=self._game.game_id,
+            game_pair=self.game_pair,
+            game_id=self.game_id,
             time=timezone.now(),
         )
         self._game.current_page_id = article.index
@@ -162,7 +178,7 @@ class GameOperator:
         self._game.save()
         return {
             "history": self._history,
-            "game_id": self._game.game_id
+            "game_id": self.game_id
         }
 
     @staticmethod

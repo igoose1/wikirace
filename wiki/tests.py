@@ -182,12 +182,12 @@ class GetWikiPageTest(TestCase):
 class PlayingTest(TestCase):
 
     def setUp(self):
-        zim = wiki.ZIMFile.ZIMFile(
+        self.zim = wiki.ZIMFile.ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
         )
         pages = 'Глоксин,_Беньямин_Петер.html', 'Куба_на_летних_Олимпийских_играх_1992.html'
-        start_page_id, end_page_id = (zim[page].index for page in pages)
+        start_page_id, end_page_id = (self.zim[page].index for page in pages)
         pair = models.GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
         pair.save()
         self.patches = [
@@ -215,6 +215,7 @@ class PlayingTest(TestCase):
     def tearDown(self):
         for p in self.patches:
             p.stop()
+        self.zim.close()
 
     def testSmoke(self):
         url_way = [
@@ -246,13 +247,19 @@ class PlayingTest(TestCase):
             quote(url_way[-2])
         )
 
-    # def testStartById(self):
-    #     game_pair = models.GamePair.objects.get_or_create(start_page_id=3162231, end_page_id=661624)[0]
-    #     resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
-    #     self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
+    def testStartById(self):
+        start_page_id = self.zim['Цензура_Википедии.html'].index
+        end_page_id = self.zim['Москва.html'].index
+        game_pair = models.GamePair.objects.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)[0]
+        resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
+        self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
 
     def test404ById(self):
         resp = self.client.get('/start_by_id/9999999')
+        self.assertEqual(resp.status_code, 404)
+
+    def test404ByIdLong(self):
+        resp = self.client.get('/start_by_id/999999999999999999999999999999')
         self.assertEqual(resp.status_code, 404)
 
 
