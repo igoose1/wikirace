@@ -41,7 +41,7 @@ class Game(models.Model):
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
     surrendered = models.BooleanField(default=False)
-    
+
     @property
     def steps(self):
         return len(Turn.objects.filter(game_id=self.game_id))

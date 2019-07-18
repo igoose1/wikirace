@@ -87,7 +87,7 @@ class GameOperator:
     @property
     def game(self):
         return self._game
-    
+
     def make_move(self, from_page, to_page, move_back=False):
         Turn.objects.create(
             from_page_id=from_page,
