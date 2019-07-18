@@ -12,8 +12,9 @@ from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
     TrialGameTaskGenerator,\
-    GameTypes,\
-    ByIdGameTaskGenerator
+    MultipayerGameTaskGenerator,\
+    ByIdGameTaskGenerator,\
+    GameTypes
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -21,7 +22,7 @@ from .PathReader import get_path
 from .models import Turn, \
     Trial
 from wiki.file_holder import file_holder
-from .models import Trial
+from .models import Trial, MultiplayerPair
 
 
 @file_holder
@@ -318,3 +319,15 @@ def get_feedback_page(prevars):
     }
     template = loader.get_template('wiki/feedback_page.html')
     return HttpResponse(template.render(context, prevars.request))
+
+
+@load_prevars
+def join_game_by_key(prevars):
+    multiplayer_key = prevars.request.GET.get('key', None)
+    multiplayer = get_object_or_404(MultiplayerPair, multiplayer_key=multiplayer_key)
+    prevars.game_operator = GameOperator.create_game(
+        MultipayerGameTaskGenerator(multiplayer),
+        prevars.zim_file,
+        prevars.graph,
+    )
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)

@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseServerError, Http404
 from struct import unpack
 from enum import Enum
-from .models import Game, Turn, GamePair
+from .models import Game, Turn, GamePair, MultiplayerPair
 from wiki.GraphReader import *
 
 
@@ -24,6 +24,9 @@ class GameTaskGenerator(object):
 
     def choose_game_pair(self) -> GamePair:
         raise NotImplementedError("This is super class, implement this field in child class.")
+
+    def choose_multiplayer(self):
+        return MultiplayerPair.objects.create(game_pair=self.choose_game_pair())
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
@@ -110,6 +113,18 @@ class ByIdGameTaskGenerator(GameTaskGenerator):
         return get_object_or_404(GamePair, pair_id=self.pair_id)
 
 
+class MultipayerGameTaskGenerator(GameTaskGenerator):
+
+    def __init__(self, multiplayer):
+        self._multiplayer = multiplayer
+
+    def choose_game_pair(self):
+        return self._multiplayer.game_pair
+
+    def choose_multiplayer(self):
+        return self._multiplayer
+
+
 class GameOperator:
     def __init__(self, game: Game, history: list, graph_reader: GraphReader, zim_file: ZIMFile, load_testing=False):
         self._zim = zim_file
@@ -132,7 +147,7 @@ class GameOperator:
 
     @property
     def game_pair(self):
-        return self._game.game_pair
+        return self._game.multiplayer.game_pair
 
     @property
     def game_id(self):
@@ -208,14 +223,15 @@ class GameOperator:
 
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        game_pair = game_task_generator.choose_game_pair()
+        multiplayer = game_task_generator.choose_multiplayer()
         game = Game.objects.create(
-            current_page_id=game_pair.start_page_id,
+            current_page_id=multiplayer.game_pair.start_page_id,
             start_time=timezone.now(),
             last_action_time=timezone.now(),
-            game_pair=game_pair,
+            game_pair=multiplayer.game_pair,
+            multiplayer=multiplayer,
         )
-        return GameOperator(game, [game_pair.start_page_id], graph_reader, zim_file)
+        return GameOperator(game, [multiplayer.game_pair.start_page_id], graph_reader, zim_file)
 
     def serialize_game_operator(self) -> dict:
         self._game.save()
@@ -244,7 +260,9 @@ class GameOperator:
                     start_page_id=start_page_id,
                     end_page_id=end_page_id,
                 )
+                multiplayer = MultiplayerPair.objects.create(game_pair=game_pair)
                 game = Game.objects.create(
+                    multiplayer=multiplayer,
                     game_pair=game_pair,
                     steps=steps,
                     start_time=None,

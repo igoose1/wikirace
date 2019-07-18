@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
+    url('multiplayer/join', get_wiki_page.join_game_by_key),
     url('choose_custom_game', get_wiki_page.choose_custom_game),
     path('custom_game_start/<int:trial_id>', get_wiki_page.custom_game_start),
     url('game_random_start', get_wiki_page.get_random_start),
