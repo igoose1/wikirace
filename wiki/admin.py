@@ -2,7 +2,7 @@ from django.contrib import admin
 from wiki.models import Game, Feedback, Turn, Trial, GamePair
 
 
-class GameStatAdmin(admin.ModelAdmin):
+class GameAdmin(admin.ModelAdmin):
     list_display = ['game_id', 'game_pair',
                     'steps', 'finished', 'start_time', 'last_action_time']
     ordering = ['game_id']
@@ -14,7 +14,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 class TurnAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'time']
+    list_display = ['game_id', 'from_page_id', 'to_page_id', 'time']
     ordering = ['time']
 
 
@@ -28,7 +28,7 @@ class GamePairAdmin(admin.ModelAdmin):
     ordering = ['pair_id']
 
 
-admin.site.register(Game, GameStatAdmin)
+admin.site.register(Game, GameAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Turn, TurnAdmin)
 admin.site.register(Trial, TrialAdmin)

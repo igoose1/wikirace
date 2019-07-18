@@ -34,25 +34,33 @@ $(document).ready(() => {
         window.location.href = '/start_by_id/' + game_id;
     });
 
-    let difficulty = $("#diff-field").val();
     $('#diff-play').on('click', () => {
-        let newDifficulty = $("#diff-field").val();
-        if (difficulty !== newDifficulty) {
-            let CSRF = $('input[name=csrfmiddlewaretoken]').val();
-            $.ajax({
-                url: '/set_settings',
-                type: 'POST',
-                data: {
-                    difficulty: newDifficulty,
-                    csrfmiddlewaretoken: CSRF
-                },
-                success: function (msg) {
-                    window.location.href = '/game_start'
-                },
-            });
-        } else
+        let difficulty = $("#diff-field").val();
+        postSettings(difficulty, () => {
             window.location.href = '/game_start'
+        })
     });
+
+    $('#card-random').on('click', () => {
+        postSettings('random', () => {
+            window.location.href = '/game_start'
+        })
+    });
+
+    function postSettings(difficulty, onSuccess) {
+        let CSRF = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            url: '/set_settings',
+            type: 'POST',
+            data: {
+                difficulty: difficulty,
+                csrfmiddlewaretoken: CSRF
+            },
+            success: function (msg) {
+                onSuccess()
+            },
+        });
+    }
 
     $('#game-id').on('input', () => {
         let input = $('#game-id');

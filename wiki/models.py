@@ -1,8 +1,12 @@
 from django.db import models
 from enum import Enum
+import datetime
 
 
 class GamePair(models.Model):
+    """
+    Ids of all pairs. Uniquely representable structure of game.
+    """
     pair_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
@@ -94,10 +98,13 @@ class TurnType(Enum):
 
 
 class Turn(models.Model):
+    """
+    Saving of user's steps
+    """
     game_id = models.IntegerField()
+    time = models.DateTimeField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
-    time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
     step = models.IntegerField(default=0)
     turn_type = models.CharField(
@@ -105,6 +112,13 @@ class Turn(models.Model):
         choices=[(tag, tag.value) for tag in TurnType],
         default=TurnType.DIR
     )
+
+    def __str__(self):
+        return '{id}: {fp} -> {tp}'.format(
+            id=self.turn_id,
+            fp=self.from_page_id,
+            tp=self.to_page_id,
+        )
 
 
 class Trial(models.Model):

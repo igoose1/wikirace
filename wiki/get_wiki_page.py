@@ -1,18 +1,19 @@
-from django.http import HttpResponse, \
-    HttpResponseRedirect, \
-    HttpResponseNotFound, \
-    HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse,\
+    HttpResponseRedirect,\
+    HttpResponseNotFound,\
+    HttpResponseBadRequest,\
+    Http404
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
-
 from . import inflection
 from .GameOperator import GameOperator,\
     DifficultGameTaskGenerator,\
     RandomGameTaskGenerator,\
     TrialGameTaskGenerator,\
-    GameTypes
+    GameTypes,\
+    ByIdGameTaskGenerator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
@@ -71,7 +72,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
+    default = {'difficulty': GameTypes.easy.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -93,26 +94,30 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
-    NAME_LEN = 16
+    name_len = 16
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
-
-    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
+    if difficulty not in GameTypes or (isinstance(name, str) and len(name) > name_len):
         return HttpResponseBadRequest()
 
-    prevars.request.session['settings'] = {
-        'difficulty': GameTypes(difficulty).value,
-        'name': name
-    }
+    settings = prevars.request.session.get('settings', dict())
+    settings['name'] = name
+    if difficulty in [el.value for el in GameTypes]:
+        settings['difficulty'] = GameTypes(difficulty).value
+    prevars.request.session['settings'] = settings
     return HttpResponse('Ok')
 
 
-def get_game_task_generator(difficulty, prevars, trial=None):
+def get_game_task_generator(difficulty, prevars, trial=None, pair_id=None):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == GameTypes.trial:
         return TrialGameTaskGenerator(trial)
+    elif difficulty == GameTypes.by_id:
+        if not pair_id:
+            raise Http404()
+        return ByIdGameTaskGenerator(pair_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
@@ -123,12 +128,10 @@ def get_start(prevars):
         prevars.request.session.get('settings', dict())
     )
 
-    if settings.get('difficulty', None) is None:
-        return HttpResponseRedirect('/')
-
     if isinstance(settings['difficulty'], int):
-        prevars.request.session['settings'] = get_settings(dict())
-        return HttpResponseBadRequest()
+        settings = get_settings(dict())
+
+    prevars.request.session['settings'] = settings
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
@@ -138,9 +141,23 @@ def get_start(prevars):
             prevars,
         ),
         prevars.zim_file,
-        prevars.graph
+        prevars.graph,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+
+
+@load_prevars
+def get_start_by_id(prevars, pair_id):
+    prevars.game_operator = GameOperator.create_game(
+        get_game_task_generator(
+            GameTypes.by_id,
+            prevars,
+            pair_id=pair_id,
+        ),
+        prevars.zim_file,
+        prevars.graph,
+    )
+    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
 @load_prevars
@@ -192,7 +209,7 @@ def get_hint_page(prevars):
 
 @requires_game
 def show_path_page(prevars):
-    page_id = prevars.game_operator.game.start_page_id
+    page_id = prevars.game_operator.start_page_id
     start = prevars.zim_file[page_id].title
     our_path = [
         prevars.zim_file[idx].title for idx in prevars.game_operator.path
@@ -200,7 +217,8 @@ def show_path_page(prevars):
     if len(our_path) == 0:
         our_path = [start]
     user_path = [start]
-    game_id = prevars.game_operator.game.game_id
+    
+    game_id = prevars.game_operator.game_id
     turns = Turn.objects.filter(game_id=game_id).order_by('step')
 
     user_path += [prevars.zim_file[turn.to_page_id].title for turn in turns]
@@ -222,11 +240,17 @@ def get_end_page(prevars):
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
+<<<<<<< HEAD
         'counter': game_steps,
+=======
+        'counter': prevars.game_operator.game.steps,
+        'pair_id': prevars.game_operator.game_pair.pair_id,
+>>>>>>> master
         'move_end': inflection.mupltiple_suffix(
             game_steps
         ),
         'name': settings_user['name'],
+        'game_id': prevars.game_operator.game_id,
         'game_id': prevars.game_operator.game.game_id,
         'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
@@ -264,8 +288,9 @@ def get(prevars, title_name):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
+        'pair_id': prevars.game_operator.game.game_pair.pair_id,
         'wiki_content': article.content.decode(),
-        'history_empty': prevars.game_operator.is_history_empty
+        'history_empty': prevars.game_operator.is_history_empty,
     }
     return HttpResponse(
         template.render(context, prevars.request),
