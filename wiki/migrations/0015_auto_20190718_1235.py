@@ -2,6 +2,22 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+import hashlib
+from random import randrange
+
+
+def _generate_multiplayer_key(MultiplayerPair):
+    suffix = "ytfg7yhuyg7rfguyht7tghuyhbuyg"
+    counter = 0
+    multiplayer_key = None
+    while multiplayer_key is None or MultiplayerPair.objects.filter(multiplayer_key=multiplayer_key).count() > 0:
+        counter += 1
+        suffix += 'a'
+        hashed_string = hashlib.sha256(
+            (str(randrange(0, 1000000000)) + suffix).encode()
+        ).hexdigest()
+        multiplayer_key = hashed_string[:min(6 + counter // 32, 16)]
+    return multiplayer_key
 
 
 def create_multiplayers(apps, schema_editor):
@@ -10,7 +26,10 @@ def create_multiplayers(apps, schema_editor):
     Game = apps.get_model('wiki', 'Game')
     MultiplayerPair = apps.get_model('wiki', 'MultiplayerPair')
     for game in Game.objects.all():
-        game.multiplayer = MultiplayerPair.create(game_pair=game.game_pair)
+        game.multiplayer = MultiplayerPair.objects.create(
+            game_pair=game.game_pair,
+            multiplayer_key=_generate_multiplayer_key(MultiplayerPair)
+        )
         game.save()
 
 
@@ -24,9 +43,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MultiplayerPair',
             fields=[
-                ('multiplayer_id', models.AutoField(primary_key=True, serialize=False)),
-                ('multiplayer_key', models.CharField(blank=True, default='', max_length=64)),
-                ('game_pair', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='wiki.GamePair')),
+                ('multiplayer_id', models.AutoField(
+                    primary_key=True, serialize=False)),
+                ('multiplayer_key', models.CharField(
+                    blank=True, default='', max_length=64)),
+                ('game_pair', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='wiki.GamePair')),
             ],
             options={
                 'unique_together': {('multiplayer_key',)},
@@ -35,7 +57,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='game',
             name='multiplayer',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.MultiplayerPair'),
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.MultiplayerPair'),
         ),
         migrations.RunPython(create_multiplayers),
     ]
