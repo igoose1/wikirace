@@ -12,6 +12,7 @@ parser.add_argument('iter_num', help='iterations amount', type=int)
 parser.add_argument('out_dir', help='output directory')
 parser.add_argument('difficulty', help='difficulty',
                     choices=['easy', 'medium', 'hard'])
+parser.add_argument('thread_num', help='thread number')
 parser.add_argument('--debug', help='turns debug messages on', action="store_true")
 args = parser.parse_args()
 
@@ -40,4 +41,4 @@ for iteration in range(iter_num):
 
 for path in paths:
     data.add_path(path)
-data.write_to_files()
+data.write_to_files(args.thread_num)

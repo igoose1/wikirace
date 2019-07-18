@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from random import randrange
 import hashlib
-import datetime
+from enum import Enum
 
 
 class GamePair(models.Model):
@@ -84,10 +84,13 @@ class Game(models.Model):
                                     on_delete=models.CASCADE)
     game_id = models.AutoField(primary_key=True)
     current_page_id = models.IntegerField(null=True, default=None)
-    steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
     surrendered = models.BooleanField(default=False)
+
+    @property
+    def steps(self):
+        return Turn.objects.filter(game_id=self.game_id).count()
 
     @property
     def start_page_id(self):
@@ -130,6 +133,11 @@ class Feedback(models.Model):
         )
 
 
+class TurnType(Enum):
+    FWD = 'forward'
+    BWD = 'backward'
+
+
 class Turn(models.Model):
     """
     Saving of user's steps
@@ -139,6 +147,12 @@ class Turn(models.Model):
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
     turn_id = models.AutoField(primary_key=True)
+    step = models.IntegerField(default=0)
+    turn_type = models.CharField(
+        max_length=16,
+        choices=[(tag, tag.value) for tag in TurnType],
+        default=TurnType.FWD
+    )
 
     def __str__(self):
         return '{id}: {fp} -> {tp}'.format(
