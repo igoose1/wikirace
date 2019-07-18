@@ -41,7 +41,8 @@ class UserSettings(models.Model):
     def dict(self):
         return {
             'difficulty': self.difficulty,
-            'name': self.name
+            'name': self.name,
+            'name_init_needed': (self._name is None),
         }
 
     def __str__(self):
