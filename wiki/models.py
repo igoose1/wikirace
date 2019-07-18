@@ -1,4 +1,5 @@
 from django.db import models
+from enum import Enum
 
 
 class GamePair(models.Model):
@@ -44,7 +45,7 @@ class Game(models.Model):
 
     @property
     def steps(self):
-        return len(Turn.objects.filter(game_id=self.game_id))
+        return Turn.objects.filter(game_id=self.game_id).count()
 
     @property
     def start_page_id(self):
@@ -87,13 +88,23 @@ class Feedback(models.Model):
         )
 
 
+class TurnType(Enum):
+    DIR = 'direct'
+    REV = 'reverse'
+
+
 class Turn(models.Model):
     game_id = models.IntegerField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
-    is_reversed = models.BooleanField(default=False)
+    step = models.IntegerField(default=0)
+    turn_type = models.CharField(
+        max_length=16,
+        choices=[(tag, tag.value) for tag in TurnType],
+        default=TurnType.DIR
+    )
 
 
 class Trial(models.Model):

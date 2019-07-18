@@ -7,7 +7,7 @@ from django.utils import timezone
 from struct import unpack
 from enum import Enum
 
-from .models import Game, Turn, GamePair
+from .models import Game, Turn, GamePair, TurnType
 from wiki.GraphReader import *
 
 
@@ -88,19 +88,20 @@ class GameOperator:
     def game(self):
         return self._game
 
-    def make_move(self, from_page, to_page, move_back=False):
+    def make_move(self, from_page, to_page, turn_type):
         Turn.objects.create(
             from_page_id=from_page,
             to_page_id=to_page,
             game_id=self._game.game_id,
             time=timezone.now(),
-            is_reversed=move_back
+            turn_type=turn_type,
+            step=self._game.steps + 1
         )
 
     def jump_back(self):
         if len(self._history) >= 2:
             self._history.pop()  # pop current page
-            self.make_move(self._game.current_page_id, self._history[-1], move_back=True)
+            self.make_move(self._game.current_page_id, self._history[-1], TurnType.REV)
             self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
     @property
@@ -142,7 +143,7 @@ class GameOperator:
 
     def jump_to(self, article: Article):
         if article.index != self.game.current_page_id:
-            self.make_move(self._game.current_page_id, article.index)
+            self.make_move(self._game.current_page_id, article.index, TurnType.DIR)
             self._game.current_page_id = article.index
             self._history.append(article.index)
 
