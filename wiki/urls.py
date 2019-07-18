@@ -20,6 +20,7 @@ urlpatterns = [
     url('hint_page', get_wiki_page.get_hint_page),
     url('show_path_page', get_wiki_page.show_path_page),
     url('set_settings', get_wiki_page.change_settings),
+    url('set_name', get_wiki_page.change_name),
     url('surrender', get_wiki_page.surrender),
     url('(.*)', get_wiki_page.get)
 ]

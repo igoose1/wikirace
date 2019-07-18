@@ -104,17 +104,22 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
-    name_len = 16
 
     difficulty = prevars.request.POST.get('difficulty', None)
-    name = prevars.request.POST.get('name')
-    if not any(t.value == difficulty for t in GameTypes) or (isinstance(name, str) and len(name) > name_len):
+    if not any(t.value == difficulty for t in GameTypes):
         return HttpResponseBadRequest()
 
-    prevars.settings.name = name
-    if difficulty in [el.value for el in GameTypes]:
-        prevars.settings._difficulty = difficulty
     prevars.settings.save()
+    return HttpResponse('Ok')
+
+
+@load_prevars
+def change_name(prevars):
+    name_len = 16
+    name = prevars.request.POST.get('name')
+    if isinstance(name, str) and len(name) > name_len:
+        return HttpResponseBadRequest()
+    prevars.request.session['settings']['name'] = name
     return HttpResponse('Ok')
 
 

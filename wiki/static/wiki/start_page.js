@@ -22,6 +22,7 @@ $(document).ready(() => {
     });
 
     function postData(where, data, onSuccess) {
+        data['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
         $.ajax({
             url: where,
             type: 'POST',
@@ -33,11 +34,9 @@ $(document).ready(() => {
     }
 
     function postSettings(difficulty, onSuccess) {
-        let CSRF = $('input[name=csrfmiddlewaretoken]').val();
         postData('/set_settings',
             {
                 difficulty: difficulty,
-                csrfmiddlewaretoken: CSRF
             },
             onSuccess
         );
@@ -63,8 +62,8 @@ $(document).ready(() => {
     });
 
     $('.submit-button').on('click', () => {
-        let name = $("#name").value;
-        postData('set_name/',{name: name}, () => {
+        let name = $("#name").val();
+        postData('/set_name',{name: name}, () => {
             toggleGameCard('settings');
             event.stopPropagation();
         });
