@@ -260,6 +260,10 @@ def surrender(prevars):
 
 @requires_game
 def end_page(prevars):
+    if not prevars.game_operator.finished:
+        return HttpResponseRedirect(
+            prevars.game_operator.current_page.url
+        )
     return show_end_page(prevars)
 
 
