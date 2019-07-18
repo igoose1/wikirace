@@ -16,12 +16,15 @@ class GameTypes(Enum):
 
 class UserSettings(models.Model):
     user_id = models.AutoField(primary_key=True)
-    difficulty = models.CharField(
+    _difficulty = models.CharField(
         max_length=10,
-        choices=[(tag, tag.value) for tag in GameTypes],
         default=GameTypes.easy.value,
     )
-    name = models.CharField(max_length=16, default='no name')
+    name = models.CharField(max_length=16, default='no name', null=True)
+
+    @property
+    def difficulty(self):
+        return GameTypes(self._difficulty)
 
     def dict(self):
         return {

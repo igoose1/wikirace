@@ -113,7 +113,7 @@ def change_settings(prevars):
 
     prevars.settings.name = name
     if difficulty in [el.value for el in GameTypes]:
-        prevars.settings.difficulty = GameTypes(difficulty)
+        prevars.settings._difficulty = difficulty
     prevars.settings.save()
     return HttpResponse('Ok')
 
@@ -129,12 +129,9 @@ def get_game_task_generator(difficulty, prevars, trial=None, pair_id=None):
 
 @load_prevars
 def get_start(prevars):
-
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
-            GameTypes(
-                prevars.settings.difficulty
-            ),
+            prevars.settings.difficulty,
             prevars,
         ),
         prevars.zim_file,
