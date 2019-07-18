@@ -29,16 +29,16 @@ class GamePair(models.Model):
         return GamePair.objects.get_or_create(
             start_page_id=start_page_id,
             end_page_id=end_page_id,
-            possible_path=possible_path,
+            defaults={'possible_path': possible_path},
         )[0]
 
     @staticmethod
     def get_or_create_by_path(path):
-        return GamePair.objects.get_or_create(
+        return GamePair.get_or_create(
             start_page_id=path[0],
             end_page_id=path[-1],
             possible_path=' '.join(map(str, path)),
-        )[0]
+        )
 
 
 class MultiplayerPairManager(models.Manager):
