@@ -148,20 +148,6 @@ def get_start(prevars):
 
 
 @load_prevars
-def get_start_by_id(prevars, pair_id):
-    prevars.game_operator = GameOperator.create_game(
-        get_game_task_generator(
-            GameTypes.by_id,
-            prevars,
-            pair_id=pair_id,
-        ),
-        prevars.zim_file,
-        prevars.graph,
-    )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
-
-
-@load_prevars
 def custom_game_start(prevars, trial_id):
     t = get_object_or_404(Trial.objects.all(), trial_id=trial_id)
     prevars.game_operator = GameOperator.create_game(

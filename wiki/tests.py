@@ -6,7 +6,7 @@ from django.http import HttpResponseServerError, HttpResponseNotFound
 import wiki.ZIMFile
 from . import GameOperator, models, get_wiki_page
 from .file_holder import file_holder
-from .models import GamePair
+from .models import GamePair, MultiplayerPair
 
 
 class TestZIMFile(TestCase):
@@ -250,19 +250,20 @@ class PlayingTest(TestCase):
             quote(url_way[-2])
         )
 
-    def testStartById(self):
+    def testStartByKey(self):
         start_page_id = self.zim['Цензура_Википедии.html'].index
         end_page_id = self.zim['Москва.html'].index
         game_pair = models.GamePair.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)
-        resp = self.client.get('/start_by_id/' + str(game_pair.pair_id))
+        key = MultiplayerPair.objects.create(game_pair=game_pair).multiplayer_key
+        resp = self.client.get('/join_game/' + str(key))
         self.assertRedirects(resp, quote('/Цензура_Википедии.html'))
 
-    def test404ById(self):
-        resp = self.client.get('/start_by_id/9999999')
+    def test404ByKey(self):
+        resp = self.client.get('/join_game/zzz')
         self.assertEqual(resp.status_code, 404)
 
-    def test404ByIdLong(self):
-        resp = self.client.get('/start_by_id/999999999999999999999999999999')
+    def test404ByKeyNull(self):
+        resp = self.client.get('/start_by_id/')
         self.assertEqual(resp.status_code, 404)
 
 
