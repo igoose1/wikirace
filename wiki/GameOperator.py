@@ -87,7 +87,7 @@ class ByIdGameTaskGenerator(GameTaskGenerator):
         self.pair_id = pair_id
 
     def choose_game_pair(self) -> GamePair:
-        if not isinstance(self.pair_id, int) or self.pair_id > int(2e9):
+        if not isinstance(self.pair_id, int) or self.pair_id >= 2 ** 63 or self.pair_id < 0:
             raise Http404()
         return get_object_or_404(GamePair, pair_id=self.pair_id)
 
