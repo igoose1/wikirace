@@ -44,9 +44,12 @@ class GamePair(models.Model):
 
 
 class MultiplayerPair(models.Model):
+    multiplayer_id = models.AutoField(primary_key=True)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
-    game_id = models.AutoField(primary_key=True)
-    game_key = models.CharField(default='', max_length=64, blank=True)
+    multiplayer_key = models.CharField(default='', max_length=64, blank=True)
+
+    class Meta:
+        unique_together = (('multiplayer_key',),)
 
     @property
     def from_page_id(self):
@@ -57,17 +60,17 @@ class MultiplayerPair(models.Model):
         return self.game_pair.end_page_id
 
     def game_key_calculate(self):
-        if self.game_key != '':
+        if self.multiplayer_key != '':
             return
         suffix = settings.SECRET_KEY
         hashed_string = None
         counter = 0
-        while hashed_string is None or MultiplayerPair.objects.filter(game_key=self.game_key).count() > 0:
+        while hashed_string is None or MultiplayerPair.objects.filter(multiplayer_key=self.multiplayer_key).count() > 0:
             counter += 1
             suffix += 'a'
             hashed_string = hashlib.sha256(
-                (str(self.game_id) + suffix).encode()).hexdigest()
-            self.game_key = hashed_string[:min(6 + counter // 1024, 16)]
+                (str(self.multiplayer_id) + suffix).encode()).hexdigest()
+            self.multiplayer_key = hashed_string[:min(6 + counter // 32, 16)]
         self.save()
 
 
@@ -80,11 +83,8 @@ def create_multiplayer_key(sender, instance, created, **kwargs):
 class Game(models.Model):
     multiplayer = models.ForeignKey(MultiplayerPair, null=True,
                                     on_delete=models.SET_NULL)
-    session = models.ForeignKey(Session, null=True,
-                                on_delete=models.SET_NULL)
-    session_key = models.CharField(default='', max_length=128)
-    game_id = models.AutoField(primary_key=True)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    game_id = models.AutoField(primary_key=True)
     current_page_id = models.IntegerField(null=True, default=None)
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
