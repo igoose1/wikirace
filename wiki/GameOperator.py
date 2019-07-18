@@ -88,10 +88,19 @@ class GameOperator:
     def game(self):
         return self._game
 
+    def make_move(self, from_page, to_page, move_back=False):
+        Turn.objects.create(
+            from_page_id=from_page,
+            to_page_id=to_page,
+            game_id=self._game.game_id,
+            time=timezone.now(),
+            is_reversed=move_back
+        )
+
     def jump_back(self):
         if len(self._history) >= 2:
             self._history.pop()  # pop current page
-            self._game.steps += 1
+            self.make_move(self._game.current_page_id, self._history[-1], move_back=True)
             self._game.current_page_id = self._history[-1]  # pop prev page (will be added in next_page)
 
     @property
@@ -133,15 +142,8 @@ class GameOperator:
 
     def jump_to(self, article: Article):
         if article.index != self.game.current_page_id:
-            self._game.steps += 1
-            Turn.objects.create(
-                from_page_id=self._game.current_page_id,
-                to_page_id=article.index,
-                game_id=self._game.game_id,
-                time=timezone.now(),
-            )
+            self.make_move(self._game.current_page_id, article.index)
             self._game.current_page_id = article.index
-
             self._history.append(article.index)
 
     @classmethod

@@ -38,10 +38,13 @@ class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     current_page_id = models.IntegerField(null=True, default=None)
-    steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
     surrendered = models.BooleanField(default=False)
+
+    @property
+    def steps(self):
+        return len(Turn.objects.filter(game_id=self.game_id))
 
     @property
     def start_page_id(self):
@@ -90,6 +93,7 @@ class Turn(models.Model):
     to_page_id = models.IntegerField()
     time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
+    is_reversed = models.BooleanField(default=False)
 
 
 class Trial(models.Model):
