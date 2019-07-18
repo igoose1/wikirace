@@ -1,7 +1,12 @@
 from django.db import models
+from enum import Enum
+import datetime
 
 
 class GamePair(models.Model):
+    """
+    Ids of all pairs. Uniquely representable structure of game.
+    """
     pair_id = models.AutoField(primary_key=True)
     start_page_id = models.IntegerField(default=0)
     end_page_id = models.IntegerField(default=0)
@@ -38,10 +43,13 @@ class Game(models.Model):
     game_id = models.AutoField(primary_key=True)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     current_page_id = models.IntegerField(null=True, default=None)
-    steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
     surrendered = models.BooleanField(default=False)
+
+    @property
+    def steps(self):
+        return Turn.objects.filter(game_id=self.game_id).count()
 
     @property
     def start_page_id(self):
@@ -84,12 +92,33 @@ class Feedback(models.Model):
         )
 
 
+class TurnType(Enum):
+    FWD = 'forward'
+    BWD = 'backward'
+
+
 class Turn(models.Model):
+    """
+    Saving of user's steps
+    """
     game_id = models.IntegerField()
+    time = models.DateTimeField()
     from_page_id = models.IntegerField()
     to_page_id = models.IntegerField()
-    time = models.DateTimeField()
     turn_id = models.AutoField(primary_key=True)
+    step = models.IntegerField(default=0)
+    turn_type = models.CharField(
+        max_length=16,
+        choices=[(tag, tag.value) for tag in TurnType],
+        default=TurnType.FWD
+    )
+
+    def __str__(self):
+        return '{id}: {fp} -> {tp}'.format(
+            id=self.turn_id,
+            fp=self.from_page_id,
+            tp=self.to_page_id,
+        )
 
 
 class Trial(models.Model):

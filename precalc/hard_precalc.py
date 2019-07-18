@@ -116,6 +116,8 @@ class GenIterationHard(GenIteration):
             self._paths.append(cut_cycles(self.create_path(source, sink)))
 
     def run(self):
+        if rev_dist is None or dir_dist is None:
+            return
         self.gen_sources()
         self.gen_sinks()
         logging.info('sources and sinks generated')
