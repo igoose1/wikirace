@@ -98,7 +98,7 @@ def change_settings(prevars):
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
-    if difficulty not in GameTypes or (isinstance(name, str) and len(name) > name_len):
+    if difficulty not in map(lambda a: a.value, GameTypes) or (isinstance(name, str) and len(name) > name_len):
         return HttpResponseBadRequest()
 
     settings = prevars.request.session.get('settings', dict())
