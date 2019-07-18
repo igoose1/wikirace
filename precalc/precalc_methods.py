@@ -21,7 +21,7 @@ class DifficultyData:
         self._paths.append(path)
 
     def write_to_files(self, thread_number):
-        file_name = os.path.join(self.out_directory, self.difficulty, thread_number)
+        file_name = os.path.join(self.out_directory, self.difficulty + str(thread_number))
         with open(file_name, 'wb') as pair_file, open(file_name + '_paths', 'wb') as path_file:
             number_of_pairs = len(self._paths)
             pair_file.write(struct.pack('>i', number_of_pairs))
