@@ -201,14 +201,7 @@ class PlayingTest(TestCase):
             )
         ]
 
-        session = self.client.session
-        session['settings'] = {
-            'difficulty': 'easy',
-            'name': 'test'
-        }
-        session.save()
-
-        resp = self.client.post('/set_settings', data={ 'difficulty': 'easy'})
+        resp = self.client.post('/set_settings', data={'difficulty': 'easy'})
         self.assertEqual(resp.status_code, 200)
 
         for p in self.patches:
