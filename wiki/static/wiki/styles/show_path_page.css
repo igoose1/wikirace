@@ -1,0 +1,211 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: "Gilroy", sans-serif;
+}
+
+@media (min-device-width: 900px) {
+
+    .down_arrow img {
+        width: 15px;
+        height: 15px;
+    }
+
+    .body {
+        height: 100%;
+        width: 100%;
+    }
+
+    .body .our_path {
+        height: 100%;
+        width: 50%;
+        float: left;
+    }
+
+    .body .user_path {
+        height: 100%;
+        width: 50%;
+        float: right;
+    }
+
+    .head {
+        height: 70px;
+        font-size: 25px;
+        background-color: #282247;
+        color: white;
+        line-height: 70px;
+    }
+
+    .path {
+        height: calc(100vh - 70px);
+        overflow-y: auto;
+        background-color: #d2ceff;
+    }
+
+    .user_path .path {
+        box-shadow: -10px 0 0 0 #282247;
+    }
+
+    .outline {
+        width: fit-content;
+        max-width: 80%;
+        margin: auto;
+    }
+
+    .start_page, .article {
+        padding: 10px;
+        font-size: 22px;
+    }
+
+    .outline {
+        padding: 5px;
+        background: linear-gradient(45deg, #00bcdd 0%, #ff00ff 120%);
+    }
+
+    .path .outline, .path .dots {
+        margin: 10px auto;
+    }
+
+    .outline div {
+        background-color: #ffffff;
+    }
+
+    .path .outline:nth-child(1) {
+        margin-top: 30px;
+    }
+
+    .back_button {
+        width: 60px;
+        position: absolute;
+        display: flex;
+        height: inherit;
+        vertical-align: center;
+        align-items: center;
+        padding-left: 10px;
+    }
+
+    .back_button img {
+        margin: 0 auto;
+    }
+
+    .head a {
+        height: inherit;
+        width: 150px;
+    }
+}
+
+
+@media (max-device-width: 900px) {
+    .down_arrow img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .body {
+        width: 100%;
+    }
+
+    .body .our_path {
+        width: 100%;
+    }
+
+    .body .user_path {
+        width: 100%;
+    }
+
+    .head {
+        height: 170px;
+        font-size: 75px;
+        background-color: #282247;
+        color: white;
+        line-height: 170px;
+    }
+
+    .path {
+        overflow-y: auto;
+        background-color: #d2ceff;
+    }
+
+    .user_path .path {
+        box-shadow: -10px 0 0 0 #282247;
+    }
+
+    .outline {
+        width: fit-content;
+        max-width: 80%;
+        margin: auto;
+    }
+
+    .start_page, .article {
+        padding: 20px;
+        font-size: 30px;
+    }
+
+    .outline {
+        padding: 10px;
+        background: linear-gradient(45deg, #00bcdd 0%, #ff00ff 120%);
+    }
+
+    .path .outline, .path .dots {
+        margin: 20px auto;
+    }
+
+    .outline div {
+        background-color: #ffffff;
+    }
+
+    .path .outline:nth-child(1) {
+        margin-top: 30px;
+    }
+
+    .back_button {
+        width: 150px;
+        position: absolute;
+        display: flex;
+        height: inherit;
+        vertical-align: center;
+        align-items: center;
+    }
+
+    .back_button img {
+        height: 60px;
+        margin: 0 auto;
+    }
+
+    .head a {
+        height: 170px;
+        width: 120px;
+    }
+}
+
+@font-face {
+    font-family: Gilroy;
+    font-weight: bold;
+    src: url("../../fonts/Gilroy-Bold.ttf");
+}
+
+@font-face {
+    font-family: Gilroy;
+    font-weight: normal;
+    src: url("../../fonts/Gilroy-Medium.ttf");
+}
+
+@font-face {
+    font-family: OpenSans;
+    font-weight: bold;
+    src: url("../../fonts/OpenSans-Semibold.ttf");
+}
+
+@font-face {
+    font-family: OpenSans;
+    font-weight: bold;
+    font-style: italic;
+    src: url("../../fonts/OpenSans-Semibold.ttf");
+}
+
+@font-face {
+    font-family: OpenSans;
+    font-weight: normal;
+    src: url("../../fonts/OpenSans-Regular.ttf");
+}
