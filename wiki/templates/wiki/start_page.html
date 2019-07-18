@@ -4,6 +4,7 @@
 {% block head %}
 <title>WikiRace</title>
 <link rel="stylesheet" href="{% static 'wiki/styles/start_page_style.css' %}">
+<script src="{% static 'wiki/card_toggle.js' %}"></script>
 <script src="{% static 'wiki/start_page.js' %}"></script>
 {% endblock %}
 
@@ -14,6 +15,11 @@
 {% endblock %}
 
 {% block buttonBar %}
+<div class="button" id="open-settings">
+    <a>
+        <img src="{% static 'wiki/icons/baseline-settings-20px.svg' %}" alt="Настройки" title="Настройки">
+    </a>
+</div>
 {% endblock %}
 
 {% block drawerContent %}
@@ -161,6 +167,26 @@
                 </div>
             </a>
             {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="card visible" id="card-settings">
+    <div class="close-button invisible" id="close-settings">
+        <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
+    </div>
+    <div class="card-image-box card-image-box-settings">
+        <img src="{% static 'wiki/icons/baseline-settings_black-20px.svg' %}" alt="settings">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Настройки
+        </div>
+        <div class="card-content-box card-content-box-text block-settings invisible">
+            <label for="name"> Имя: </label>
+            <input id="name" type="text" maxlength="16">
+            <div class="submit-button">
+                Сохранить
+            </div>
         </div>
     </div>
 </div>

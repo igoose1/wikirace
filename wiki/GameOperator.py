@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseServerError, Http404
 from struct import unpack
 from enum import Enum
-from .models import Game, Turn, GamePair, MultiplayerPair
+from .models import Game, Turn, GamePair, MultiplayerPair, TurnType
 from wiki.GraphReader import *
 
 
@@ -137,6 +137,23 @@ class GameOperator:
     def game(self):
         return self._game
 
+    def make_move(self, from_page, to_page, turn_type):
+        Turn.objects.create(
+            from_page_id=from_page,
+            to_page_id=to_page,
+            game_id=self._game.game_id,
+            time=timezone.now(),
+            turn_type=turn_type,
+            step=self._game.steps + 1
+        )
+
+    def jump_back(self):
+        if len(self._history) < 2:
+            return
+        self._history.pop()  # pop current page
+        self.make_move(self._game.current_page_id, self._history[-1], TurnType.BWD)
+        self._game.current_page_id = self._history[-1]
+
     @property
     def start_page_id(self):
         return self.game_pair.start_page_id
@@ -152,13 +169,6 @@ class GameOperator:
     @property
     def game_id(self):
         return self._game.game_id
-
-    def jump_back(self):
-        if len(self._history) < 2:
-            return
-        self._history.pop()  # pop current page
-        self.game.steps += 1
-        self._game.current_page_id = self._history[-1]
 
     @property
     def current_page(self):
@@ -189,7 +199,6 @@ class GameOperator:
 
     def update_history(self, article_id: Article):
         history_index = self._history[::-1].index(article_id)
-        self.game.steps += max(0, history_index - 1)
         self._history = self._history[:len(self._history) - history_index - 1]
 
     @property
@@ -211,13 +220,7 @@ class GameOperator:
     def jump_to(self, article: Article):
         if article.index == self.game.current_page_id:
             return
-        self._game.steps += 1
-        Turn.objects.create(
-            from_page_id=self.game.current_page_id,
-            to_page_id=article.index,
-            game_id=self.game_id,
-            time=timezone.now(),
-        )
+        self.make_move(self._game.current_page_id, article.index, TurnType.FWD)
         self._game.current_page_id = article.index
         self._history.append(article.index)
 

@@ -99,7 +99,7 @@ def change_settings(prevars):
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
-    if difficulty not in GameTypes or (isinstance(name, str) and len(name) > name_len):
+    if isinstance(name, str) and len(name) > name_len:
         return HttpResponseBadRequest()
 
     settings = prevars.request.session.get('settings', dict())
@@ -204,8 +204,9 @@ def show_path_page(prevars):
     if len(our_path) == 0:
         our_path = [start]
     user_path = [start]
+
     game_id = prevars.game_operator.game_id
-    turns = Turn.objects.filter(game_id=game_id).order_by('time')
+    turns = Turn.objects.filter(game_id=game_id).order_by('step')
 
     user_path += [prevars.zim_file[turn.to_page_id].title for turn in turns]
     context = {
@@ -232,6 +233,9 @@ def get_end_page(prevars):
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game_id,
+        'link': 'wikirace.p.lksh.ru/join_game/' + prevars.game_operator.game.multiplayer.multiplayer_key,
+        'friends_leaderboard': [{'place': 1, 'name': 'a', 'steps': 3}],
+        'global_leaderboard': [{'place': 1, 'name': 'a', 'steps': 2}],
         'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
     template = loader.get_template('wiki/end_page.html')
