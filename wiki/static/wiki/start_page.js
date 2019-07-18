@@ -13,7 +13,7 @@ $(document).ready(() => {
         changeVisible($('.card'));
     }
 
-    let closableCardList = ['tutorial', 'user-game'];
+    let closableCardList = ['tutorial', 'user-game', 'trial'];
     closableCardList.forEach((value) => {
         $('#close-' + value).on('click', (event) => {
             toggleGameCard(value);
@@ -34,25 +34,33 @@ $(document).ready(() => {
         window.location.href = '/start_by_id/' + game_id;
     });
 
-    let difficulty = $("#diff-field").val();
     $('#diff-play').on('click', () => {
-        let newDifficulty = $("#diff-field").val();
-        if (difficulty !== newDifficulty) {
-            let CSRF = $('input[name=csrfmiddlewaretoken]').val();
-            $.ajax({
-                url: '/set_settings',
-                type: 'POST',
-                data: {
-                    difficulty: newDifficulty,
-                    csrfmiddlewaretoken: CSRF
-                },
-                success: function (msg) {
-                    window.location.href = '/game_start'
-                },
-            });
-        } else
+        let difficulty = $("#diff-field").val();
+        postSettings(difficulty, () => {
             window.location.href = '/game_start'
+        })
     });
+
+    $('#card-random').on('click', () => {
+        postSettings('random', () => {
+            window.location.href = '/game_start'
+        })
+    });
+
+    function postSettings(difficulty, onSuccess) {
+        let CSRF = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            url: '/set_settings',
+            type: 'POST',
+            data: {
+                difficulty: difficulty,
+                csrfmiddlewaretoken: CSRF
+            },
+            success: function (msg) {
+                onSuccess()
+            },
+        });
+    }
 
     $('#game-id').on('input', () => {
         let input = $('#game-id');
@@ -61,5 +69,12 @@ $(document).ready(() => {
         if (((game_id == null) || (game_id < 0)) ^ input.hasClass("wrong-input")) {
             input.toggleClass("wrong-input");
         }
+    });
+
+    $('#card-random').on('click', () => {
+        window.location.href = '/game_random_start';
+    });
+    $('#card-continue').on('click', () => {
+        window.location.href = '/continue';
     });
 });

@@ -45,6 +45,7 @@ class Game(models.Model):
     steps = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
+    surrendered = models.BooleanField(default=False)
 
     @property
     def start_page_id(self):

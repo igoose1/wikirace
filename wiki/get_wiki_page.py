@@ -18,7 +18,8 @@ from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .PathReader import get_path
-from .models import Turn
+from .models import Turn, \
+    Trial
 from wiki.file_holder import file_holder
 from .models import Trial
 
@@ -71,7 +72,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
+    default = {'difficulty': GameTypes.easy.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -80,11 +81,13 @@ def get_settings(settings_user):
 @load_prevars
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
+    trial_list = Trial.objects.all()
     context = {
         'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
         'settings': get_settings(
             prevars.request.session.get('settings', dict())
-        )
+        ),
+        'trial_list': trial_list,
     }
     return HttpResponse(template.render(context, prevars.request))
 
@@ -95,11 +98,14 @@ def change_settings(prevars):
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
-
-    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > name_len):
+    if difficulty not in GameTypes or (isinstance(name, str) and len(name) > name_len):
         return HttpResponseBadRequest()
 
-    prevars.request.session['settings'] = {'difficulty': GameTypes(difficulty).value, 'name': name}
+    settings = prevars.request.session.get('settings', dict())
+    settings['name'] = name
+    if difficulty in [el.value for el in GameTypes]:
+        settings['difficulty'] = GameTypes(difficulty).value
+    prevars.request.session['settings'] = settings
     return HttpResponse('Ok')
 
 
@@ -122,12 +128,10 @@ def get_start(prevars):
         prevars.request.session.get('settings', dict())
     )
 
-    if settings.get('difficulty', None) is None:
-        return HttpResponseRedirect('/')
-
     if isinstance(settings['difficulty'], int):
-        prevars.request.session['settings'] = get_settings(dict())
-        return HttpResponseBadRequest()
+        settings = get_settings(dict())
+
+    prevars.request.session['settings'] = settings
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
@@ -226,11 +230,11 @@ def show_path_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@requires_game
-def get_win_page(prevars):
+def get_end_page(prevars):
     settings_user = get_settings(
         prevars.request.session.get('settings', dict())
     )
+    surrendered = prevars.game_operator.surrendered
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
@@ -241,9 +245,17 @@ def get_win_page(prevars):
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game_id
+        'game_id': prevars.game_operator.game.game_id,
+        'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
-    template = loader.get_template('wiki/win_page.html')
+    template = loader.get_template('wiki/end_page.html')
     return HttpResponse(template.render(context, prevars.request))
+
+
+@requires_game
+def surrender(prevars):
+    prevars.game_operator.surrender()
+    return get_end_page(prevars)
 
 
 @requires_game
@@ -262,7 +274,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        return get_win_page(prevars.request)
+        return get_end_page(prevars)
 
     template = loader.get_template('wiki/game_page.html')
     context = {
@@ -272,7 +284,7 @@ def get(prevars, title_name):
         'counter': prevars.game_operator.game.steps,
         'pair_id': prevars.game_operator.game.game_pair.pair_id,
         'wiki_content': article.content.decode(),
-        'history_empty': prevars.game_operator.is_history_empty
+        'history_empty': prevars.game_operator.is_history_empty,
     }
     return HttpResponse(
         template.render(context, prevars.request),

@@ -34,12 +34,30 @@ class RandomGameTaskGenerator(GameTaskGenerator):
         self.max_trying_count = max_trying_count
 
     def choose_game_pair(self) -> GamePair:
+        start_page_id = self._zim_file.random_article().index
+        end_page_id = start_page_id
+        path = [start_page_id]
+        for step in range(5):
+            edges = list(self._graph_reader.edges(end_page_id))
+            if len(edges) == 0:
+                return path
+            next_id = randrange(0, len(edges))
+            if edges[next_id] == start_page_id:
+                continue
+            end_page_id = edges[next_id]
+            path.append(end_page_id)
+
+        return GamePair.get_or_create_by_path(path)
+
+    def choose_game_pair(self) -> GamePair:
         for i in range(self.max_trying_count):
             start_page_id = self._zim_file.random_article().index
             end_page_id = start_page_id
             path = [start_page_id]
             for step in range(5):
                 edges = list(self._graph_reader.edges(end_page_id))
+                if len(edges) == 0:
+                    break
                 next_id = randrange(0, len(edges))
                 if edges[next_id] == start_page_id:
                     continue
@@ -141,7 +159,14 @@ class GameOperator:
 
     @property
     def finished(self):
-        return self._game.current_page_id == self.end_page_id
+        return self._game.current_page_id == self.end_page_id or self._game.surrendered
+
+    def surrender(self):
+        self._game.surrendered = True
+
+    @property
+    def surrendered(self):
+        return self._game.surrendered
 
     @property
     def is_history_empty(self) -> bool:
