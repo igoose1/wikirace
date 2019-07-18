@@ -314,16 +314,21 @@ def join_game_by_key(prevars, multiplayer_key):
 
 
 @requires_game
-def show_results_table(prevars):
-    private_holder = prevars.game_operator.game.multiplayer
+def show_results_table(prevars, multiplayer_key):
+    multiplayer = get_object_or_404(
+        MultiplayerPair, multiplayer_key=multiplayer_key)
     private_table = results_table(
-        private_holder,
+        multiplayer,
+        prevars.game_operator.game.user_settings.user_id
+    )
+    global_table = results_table(
+        multiplayer.game_pair,
         prevars.game_operator.game.user_settings.user_id
     )
     template = loader.get_template('wiki/game_results_page.html')
     context = {
         'private_table': private_table,
-        'global_table': [],
+        'global_table': global_table,
     }
     return HttpResponse(
         template.render(context, prevars.request),
@@ -332,11 +337,14 @@ def show_results_table(prevars):
 
 
 def results_table(game_holder, user_id, top_n=-1):
-    games = game_holder.game_set\
-        .extra(where=[
-            "current_page_id == (SELECT end_page_id FROM 'wiki_gamepair' WHERE pair_id == game_pair_id LIMIT 1)"
-        ])\
-        .order_by('steps').all()
+    if isinstance(game_holder, MultiplayerPair):
+        games = list(Game.objects.filter(muliplayer_id=game_holder.multiplayer_id,
+                                         current_page_id=game_holder.game_pair.end_page_id).all())
+    else:
+        games = list(Game.objects.filter(multiplayer__game_pair_id=game_holder.pair_id,
+                                         current_page_id=game_holder.end_page_id).all())
+
+    games.sort(key=lambda x: x.steps)
 
     results_table = []
     used_ids = set()
