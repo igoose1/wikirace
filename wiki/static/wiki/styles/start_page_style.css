@@ -619,7 +619,6 @@ a {
 }
 
 #diff-field {
-  width: auto;
   background: #221122;
   height: 40px;
   cursor: pointer;
@@ -639,7 +638,7 @@ form {
   height: 25px;
   background: #00BB55;
   padding: 8px;
-  width: fit-content;
+  width: auto;
   cursor: pointer;
 }
 
