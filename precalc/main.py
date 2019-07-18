@@ -41,4 +41,4 @@ for iteration in range(iter_num):
 
 for path in paths:
     data.add_path(path)
-data.write_to_files(args['thread_num'])
+data.write_to_files(args.thread_num)
