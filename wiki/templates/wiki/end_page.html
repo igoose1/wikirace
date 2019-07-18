@@ -160,14 +160,17 @@
         <div class="card-content-box card-content-box-text block-share invisible centered">
             <div id="qrcode"></div>
             <script type="text/javascript">
-                new QRCode(document.getElementById("qrcode"), "{{link}}");
+                new QRCode(document.getElementById("qrcode"), "{{host}}/results_of_game/{{key}}");
             </script>
         </div>
         <div class="card-content-box card-content-box-text centered">
-            <input type="text" value="{{link}}" id="link">
-            {{link}}
+            <input type="text" value="{{host}}/join_game/{{key}}" id="link">
+            {{host}}/join_game/{{key}}
             <div class="card-content-box card-content-box-text" id="copy_link">
                 <img src="{% static 'wiki/icons/baseline-file_copy-24px.svg' %}" alt="Copy">
+            </div>
+            <div class="card-content-box block-share invisible">
+                Страница результатов: <a href="{{host}}/results_of_game/{{key}}">{{host}}/results_of_game/{{key}}</a>
             </div>
         </div>
     </div>
