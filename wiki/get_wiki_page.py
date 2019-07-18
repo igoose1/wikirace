@@ -236,7 +236,8 @@ def get_end_page(prevars):
         ),
         'name': prevars.settings.name,
         'game_id': prevars.game_operator.game_id,
-        'link': 'wikirace.p.lksh.ru/join_game/' + prevars.game_operator.game.multiplayer.multiplayer_key,
+        'host': prevars.request.META.get('HTTP_HOST', 'localhost'),
+        'key': prevars.game_operator.game.multiplayer.multiplayer_key,
         'title_text': 'Победа' if not surrendered else 'Игра окончена',
         'results_table': get_results(
             prevars.game_operator.game.multiplayer,
