@@ -1,8 +1,6 @@
 from django.db import models
-from django.contrib.sessions.models import Session
 from django.conf import settings
-from django.dispatch import receiver
-from django.db.models.signals import post_save
+from random import randrange
 import hashlib
 import datetime
 
@@ -43,7 +41,28 @@ class GamePair(models.Model):
         )[0]
 
 
+class MultiplayerPairManager(models.Manager):
+    def create(self, *args, **kwargs):
+        kwargs['multiplayer_key'] = self._generate_multiplayer_key()
+        return super(MultiplayerPairManager, self).create(*args, **kwargs)
+
+    def _generate_multiplayer_key(self):
+        suffix = settings.SECRET_KEY
+        counter = 0
+        multiplayer_key = None
+        while multiplayer_key is None or MultiplayerPair.objects.filter(multiplayer_key=multiplayer_key).count() > 0:
+            counter += 1
+            suffix += 'a'
+            hashed_string = hashlib.sha256(
+                (str(randrange(0, 1000000000)) + suffix).encode()
+            ).hexdigest()
+            multiplayer_key = hashed_string[:min(6 + counter // 32, 16)]
+        return multiplayer_key
+
+
 class MultiplayerPair(models.Model):
+    objects = MultiplayerPairManager()
+
     multiplayer_id = models.AutoField(primary_key=True)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     multiplayer_key = models.CharField(default='', max_length=64, blank=True)
@@ -58,26 +77,6 @@ class MultiplayerPair(models.Model):
     @property
     def to_page_id(self):
         return self.game_pair.end_page_id
-
-    def game_key_calculate(self):
-        if self.multiplayer_key != '':
-            return
-        suffix = settings.SECRET_KEY
-        hashed_string = None
-        counter = 0
-        while hashed_string is None or MultiplayerPair.objects.filter(multiplayer_key=self.multiplayer_key).count() > 0:
-            counter += 1
-            suffix += 'a'
-            hashed_string = hashlib.sha256(
-                (str(self.multiplayer_id) + suffix).encode()).hexdigest()
-            self.multiplayer_key = hashed_string[:min(6 + counter // 32, 16)]
-        self.save()
-
-
-@receiver(post_save, sender=MultiplayerPair)
-def create_multiplayer_key(sender, instance, created, **kwargs):
-    if created:
-        instance.game_key_calculate()
 
 
 class Game(models.Model):
