@@ -19,12 +19,9 @@ class Command(BaseCommand):
         file = open(options['path_to_file'], 'r')
         trials = json.loads(file.read())
         for trial in trials:
-            name = trial['name']
-            start_page_id = zim[trial['start']].index
-            end_page_id = zim[trial['end']].index
-            game_pair = GamePair.get_or_create(start_page_id, end_page_id)
+            game_pair = GamePair.get_or_create(zim[trial['start']].index, zim[trial['end']].index)
             Trial.objects.get_or_create(
-                trial_name=name,
+                trial_name=trial['name'],
                 game_pair=game_pair
             )
         file.close()
