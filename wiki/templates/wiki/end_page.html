@@ -118,7 +118,7 @@
                         <th> Имя</th>
                         <th> Результат</th>
                     </tr>
-                    {% for item in friends_leaderboard %}
+                    {% for item in results_table.private_table %}
                     <tr>
                         <td> {{ item.place }}</td>
                         <td> {{ item.name }}</td>
@@ -134,7 +134,7 @@
                         <th> Имя</th>
                         <th> Результат</th>
                     </tr>
-                    {% for item in global_leaderboard %}
+                    {% for item in results_table.global_table %}
                     <tr>
                         <td> {{ item.place }}</td>
                         <td> {{ item.name }}</td>

@@ -28,9 +28,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="card visible" id="card-leaderboard">
-    <div class="close-button invisible" id="close-leaderboard">
-        <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
+<div class="card visible card-opened" id="card-leaderboard">
+    <div class="close-button" id="close-leaderboard" style="display: block">
     </div>
     <div class="card-image-box card-image-box-leaderboard">
         <img src="{% static 'wiki/icons/award.svg' %}" alt="Кубок">
@@ -42,21 +41,21 @@
         <div class="card-content-box card-content-box-text block-leaderboard visible">
             Результаты других игроков
         </div>
-        <div class="card-content-box card-content-box-text block-leaderboard invisible table-content">
-            <div class="switch card-content-box-text block-leaderboard invisible switch-checked" id="friends-button">
+        <div class="card-content-box card-content-box-text block-leaderboard table-content">
+            <div class="switch card-content-box-text block-leaderboard switch-checked" id="friends-button">
                 Друзья
             </div>
-            <div class="switch card-content-box-text block-leaderboard invisible" id="global-button">
+            <div class="switch card-content-box-text block-leaderboard" id="global-button">
                 Общий рейтинг
             </div>
-            <div class="table block-leaderboard invisible" id="friends-table">
+            <div class="table block-leaderboard" id="friends-table">
                 <table>
                     <tr>
                         <th> Место</th>
                         <th> Имя</th>
                         <th> Результат</th>
                     </tr>
-                    {% for item in private_table %}
+                    {% for item in results_table.private_table %}
                     <tr>
                         <td> {{ item.place }}</td>
                         <td> {{ item.name }}</td>
@@ -65,14 +64,14 @@
                     {% endfor %}
                 </table>
             </div>
-            <div class="table block-leaderboard invisible closed" id="global-table">
+            <div class="table block-leaderboard closed" id="global-table">
                 <table>
                     <tr>
                         <th> Место</th>
                         <th> Имя</th>
                         <th> Результат</th>
                     </tr>
-                    {% for item in global_table %}
+                    {% for item in results_table.global_table %}
                     <tr>
                         <td> {{ item.place }}</td>
                         <td> {{ item.name }}</td>

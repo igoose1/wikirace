@@ -232,9 +232,11 @@ def get_end_page(prevars):
         'name': prevars.settings.name,
         'game_id': prevars.game_operator.game_id,
         'link': 'wikirace.p.lksh.ru/join_game/' + prevars.game_operator.game.multiplayer.multiplayer_key,
-        'friends_leaderboard': [{'place': 1, 'name': 'a', 'steps': 3}],
-        'global_leaderboard': [{'place': 1, 'name': 'a', 'steps': 2}],
-        'title_text': 'Победа' if not surrendered else 'Игра окончена'
+        'title_text': 'Победа' if not surrendered else 'Игра окончена',
+        'results_table': get_results(
+            prevars.game_operator.game.multiplayer,
+            prevars.settings.user_id
+        )
     }
     template = loader.get_template('wiki/end_page.html')
     return HttpResponse(template.render(context, prevars.request))
@@ -321,27 +323,37 @@ def join_game_by_key(prevars, multiplayer_key):
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
 
-@requires_game
+@load_prevars
 def show_results_table(prevars, multiplayer_key):
     multiplayer = get_object_or_404(
         MultiplayerPair, multiplayer_key=multiplayer_key)
-    private_table = results_table(
-        multiplayer,
-        prevars.game_operator.game.user_settings.user_id
-    )
-    global_table = results_table(
-        multiplayer.game_pair,
-        prevars.game_operator.game.user_settings.user_id
-    )
+
     template = loader.get_template('wiki/leaderboard_page.html')
     context = {
-        'private_table': private_table,
-        'global_table': global_table,
+        'results_table': get_results(
+            multiplayer,
+            prevars.settings.user_id
+        )
     }
     return HttpResponse(
         template.render(context, prevars.request),
         content_type='text/html'
     )
+
+
+def get_results(multiplayer, user_id):
+    private_table = results_table(
+        multiplayer,
+        user_id
+    )
+    global_table = results_table(
+        multiplayer.game_pair,
+        user_id
+    )
+    return {
+        'private_table': private_table,
+        'global_table': global_table,
+    }
 
 
 def results_table(game_holder, user_id, top_n=-1):
