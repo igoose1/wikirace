@@ -71,7 +71,7 @@ def requires_game(func):
 
 
 def get_settings(settings_user):
-    default = {'difficulty': GameTypes.random.value, 'name': 'no name'}
+    default = {'difficulty': GameTypes.easy.value, 'name': 'no name'}
     for key in default.keys():
         settings_user[key] = settings_user.get(key, default[key])
     return settings_user
@@ -97,14 +97,14 @@ def change_settings(prevars):
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
-
-    if difficulty not in [el.value for el in GameTypes] or (isinstance(name, str) and len(name) > NAME_LEN):
+    if isinstance(name, str) and len(name) > NAME_LEN:
         return HttpResponseBadRequest()
 
-    prevars.request.session['settings'] = {
-        'difficulty': GameTypes(difficulty).value,
-        'name': name
-    }
+    settings = prevars.request.session.get('settings', dict())
+    settings['name'] = name
+    if difficulty in [el.value for el in GameTypes]:
+        settings['difficulty'] = GameTypes(difficulty).value
+    prevars.request.session['settings'] = settings
     return HttpResponse('Ok')
 
 
@@ -123,12 +123,10 @@ def get_start(prevars):
         prevars.request.session.get('settings', dict())
     )
 
-    if settings.get('difficulty', None) is None:
-        return HttpResponseRedirect('/')
-
     if isinstance(settings['difficulty'], int):
-        prevars.request.session['settings'] = get_settings(dict())
-        return HttpResponseBadRequest()
+        settings = get_settings(dict())
+
+    prevars.request.session['settings'] = settings
 
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
@@ -264,7 +262,7 @@ def get(prevars, title_name):
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
         'wiki_content': article.content.decode(),
-        'history_empty': prevars.game_operator.is_history_empty
+        'history_empty': prevars.game_operator.is_history_empty,
     }
     return HttpResponse(
         template.render(context, prevars.request),

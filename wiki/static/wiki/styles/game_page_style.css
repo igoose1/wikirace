@@ -439,6 +439,10 @@
     margin-left: 14px;
   }
 
+  .logo-wikirace {
+    display: none;
+  }
+
   .navbox, table, .infobox, div.tright, div.floatright, table.floatright, div.tleft, div.floatleft, table.floatleft {
     float: none !important;
   }
