@@ -19,7 +19,9 @@ class Command(BaseCommand):
         ) as zim, open(options['path_to_file'], 'r') as file:
             trials = json.loads(file.read())
             for trial in trials:
-                game_pair = GamePair.get_or_create(zim[trial['start']].index, zim[trial['end']].index)
+                start = zim[trial['start']].follow_redirect()
+                end = zim[trial['end']].follow_redirect()
+                game_pair = GamePair.get_or_create(start.index, end.index)
                 Trial.objects.get_or_create(
                     trial_name=trial['name'],
                     game_pair=game_pair
