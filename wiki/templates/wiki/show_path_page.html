@@ -8,6 +8,11 @@
 <body class='body'>
 <div class='our_path'>
     <div class='head'>
+        <a href="endpage">
+            <div class="back_button">
+                <img src="{% static 'wiki/icons/baseline-arrow_back_ios-24px.svg' %}">
+            </div>
+        </a>
         <span>Возможный путь</span>
     </div>
     <div class='path'>
@@ -17,7 +22,7 @@
             </div>
         </div>
         {% for article in our_path %}
-            <div class="dots">
+            <div class="down_arrow">
                 <img src="{% static 'wiki/icons/down-arrow.png' %}" alt="down_arrow">
             </div>
             <div class="outline">

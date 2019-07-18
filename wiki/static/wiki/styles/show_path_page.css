@@ -7,7 +7,7 @@
 
 @media (min-device-width: 900px) {
 
-    img {
+    .down_arrow img {
         width: 15px;
         height: 15px;
     }
@@ -44,25 +44,9 @@
     }
 
     .user_path .path {
-        direction: ltr;
+        box-shadow: -10px 0 0 0 #282247;
     }
 
-    body::-webkit-scrollbar {
-        direction: ltr;
-    }
-
-    /*.body .our_path .head {*/
-    /*    background-color: blue;*/
-    /*}*/
-    /*.body .our_path .path {*/
-    /*    background-color: green;*/
-    /*}*/
-    /*.body .user_path .head {*/
-    /*    background-color: red;*/
-    /*}*/
-    /*.body .user_path .path {*/
-    /*    background-color: yellow;*/
-    /*}*/
     .outline {
         width: fit-content;
         max-width: 80%;
@@ -80,7 +64,7 @@
     }
 
     .path .outline, .path .dots {
-        margin-top: 10px;
+        margin: 10px auto;
     }
 
     .outline div {
@@ -90,68 +74,108 @@
     .path .outline:nth-child(1) {
         margin-top: 30px;
     }
+
+    .back_button {
+        width: 60px;
+        position: absolute;
+        display: flex;
+        height: inherit;
+        vertical-align: center;
+        align-items: center;
+        padding-left: 10px;
+    }
+
+    .back_button img {
+        margin: 0 auto;
+    }
+
+    .head a {
+        height: inherit;
+        width: 150px;
+    }
 }
 
 
 @media (max-device-width: 900px) {
-    img {
-        width: 30px;
-        height: 30px;
+    .down_arrow img {
+        width: 35px;
+        height: 35px;
     }
 
     .body {
-        height: 100%;
         width: 100%;
     }
 
     .body .our_path {
-        height: 50%;
         width: 100%;
-        float: top;
     }
 
     .body .user_path {
-        height: 50%;
         width: 100%;
-        float: bottom;
     }
 
-    .body .our_path .head {
-        height: 10%;
-        width: 100%;
-        background-color: blue;
+    .head {
+        height: 170px;
+        font-size: 75px;
+        background-color: #282247;
+        color: white;
+        line-height: 170px;
     }
 
-    .body .our_path .path {
-        height: 90%;
-        width: 100%;
-        background-color: green;
+    .path {
         overflow-y: auto;
+        background-color: #d2ceff;
     }
 
-    .body .user_path .head {
-        height: 10%;
-        width: 100%;
-        background-color: red;
+    .user_path .path {
+        box-shadow: -10px 0 0 0 #282247;
     }
 
-    .body .user_path .path {
-        height: 90%;
-        width: 100%;
-        background-color: yellow;
-        overflow-y: auto;
+    .outline {
+        width: fit-content;
+        max-width: 80%;
+        margin: auto;
     }
 
-    .div {
-        height: auto;
+    .start_page, .article {
+        padding: 20px;
+        font-size: 30px;
     }
 
-    .div span {
-        font-size: 50px;
+    .outline {
+        padding: 10px;
+        background: linear-gradient(45deg, #00bcdd 0%, #ff00ff 120%);
     }
 
-    b {
-        font-size: 60px;
+    .path .outline, .path .dots {
+        margin: 20px auto;
+    }
+
+    .outline div {
+        background-color: #ffffff;
+    }
+
+    .path .outline:nth-child(1) {
+        margin-top: 30px;
+    }
+
+    .back_button {
+        width: 150px;
+        position: absolute;
+        display: flex;
+        height: inherit;
+        vertical-align: center;
+        align-items: center;
+    }
+
+    .back_button img {
+        height: 60px;
+        margin: 0 auto;
+    }
+
+    .head a {
+        height: 170px;
+        width: 120px;
     }
 }
 
