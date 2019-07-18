@@ -244,7 +244,7 @@ def get_end_page(prevars):
             prevars.game_operator.game.steps
         ),
         'name': settings_user['name'],
-        'game_id': prevars.game_operator.game_id
+        'game_id': prevars.game_operator.game_id,
         'game_id': prevars.game_operator.game.game_id,
         'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
