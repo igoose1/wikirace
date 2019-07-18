@@ -234,7 +234,7 @@ def get_end_page(prevars):
         ),
         'name': prevars.settings.name,
         'game_id': prevars.game_operator.game_id,
-        'host': prevars.request.META['HTTP_HOST'],
+        'host': prevars.request.META.get('HTTP_HOST', 'localhost'),
         'key': prevars.game_operator.game.multiplayer.multiplayer_key,
         'title_text': 'Победа' if not surrendered else 'Игра окончена',
         'results_table': get_results(
