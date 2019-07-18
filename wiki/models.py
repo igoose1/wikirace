@@ -102,7 +102,7 @@ class Game(models.Model):
 
     @property
     def possible_path(self):
-        return self.game_pair.possible_path
+        return self.multiplayer.game_pair.possible_path
 
     @property
     def finished(self):
