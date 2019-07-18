@@ -6,23 +6,15 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseServerError, Http404
 from struct import unpack
-from enum import Enum
 from .models import Game, Turn, GamePair, MultiplayerPair, TurnType
 from wiki.GraphReader import *
-
-
-class GameTypes(Enum):
-    random = "random"
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
-    trial = "trial"
 
 
 class GameTaskGenerator(object):
 
     def choose_game_pair(self) -> GamePair:
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        raise NotImplementedError(
+            "This is super class, implement this field in child class.")
 
     def choose_multiplayer(self):
         return MultiplayerPair.objects.create(game_pair=self.choose_game_pair())
@@ -208,13 +200,15 @@ class GameOperator:
         self._history.append(article.index)
 
     @classmethod
-    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
+    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile,
+                    graph_reader: GraphReader, user_settings):
         multiplayer = game_task_generator.choose_multiplayer()
         game = Game.objects.create(
             current_page_id=multiplayer.game_pair.start_page_id,
             start_time=timezone.now(),
             last_action_time=timezone.now(),
             multiplayer=multiplayer,
+            user_settings=user_settings,
         )
         return GameOperator(game, [multiplayer.game_pair.start_page_id], graph_reader, zim_file)
 
@@ -226,7 +220,7 @@ class GameOperator:
         }
 
     @staticmethod
-    def deserialize_game_operator(data=None, zim_file=None, graph_reader=None, load_testing=False):
+    def deserialize_game_operator(data=None, zim_file=None, graph_reader=None, user_settings=None, load_testing=False):
         if not data:
             return None
         # this ugly if for backward compatibility
@@ -245,13 +239,15 @@ class GameOperator:
                     start_page_id=start_page_id,
                     end_page_id=end_page_id,
                 )
-                multiplayer = MultiplayerPair.objects.create(game_pair=game_pair)
+                multiplayer = MultiplayerPair.objects.create(
+                    game_pair=game_pair)
                 game = Game.objects.create(
                     multiplayer=multiplayer,
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
-                    last_action_time=timezone.now()
+                    last_action_time=timezone.now(),
+                    user_settings=user_settings,
                 )
             else:
                 game = Game.objects.get(game_id=data[6])

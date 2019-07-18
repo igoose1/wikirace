@@ -5,6 +5,38 @@ import hashlib
 from enum import Enum
 
 
+class GameTypes(Enum):
+    random = "random"
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
+    trial = "trial"
+    by_id = "by_id"
+
+
+class UserSettings(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    difficulty = models.CharField(
+        max_length=10,
+        choices=[(tag, tag.value) for tag in GameTypes],
+        default=GameTypes.easy.value,
+    )
+    name = models.CharField(max_length=16, default='no name')
+
+    def dict(self):
+        return {
+            'difficulty': self.difficulty,
+            'name': self.name
+        }
+
+    def __str__(self):
+        return 'id:{id}; name:{name}; diff:{diff};'.format(
+            id=self.user_id,
+            diff=self.difficulty,
+            name=self.name,
+        )
+
+
 class GamePair(models.Model):
     """
     Ids of all pairs. Uniquely representable structure of game.
@@ -80,6 +112,8 @@ class MultiplayerPair(models.Model):
 
 
 class Game(models.Model):
+    user_settings = models.ForeignKey(UserSettings, null=True,
+                                      on_delete=models.SET_NULL)
     multiplayer = models.ForeignKey(MultiplayerPair, null=False,
                                     on_delete=models.CASCADE)
     game_id = models.AutoField(primary_key=True)
@@ -91,6 +125,10 @@ class Game(models.Model):
     @property
     def steps(self):
         return Turn.objects.filter(game_id=self.game_id).count()
+
+    @property
+    def game_pair(self):
+        return self.multiplayer.game_pair
 
     @property
     def start_page_id(self):
