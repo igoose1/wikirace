@@ -1,18 +1,26 @@
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 
 from . import get_wiki_page
 
 
 urlpatterns = [
     path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('feedback', get_wiki_page.get_feedback_page),
+    url('choose_custom_game', get_wiki_page.choose_custom_game),
+    path('custom_game_start/<int:trial_id>', get_wiki_page.custom_game_start),
+    url('game_random_start', get_wiki_page.get_random_start),
     url('game_start', get_wiki_page.get_start),
+    path('start_by_id/<int:pair_id>', get_wiki_page.get_start_by_id),
     url('continue', get_wiki_page.get_continue),
     url('back', get_wiki_page.get_back),
     url('hint_page', get_wiki_page.get_hint_page),
+    url('show_path_page', get_wiki_page.show_path_page),
     url('set_settings', get_wiki_page.change_settings),
+    url('surrender', get_wiki_page.surrender),
+    url('endpage', get_wiki_page.end_page),
     url('(.*)', get_wiki_page.get)
 ]

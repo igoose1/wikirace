@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Paths</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/show_path_page.css' %}">
+</head>
+<body class='body'>
+<div class='our_path'>
+    <div class='head'>
+        <a href="endpage">
+            <div class="back_button">
+                <img src="{% static 'wiki/icons/baseline-arrow_back_ios-24px.svg' %}">
+            </div>
+        </a>
+        <span>Возможный путь</span>
+    </div>
+    <div class='path'>
+        <div class="outline">
+            <div class="start_page">
+                <span>{{ from }}</span>
+            </div>
+        </div>
+        {% for article in our_path %}
+            <div class="down_arrow">
+                <img src="{% static 'wiki/icons/down-arrow.png' %}" alt="down_arrow">
+            </div>
+            <div class="outline">
+                <div class="article">
+                    <span>{{ article }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div class='user_path'>
+    <div class='head'>
+        <span>Ваш путь</span>
+    </div>
+    <div class='path'>
+        <div class="outline">
+            <div class="start_page">
+                <span>{{ from }}</span>
+            </div>
+        </div>
+        {% for article in user_path %}
+            <div class="dots">
+                <img src="{% static 'wiki/icons/down-arrow.png' %}" alt="down_arrow">
+            </div>
+            <div class="outline">
+                <div class="article">
+                    <span>{{ article }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
