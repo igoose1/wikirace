@@ -5,6 +5,7 @@ from new_precalc import GenIteration
 
 VERTICES_COUNT = settings.NUMBER_OF_VERTICES_IN_GRAPH
 MINIMAL_OUTER_LINKS = {'easy': 100, 'medium': 50}
+MAXIMAL_IN_LINKS = {'easy': 100, 'medium': 1500}
 dist_range = {
     'easy': range(2, 3),
     'medium': range(3, 5)
@@ -41,8 +42,14 @@ class GenIterationEasy(GenIteration):
         links_amount = self.reversed_graph.edges_count(index)
         return links_amount >= MINIMAL_OUTER_LINKS[self.difficulty]
 
+    def enough_in_links(self, index):
+        links_amount = self.graph.edges_count(index)
+        return links_amount <= MINIMAL_OUTER_LINKS[self.difficulty]
+
     def is_vertex_good(self, vertex):
         return (self.enough_outer_links(vertex) and
+                self.enough_in_links(vertex) and
+                self.enough_in_links(vertex) and
                 self.title_checker.is_title_ok(vertex) and
                 self.dir_dist[vertex] is not None and
                 self.dir_dist[vertex] <= 5)
