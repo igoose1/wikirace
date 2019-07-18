@@ -36,12 +36,8 @@ html {
   overflow: hidden;
 }
 
-.visible {
-  display: unset;
-}
-
 .invisible {
-  display: none;
+  display: none !important;
 }
 
 @font-face {
@@ -82,12 +78,8 @@ html {
   overflow: hidden;
 }
 
-.visible {
-  display: unset;
-}
-
 .invisible {
-  display: none;
+  display: none !important;
 }
 
 a {
@@ -177,12 +169,8 @@ a {
     overflow: hidden;
   }
 
-  .visible {
-    display: unset;
-  }
-
   .invisible {
-    display: none;
+    display: none !important;
   }
 
   .grad-surface, .button-bar .button, .title span {
@@ -324,12 +312,8 @@ a {
     overflow: hidden;
   }
 
-  .visible {
-    display: unset;
-  }
-
   .invisible {
-    display: none;
+    display: none !important;
   }
 
   .grad-surface-mobile, .button-bar .button, .title .logo-wikirace {
@@ -572,6 +556,32 @@ a {
   }
 }
 
+.close-button {
+  display: none;
+  width: 100%;
+  height: 30px;
+  cursor: default;
+}
+.close-button img {
+  height: 30px;
+  cursor: pointer;
+}
+.close-button-visible {
+  display: block;
+}
+
+#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
+  cursor: pointer;
+}
+
+.card-opened {
+  min-height: fit-content;
+  cursor: default !important;
+}
+.card-opened img {
+  top: -20px;
+}
+
 .card-image-box-continue {
   background: #00BB55;
 }
@@ -589,6 +599,12 @@ a {
 }
 .card-image-box-trial {
   background: #666611;
+}
+.card-image-box-settings {
+  background: #455a64;
+}
+.card-image-box-name {
+  background: #738ad0;
 }
 
 .tutorial-screen {
@@ -636,20 +652,6 @@ form {
   border: 2px solid #FF0000;
 }
 
-.close-button {
-  display: none;
-  width: 100%;
-  height: 30px;
-  cursor: default;
-}
-.close-button img {
-  height: 30px;
-  cursor: pointer;
-}
-.close-button-visible {
-  display: block;
-}
-
 #close-tutorial {
   background: #DD1111;
 }
@@ -660,6 +662,14 @@ form {
 
 #close-trial {
   background: #666611;
+}
+
+#close-settings {
+  background: #455a64;
+}
+
+#close-name {
+  background: #738ad0;
 }
 
 /* * Delete when need to add drawer
@@ -673,6 +683,7 @@ form {
 }
 
 .trial-play {
+  border-top: 1px #000000;
   padding-left: 40px;
   width: auto;
   height: 50px;
@@ -690,16 +701,18 @@ form {
   min-height: fit-content;
 }
 
-#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
+.submit-button {
+  text-align: center;
+  height: 25px;
+  background: #455a64;
+  margin-top: 20px;
+  padding: 8px;
+  width: fit-content;
   cursor: pointer;
 }
 
-.card-opened {
-  min-height: fit-content;
-  cursor: default !important;
-}
-.card-opened img {
-  top: -20px;
+.force-invisible {
+  display: none !important;
 }
 
 /*# sourceMappingURL=start_page_style.css.map */

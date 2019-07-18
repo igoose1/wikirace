@@ -37,12 +37,8 @@
     overflow: hidden;
   }
 
-  .visible {
-    display: unset;
-  }
-
   .invisible {
-    display: none;
+    display: none !important;
   }
 
   .grad-surface, .button-bar .button, .title span {
@@ -216,12 +212,8 @@
     overflow: hidden;
   }
 
-  .visible {
-    display: unset;
-  }
-
   .invisible {
-    display: none;
+    display: none !important;
   }
 
   .grad-surface-mobile, .button-bar .button, .title .logo-wikirace {

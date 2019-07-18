@@ -1,31 +1,5 @@
 $(document).ready(() => {
 
-    function changeVisible(sel) {
-        sel
-            .toggleClass('visible')
-            .toggleClass('invisible');
-    }
-
-    function toggleGameCard(name) {
-        changeVisible($('.block-' + name));
-        changeVisible($('#close-' + name).toggleClass('close-button-visible'));
-        changeVisible($('#card-' + name).toggleClass('card-opened'));
-        changeVisible($('.card'));
-    }
-
-    let closableCardList = ['tutorial', 'user-game', 'trial'];
-    closableCardList.forEach((value) => {
-        $('#close-' + value).on('click', (event) => {
-            toggleGameCard(value);
-            event.stopPropagation();
-        });
-        let currentCard = $('#card-' + value);
-        currentCard.on('click', () => {
-            if (!currentCard.hasClass('card-opened'))
-                toggleGameCard(value);
-        });
-    });
-
     $('#id-play').on('click', () => {
         let input = $('#game-id');
         if (input.hasClass("wrong-input"))
@@ -47,19 +21,25 @@ $(document).ready(() => {
         })
     });
 
-    function postSettings(difficulty, onSuccess) {
-        let CSRF = $('input[name=csrfmiddlewaretoken]').val();
+    function postData(where, data, onSuccess) {
+        data['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
         $.ajax({
-            url: '/set_settings',
+            url: where,
             type: 'POST',
-            data: {
-                difficulty: difficulty,
-                csrfmiddlewaretoken: CSRF
-            },
+            data: data,
             success: function (msg) {
                 onSuccess()
             },
         });
+    }
+
+    function postSettings(difficulty, onSuccess) {
+        postData('/set_settings',
+            {
+                difficulty: difficulty,
+            },
+            onSuccess
+        );
     }
 
     $('#game-id').on('input', () => {
@@ -71,10 +51,34 @@ $(document).ready(() => {
         }
     });
 
-    $('#card-random').on('click', () => {
-        window.location.href = '/game_random_start';
-    });
     $('#card-continue').on('click', () => {
         window.location.href = '/continue';
+    });
+
+
+    let closableCardList = ['tutorial', 'user-game', 'trial', 'settings'];
+    closableCardList.forEach((value) => {
+        addOnClick(value)
+    });
+
+    $('#name-button').on('click', () => {
+        let name = $("#name").val();
+        postData('/set_name',{name: name}, () => {
+            toggleGameCard('settings');
+            event.stopPropagation();
+        });
+    });
+
+    $('#name-first-button').on('click', () => {
+        let name = $("#name-first").val();
+        postData('/set_name',{name: name}, () => {
+            toggleGameCard('name');
+            event.stopPropagation();
+            $('#card-name').toggleClass('force-invisible')
+        });
+    });
+
+    $("#open-settings").on('click', () => {
+        toggleGameCard('settings');
     });
 });

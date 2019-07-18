@@ -104,17 +104,22 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
-    name_len = 16
 
     difficulty = prevars.request.POST.get('difficulty', None)
-    name = prevars.request.POST.get('name')
-    if not any(t.value == difficulty for t in GameTypes) or (isinstance(name, str) and len(name) > name_len):
+    if not any(t.value == difficulty for t in GameTypes):
         return HttpResponseBadRequest()
 
-    prevars.settings.name = name
-    if difficulty in [el.value for el in GameTypes]:
-        prevars.settings.difficulty = GameTypes(difficulty)
     prevars.settings.save()
+    return HttpResponse('Ok')
+
+
+@load_prevars
+def change_name(prevars):
+    name_len = 16
+    name = prevars.request.POST.get('name')
+    if isinstance(name, str) and len(name) > name_len:
+        return HttpResponseBadRequest()
+    prevars.settings.name = name
     return HttpResponse('Ok')
 
 
@@ -215,6 +220,9 @@ def show_path_page(prevars):
 
 
 def get_end_page(prevars):
+    settings_user = get_settings(
+        prevars.request.session.get('settings', dict())
+    )
     surrendered = prevars.game_operator.surrendered
     context = {
         'from': prevars.game_operator.first_page.title,
@@ -226,6 +234,7 @@ def get_end_page(prevars):
         ),
         'name': prevars.settings.name,
         'game_id': prevars.game_operator.game_id,
+        'link': 'wikirace.p.lksh.ru/join_game/' + prevars.game_operator.game.multiplayer.multiplayer_key,
         'title_text': 'Победа' if not surrendered else 'Игра окончена',
         'results_table': get_results(
             prevars.game_operator.game.multiplayer,
@@ -239,6 +248,15 @@ def get_end_page(prevars):
 @requires_game
 def surrender(prevars):
     prevars.game_operator.surrender()
+    return get_end_page(prevars)
+
+
+@requires_game
+def end_page(prevars):
+    if not prevars.game_operator.finished:
+        return HttpResponseRedirect(
+            prevars.game_operator.current_page.url
+        )
     return get_end_page(prevars)
 
 
@@ -322,7 +340,7 @@ def show_results_table(prevars, multiplayer_key):
     multiplayer = get_object_or_404(
         MultiplayerPair, multiplayer_key=multiplayer_key)
 
-    template = loader.get_template('wiki/game_results_page.html')
+    template = loader.get_template('wiki/leaderboard_page.html')
     context = {
         'results_table': get_results(
             multiplayer,

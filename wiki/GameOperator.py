@@ -243,7 +243,6 @@ class GameOperator:
                     game_pair=game_pair)
                 game = Game.objects.create(
                     multiplayer=multiplayer,
-                    steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
                     last_action_time=timezone.now(),
