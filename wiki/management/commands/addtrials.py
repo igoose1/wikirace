@@ -16,7 +16,7 @@ class Command(BaseCommand):
         with closing(wiki.ZIMFile.ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH)
-        ) as zim, open(options['path_to_file'], 'r') as file:
+        ) as zim, open(options['path_to_file'], 'r', encoding='utf-8') as file:
             trials = json.loads(file.read())
             for trial in trials:
                 start = zim[trial['start']].follow_redirect()
