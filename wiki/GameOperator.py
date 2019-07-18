@@ -228,7 +228,6 @@ class GameOperator:
             current_page_id=multiplayer.game_pair.start_page_id,
             start_time=timezone.now(),
             last_action_time=timezone.now(),
-            game_pair=multiplayer.game_pair,
             multiplayer=multiplayer,
         )
         return GameOperator(game, [multiplayer.game_pair.start_page_id], graph_reader, zim_file)
@@ -263,7 +262,6 @@ class GameOperator:
                 multiplayer = MultiplayerPair.objects.create(game_pair=game_pair)
                 game = Game.objects.create(
                     multiplayer=multiplayer,
-                    game_pair=game_pair,
                     steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,

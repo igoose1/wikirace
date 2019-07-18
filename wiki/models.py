@@ -81,9 +81,8 @@ def create_multiplayer_key(sender, instance, created, **kwargs):
 
 
 class Game(models.Model):
-    multiplayer = models.ForeignKey(MultiplayerPair, null=True,
-                                    on_delete=models.SET_NULL)
-    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    multiplayer = models.ForeignKey(MultiplayerPair, null=False,
+                                    on_delete=models.CASCADE)
     game_id = models.AutoField(primary_key=True)
     current_page_id = models.IntegerField(null=True, default=None)
     steps = models.IntegerField(default=0)

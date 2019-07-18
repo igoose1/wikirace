@@ -283,7 +283,7 @@ def get(prevars, title_name):
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
         'counter': prevars.game_operator.game.steps,
-        'pair_id': prevars.game_operator.game.game_pair.pair_id,
+        'pair_id': prevars.game_operator.game_pair.pair_id,
         'wiki_content': article.content.decode(),
         'history_empty': prevars.game_operator.is_history_empty,
     }
