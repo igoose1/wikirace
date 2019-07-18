@@ -225,6 +225,7 @@ def get_end_page(prevars):
         prevars.request.session.get('settings', dict())
     )
     surrendered = prevars.game_operator.surrendered
+    prevars.game_operator.game.save()
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
