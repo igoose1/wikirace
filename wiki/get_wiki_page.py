@@ -41,7 +41,6 @@ class PreVariables:
             self.graph,
             'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
         )
-        self.session_operator = None
         self.request = request
 
 
@@ -49,7 +48,6 @@ def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
         try:
-            prevars.session_operator = prevars.request.session.get('operator', None)
             res = func(prevars, *args, **kwargs)
             if prevars.game_operator is not None:
                 prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
@@ -64,7 +62,7 @@ def load_prevars(func):
 
 def requires_game(func):
     def wrapper(prevars, *args, **kwargs):
-        if prevars.session_operator is None:
+        if prevars.game_operator is None:
             return HttpResponseRedirect('/')
         return func(prevars, *args, **kwargs)
 
@@ -83,7 +81,7 @@ def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
     trial_list = Trial.objects.all()
     context = {
-        'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
+        'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
         'settings': get_settings(
             prevars.request.session.get('settings', dict())
         ),
