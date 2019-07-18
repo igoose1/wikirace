@@ -246,7 +246,6 @@ def get_end_page(prevars):
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game_id,
-        'game_id': prevars.game_operator.game.game_id,
         'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
     template = loader.get_template('wiki/end_page.html')
@@ -322,8 +321,7 @@ def get_feedback_page(prevars):
 
 
 @load_prevars
-def join_game_by_key(prevars):
-    multiplayer_key = prevars.request.GET.get('key', None)
+def join_game_by_key(prevars, multiplayer_key):
     multiplayer = get_object_or_404(MultiplayerPair, multiplayer_key=multiplayer_key)
     prevars.game_operator = GameOperator.create_game(
         MultipayerGameTaskGenerator(multiplayer),
