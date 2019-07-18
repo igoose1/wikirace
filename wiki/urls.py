@@ -21,5 +21,6 @@ urlpatterns = [
     url('show_path_page', get_wiki_page.show_path_page),
     url('set_settings', get_wiki_page.change_settings),
     url('surrender', get_wiki_page.surrender),
+    url('endpage', get_wiki_page.end_page),
     url('(.*)', get_wiki_page.get)
 ]
