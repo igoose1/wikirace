@@ -42,7 +42,7 @@ class GamePair(models.Model):
 class MultiplayerPair(models.Model):
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     game_id = models.AutoField(primary_key=True)
-    game_key = models.CharField(default='', max_length=64)
+    game_key = models.CharField(default='', max_length=64, blank=True)
 
     @property
     def from_page_id(self):
