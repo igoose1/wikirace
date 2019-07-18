@@ -218,12 +218,13 @@ def get_end_page(prevars):
         prevars.request.session.get('settings', dict())
     )
     surrendered = prevars.game_operator.surrendered
+    game_steps = prevars.game_operator.game.steps
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
-        'counter': prevars.game_operator.game.steps,
+        'counter': game_steps,
         'move_end': inflection.mupltiple_suffix(
-            prevars.game_operator.game.steps
+            game_steps
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game.game_id,
