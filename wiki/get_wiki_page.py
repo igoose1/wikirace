@@ -13,7 +13,6 @@ from .GameOperator import GameOperator,\
     RandomGameTaskGenerator,\
     TrialGameTaskGenerator,\
     MultipayerGameTaskGenerator,\
-    ByIdGameTaskGenerator,\
     GameTypes
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
@@ -115,10 +114,6 @@ def get_game_task_generator(difficulty, prevars, trial=None, pair_id=None):
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == GameTypes.trial:
         return TrialGameTaskGenerator(trial)
-    elif difficulty == GameTypes.by_id:
-        if not pair_id:
-            raise Http404()
-        return ByIdGameTaskGenerator(pair_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 

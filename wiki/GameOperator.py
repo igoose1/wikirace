@@ -17,7 +17,6 @@ class GameTypes(Enum):
     medium = "medium"
     hard = "hard"
     trial = "trial"
-    by_id = "by_id"
 
 
 class GameTaskGenerator(object):
