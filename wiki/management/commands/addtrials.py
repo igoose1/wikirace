@@ -24,4 +24,5 @@ class Command(BaseCommand):
                 trial_name=trial['name'],
                 game_pair=game_pair
             )
+        zim.close()
         file.close()
