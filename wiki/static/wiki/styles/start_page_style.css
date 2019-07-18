@@ -603,6 +603,9 @@ a {
 .card-image-box-settings {
   background: #455a64;
 }
+.card-image-box-name {
+  background: #738ad0;
+}
 
 .tutorial-screen {
   transition: height 0.2s;
@@ -665,6 +668,10 @@ form {
   background: #455a64;
 }
 
+#close-name {
+  background: #738ad0;
+}
+
 /* * Delete when need to add drawer
  * */
 .menu-container {
@@ -702,6 +709,10 @@ form {
   padding: 8px;
   width: fit-content;
   cursor: pointer;
+}
+
+.force-invisible {
+  display: none !important;
 }
 
 /*# sourceMappingURL=start_page_style.css.map */

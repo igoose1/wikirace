@@ -61,11 +61,20 @@ $(document).ready(() => {
         addOnClick(value)
     });
 
-    $('.submit-button').on('click', () => {
+    $('#name-button').on('click', () => {
         let name = $("#name").val();
         postData('/set_name',{name: name}, () => {
             toggleGameCard('settings');
             event.stopPropagation();
+        });
+    });
+
+    $('#name-first-button').on('click', () => {
+        let name = $("#name-first").val();
+        postData('/set_name',{name: name}, () => {
+            toggleGameCard('name');
+            event.stopPropagation();
+            $('#card-name').toggleClass('force-invisible')
         });
     });
 
