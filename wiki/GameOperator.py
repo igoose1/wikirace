@@ -146,7 +146,7 @@ class GameOperator:
     @property
     def is_history_empty(self) -> bool:
         return len(self._history) <= 1
-    
+
     def update_history(self, article_id: Article):
         history_index = self._history[::-1].index(article_id)
         self.game.steps += max(0, history_index - 1)
