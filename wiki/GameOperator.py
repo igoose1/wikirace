@@ -249,7 +249,6 @@ class GameOperator:
                 )
                 game = Game.objects.create(
                     game_pair=game_pair,
-                    steps=steps,
                     start_time=None,
                     current_page_id=current_page_id,
                     last_action_time=timezone.now()
