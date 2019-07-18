@@ -119,7 +119,7 @@ def change_name(prevars):
     name = prevars.request.POST.get('name')
     if isinstance(name, str) and len(name) > name_len:
         return HttpResponseBadRequest()
-    prevars.request.session['settings']['name'] = name
+    prevars.settings.name = name
     return HttpResponse('Ok')
 
 
@@ -333,7 +333,7 @@ def show_results_table(prevars, multiplayer_key):
         multiplayer.game_pair,
         prevars.game_operator.game.user_settings.user_id
     )
-    template = loader.get_template('wiki/game_results_page.html')
+    template = loader.get_template('wiki/leaderboard_page.html')
     context = {
         'private_table': private_table,
         'global_table': global_table,
@@ -346,7 +346,7 @@ def show_results_table(prevars, multiplayer_key):
 
 def results_table(game_holder, user_id, top_n=-1):
     if isinstance(game_holder, MultiplayerPair):
-        games = list(Game.objects.filter(muliplayer_id=game_holder.multiplayer_id,
+        games = list(Game.objects.filter(multiplayer_id=game_holder.multiplayer_id,
                                          current_page_id=game_holder.game_pair.end_page_id).all())
     else:
         games = list(Game.objects.filter(multiplayer__game_pair_id=game_holder.pair_id,
