@@ -203,7 +203,7 @@ def show_path_page(prevars):
         prevars.zim_file[idx].title for idx in prevars.game_operator.path
     ]
     if len(our_path) == 0:
-        our_path = [start]
+        our_path = ['Мы не хотим лишать вас удовольствия искать путь самостоятельно']
     user_path = [start]
 
     game_id = prevars.game_operator.game_id
@@ -211,7 +211,8 @@ def show_path_page(prevars):
 
     user_path += [prevars.zim_file[turn.to_page_id].title for turn in turns]
     context = {
-        'from': our_path[0],
+        'our_from': our_path[0],
+        'user_from': user_path[0],
         'our_path': our_path[1:],
         'user_path': user_path[1:],
     }
