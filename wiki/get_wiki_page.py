@@ -321,7 +321,7 @@ def join_game_by_key(prevars, multiplayer_key):
 def show_results_table(prevars, multiplayer_key):
     multiplayer = get_object_or_404(
         MultiplayerPair, multiplayer_key=multiplayer_key)
-    
+
     template = loader.get_template('wiki/game_results_page.html')
     context = {
         'results_table': get_results(
@@ -345,9 +345,10 @@ def get_results(multiplayer, user_id):
         user_id
     )
     return {
-            'private_table': private_table,
-            'global_table': global_table,
+        'private_table': private_table,
+        'global_table': global_table,
     }
+
 
 def results_table(game_holder, user_id, top_n=-1):
     if isinstance(game_holder, MultiplayerPair):
