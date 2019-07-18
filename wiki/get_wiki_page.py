@@ -113,7 +113,7 @@ def change_settings(prevars):
 
     prevars.settings.name = name
     if difficulty in [el.value for el in GameTypes]:
-        prevars.settings._difficulty = difficulty
+        prevars.settings.difficulty = GameTypes(difficulty)
     prevars.settings.save()
     return HttpResponse('Ok')
 

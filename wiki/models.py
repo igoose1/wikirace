@@ -20,11 +20,23 @@ class UserSettings(models.Model):
         max_length=10,
         default=GameTypes.easy.value,
     )
-    name = models.CharField(max_length=16, default='no name', null=True)
+    _name = models.CharField(max_length=16, null=True)
+
+    @property
+    def name(self):
+        return self._name if self._name else 'Player #{id}'.format(id=self.user_id)
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def difficulty(self):
         return GameTypes(self._difficulty)
+
+    @difficulty.setter
+    def difficulty(self, value):
+        self._difficulty = value.value
 
     def dict(self):
         return {
