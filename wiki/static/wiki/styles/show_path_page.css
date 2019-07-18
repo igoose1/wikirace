@@ -5,6 +5,10 @@
     font-family: "Gilroy", sans-serif;
 }
 
+html {
+    background-color: #d2ceff;
+}
+
 @media (min-device-width: 900px) {
 
     .down_arrow img {
