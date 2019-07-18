@@ -3,7 +3,41 @@ from django.conf import settings
 from random import randrange
 import hashlib
 from enum import Enum
-import datetime
+
+
+class GameTypes(Enum):
+    random = "random"
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
+    trial = "trial"
+    by_id = "by_id"
+
+
+class UserSettings(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    _difficulty = models.CharField(
+        max_length=10,
+        default=GameTypes.easy.value,
+    )
+    name = models.CharField(max_length=16, default='no name', null=True)
+
+    @property
+    def difficulty(self):
+        return GameTypes(self._difficulty)
+
+    def dict(self):
+        return {
+            'difficulty': self.difficulty,
+            'name': self.name
+        }
+
+    def __str__(self):
+        return 'id:{id}; name:{name}; diff:{diff};'.format(
+            id=self.user_id,
+            diff=self.difficulty,
+            name=self.name,
+        )
 
 
 class GamePair(models.Model):
@@ -81,6 +115,8 @@ class MultiplayerPair(models.Model):
 
 
 class Game(models.Model):
+    user_settings = models.ForeignKey(UserSettings, null=True,
+                                      on_delete=models.SET_NULL)
     multiplayer = models.ForeignKey(MultiplayerPair, null=False,
                                     on_delete=models.CASCADE)
     game_id = models.AutoField(primary_key=True)
@@ -94,6 +130,10 @@ class Game(models.Model):
         return Turn.objects.filter(game_id=self.game_id).count()
 
     @property
+    def game_pair(self):
+        return self.multiplayer.game_pair
+
+    @property
     def start_page_id(self):
         return self.game_pair.start_page_id
 
@@ -103,7 +143,7 @@ class Game(models.Model):
 
     @property
     def possible_path(self):
-        return self.game_pair.possible_path
+        return self.multiplayer.game_pair.possible_path
 
     @property
     def finished(self):

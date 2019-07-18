@@ -13,21 +13,22 @@ from .GameOperator import GameOperator,\
     RandomGameTaskGenerator,\
     TrialGameTaskGenerator,\
     MultipayerGameTaskGenerator,\
-    ByIdGameTaskGenerator,\
-    GameTypes
+    ByIdGameTaskGenerator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
 from .form import FeedbackForm
 from .PathReader import get_path
 from .models import Turn, \
-    Trial
+    Trial, \
+    GameTypes
 from wiki.file_holder import file_holder
-from .models import Trial, MultiplayerPair
+from .models import Trial, MultiplayerPair, UserSettings, Game
 
 
 @file_holder
 class PreVariables:
     def __init__(self, request):
+        self.settings = get_settings(request.session)
         self.zim_file = self._add_file(ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
@@ -40,7 +41,9 @@ class PreVariables:
             request.session.get('operator', None),
             self.zim_file,
             self.graph,
-            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith('127.0.0.1')
+            self.settings,
+            'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith(
+                '127.0.0.1'),
         )
         self.session_operator = None
         self.request = request
@@ -50,10 +53,13 @@ def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
         try:
-            prevars.session_operator = prevars.request.session.get('operator', None)
+            prevars.session_operator = prevars.request.session.get(
+                'operator', None)
             res = func(prevars, *args, **kwargs)
+            prevars.settings.save()
             if prevars.game_operator is not None:
-                prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator()
+                prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator(
+                )
             else:
                 prevars.request.session['operator'] = None
         finally:
@@ -72,11 +78,16 @@ def requires_game(func):
     return load_prevars(wrapper)
 
 
-def get_settings(settings_user):
-    default = {'difficulty': GameTypes.easy.value, 'name': 'no name'}
-    for key in default.keys():
-        settings_user[key] = settings_user.get(key, default[key])
-    return settings_user
+def get_settings(session):
+    user_id = session.get('user_id', None)
+    if UserSettings.objects.filter(user_id=user_id).count() == 0:
+        user_settings = UserSettings.objects.create()
+        user_id = user_settings.user_id
+        session['user_id'] = user_id
+
+    user_settings = UserSettings.objects.get(user_id=user_id)
+
+    return user_settings
 
 
 @load_prevars
@@ -85,9 +96,7 @@ def get_main_page(prevars):
     trial_list = Trial.objects.all()
     context = {
         'is_playing': prevars.session_operator is not None and not prevars.game_operator.finished,
-        'settings': get_settings(
-            prevars.request.session.get('settings', dict())
-        ),
+        'settings': prevars.settings.dict(),
         'trial_list': trial_list,
     }
     return HttpResponse(template.render(context, prevars.request))
@@ -99,14 +108,13 @@ def change_settings(prevars):
 
     difficulty = prevars.request.POST.get('difficulty', None)
     name = prevars.request.POST.get('name')
-    if isinstance(name, str) and len(name) > name_len:
+    if not any(t.value == difficulty for t in GameTypes) or (isinstance(name, str) and len(name) > name_len):
         return HttpResponseBadRequest()
 
-    settings = prevars.request.session.get('settings', dict())
-    settings['name'] = name
+    prevars.settings.name = name
     if difficulty in [el.value for el in GameTypes]:
-        settings['difficulty'] = GameTypes(difficulty).value
-    prevars.request.session['settings'] = settings
+        prevars.settings._difficulty = difficulty
+    prevars.settings.save()
     return HttpResponse('Ok')
 
 
@@ -115,34 +123,20 @@ def get_game_task_generator(difficulty, prevars, trial=None, pair_id=None):
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == GameTypes.trial:
         return TrialGameTaskGenerator(trial)
-    elif difficulty == GameTypes.by_id:
-        if not pair_id:
-            raise Http404()
-        return ByIdGameTaskGenerator(pair_id)
     else:
         return DifficultGameTaskGenerator(difficulty)
 
 
 @load_prevars
 def get_start(prevars):
-    settings = get_settings(
-        prevars.request.session.get('settings', dict())
-    )
-
-    if isinstance(settings['difficulty'], int):
-        settings = get_settings(dict())
-
-    prevars.request.session['settings'] = settings
-
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
-            GameTypes(
-                settings['difficulty']
-            ),
+            prevars.settings.difficulty,
             prevars,
         ),
         prevars.zim_file,
         prevars.graph,
+        prevars.settings,
     )
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
@@ -157,7 +151,8 @@ def custom_game_start(prevars, trial_id):
             trial=t,
         ),
         prevars.zim_file,
-        prevars.graph
+        prevars.graph,
+        prevars.settings,
     )
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
 
@@ -167,7 +162,8 @@ def get_random_start(prevars):
     prevars.game_operator = GameOperator.create_game(
         RandomGameTaskGenerator(prevars.zim_file, prevars.graph),
         prevars.zim_file,
-        prevars.graph
+        prevars.graph,
+        prevars.settings,
     )
     return HttpResponseRedirect(prevars.game_operator.current_page.url)
 
@@ -219,9 +215,6 @@ def show_path_page(prevars):
 
 
 def get_end_page(prevars):
-    settings_user = get_settings(
-        prevars.request.session.get('settings', dict())
-    )
     surrendered = prevars.game_operator.surrendered
     context = {
         'from': prevars.game_operator.first_page.title,
@@ -231,7 +224,7 @@ def get_end_page(prevars):
         'move_end': inflection.mupltiple_suffix(
             prevars.game_operator.game.steps
         ),
-        'name': settings_user['name'],
+        'name': prevars.settings.name,
         'game_id': prevars.game_operator.game_id,
         'link': 'wikirace.p.lksh.ru/join_game/' + prevars.game_operator.game.multiplayer.multiplayer_key,
         'friends_leaderboard': [{'place': 1, 'name': 'a', 'steps': 3}],
@@ -312,10 +305,69 @@ def get_feedback_page(prevars):
 
 @load_prevars
 def join_game_by_key(prevars, multiplayer_key):
-    multiplayer = get_object_or_404(MultiplayerPair, multiplayer_key=multiplayer_key)
+    multiplayer = get_object_or_404(
+        MultiplayerPair, multiplayer_key=multiplayer_key)
     prevars.game_operator = GameOperator.create_game(
         MultipayerGameTaskGenerator(multiplayer),
         prevars.zim_file,
         prevars.graph,
+        prevars.settings,
     )
     return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+
+
+@requires_game
+def show_results_table(prevars, multiplayer_key):
+    multiplayer = get_object_or_404(
+        MultiplayerPair, multiplayer_key=multiplayer_key)
+    private_table = results_table(
+        multiplayer,
+        prevars.game_operator.game.user_settings.user_id
+    )
+    global_table = results_table(
+        multiplayer.game_pair,
+        prevars.game_operator.game.user_settings.user_id
+    )
+    template = loader.get_template('wiki/game_results_page.html')
+    context = {
+        'private_table': private_table,
+        'global_table': global_table,
+    }
+    return HttpResponse(
+        template.render(context, prevars.request),
+        content_type='text/html'
+    )
+
+
+def results_table(game_holder, user_id, top_n=-1):
+    if isinstance(game_holder, MultiplayerPair):
+        games = list(Game.objects.filter(muliplayer_id=game_holder.multiplayer_id,
+                                         current_page_id=game_holder.game_pair.end_page_id).all())
+    else:
+        games = list(Game.objects.filter(multiplayer__game_pair_id=game_holder.pair_id,
+                                         current_page_id=game_holder.end_page_id).all())
+
+    games.sort(key=lambda x: x.steps)
+
+    results_table = []
+    used_ids = set()
+    for game in games:
+        if game.user_settings is None:
+            continue
+
+        if len(used_ids) == top_n:
+            break
+
+        curr_game_user_id = game.user_settings.user_id
+        if curr_game_user_id in used_ids:
+            continue
+        used_ids.add(curr_game_user_id)
+
+        name = game.user_settings.name
+
+        results_table.append({
+            'name': name,
+            'steps': game.steps,
+            'is_me': user_id == curr_game_user_id
+        })
+    return results_table
