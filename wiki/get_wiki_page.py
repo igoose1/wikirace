@@ -220,6 +220,9 @@ def show_path_page(prevars):
 
 
 def get_end_page(prevars):
+    settings_user = get_settings(
+        prevars.request.session.get('settings', dict())
+    )
     surrendered = prevars.game_operator.surrendered
     context = {
         'from': prevars.game_operator.first_page.title,
@@ -245,6 +248,15 @@ def get_end_page(prevars):
 @requires_game
 def surrender(prevars):
     prevars.game_operator.surrender()
+    return get_end_page(prevars)
+
+
+@requires_game
+def end_page(prevars):
+    if not prevars.game_operator.finished:
+        return HttpResponseRedirect(
+            prevars.game_operator.current_page.url
+        )
     return get_end_page(prevars)
 
 

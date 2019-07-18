@@ -57,7 +57,7 @@
                     </tr>
                     {% for item in results_table.private_table %}
                     <tr>
-                        <td> {{ item.place }}</td>
+                        <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
                     </tr>
@@ -73,7 +73,7 @@
                     </tr>
                     {% for item in results_table.global_table %}
                     <tr>
-                        <td> {{ item.place }}</td>
+                        <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
                     </tr>
