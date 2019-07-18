@@ -22,7 +22,7 @@ from .models import Turn, \
     Trial, \
     GameTypes
 from wiki.file_holder import file_holder
-from .models import Trial, MultiplayerPair, UserSettings
+from .models import Trial, MultiplayerPair, UserSettings, Game
 
 
 @file_holder
@@ -332,7 +332,7 @@ def show_results_table(prevars, multiplayer_key):
     }
     return HttpResponse(
         template.render(context, prevars.request),
-        content_type=article.mimetype
+        content_type='text/html'
     )
 
 
