@@ -217,7 +217,7 @@ def show_path_page(prevars):
     if len(our_path) == 0:
         our_path = [start]
     user_path = [start]
-    
+
     game_id = prevars.game_operator.game_id
     turns = Turn.objects.filter(game_id=game_id).order_by('step')
 
@@ -236,22 +236,16 @@ def get_end_page(prevars):
         prevars.request.session.get('settings', dict())
     )
     surrendered = prevars.game_operator.surrendered
-    game_steps = prevars.game_operator.game.steps
     context = {
         'from': prevars.game_operator.first_page.title,
         'to': prevars.game_operator.last_page.title,
-<<<<<<< HEAD
-        'counter': game_steps,
-=======
         'counter': prevars.game_operator.game.steps,
         'pair_id': prevars.game_operator.game_pair.pair_id,
->>>>>>> master
         'move_end': inflection.mupltiple_suffix(
-            game_steps
+            prevars.game_operator.game.steps
         ),
         'name': settings_user['name'],
         'game_id': prevars.game_operator.game_id,
-        'game_id': prevars.game_operator.game.game_id,
         'title_text': 'Победа' if not surrendered else 'Игра окончена'
     }
     template = loader.get_template('wiki/end_page.html')

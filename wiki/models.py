@@ -93,8 +93,8 @@ class Feedback(models.Model):
 
 
 class TurnType(Enum):
-    DIR = 'direct'
-    REV = 'reverse'
+    FWD = 'forward'
+    BWD = 'backward'
 
 
 class Turn(models.Model):
@@ -110,7 +110,7 @@ class Turn(models.Model):
     turn_type = models.CharField(
         max_length=16,
         choices=[(tag, tag.value) for tag in TurnType],
-        default=TurnType.DIR
+        default=TurnType.FWD
     )
 
     def __str__(self):
