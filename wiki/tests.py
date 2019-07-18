@@ -69,6 +69,7 @@ class TestZIMFile(TestCase):
         self.assertEqual(article.index, article_id)
         self.assertEqual(article.url, 'favicon.png')
 
+
 class GameOperatorTest(TestCase):
     GAME_ID = 6
 
