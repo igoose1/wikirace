@@ -570,7 +570,7 @@ a {
   display: block;
 }
 
-#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
+#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue, #card-leaderboard, #card-share {
   cursor: pointer;
 }
 
@@ -603,6 +603,18 @@ a {
 
 #close-leaderboard {
   background: #ffff00;
+}
+
+#global-button {
+  border: 2px ridge #111111;
+  box-sizing: border-box;
+  cursor: pointer
+}
+
+#friends-button {
+  border: 2px ridge #111111;
+  box-sizing: border-box;
+  cursor: pointer
 }
 
 #close-share {
