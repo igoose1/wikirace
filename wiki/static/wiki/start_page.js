@@ -61,17 +61,17 @@ $(document).ready(() => {
         addOnClick(value)
     });
 
-    $('#name-button').on('click', () => {
+    $('#name-button').on('click', (event) => {
         let name = $("#name").val();
-        postData('/set_name',{name: name}, (event) => {
+        postData('/set_name',{name: name}, () => {
             toggleGameCard('settings');
             event.stopPropagation();
         });
     });
 
-    $('#name-first-button').on('click', () => {
+    $('#name-first-button').on('click', (event) => {
         let name = $("#name-first").val();
-        postData('/set_name',{name: name}, (event) => {
+        postData('/set_name',{name: name}, () => {
             toggleGameCard('name');
             event.stopPropagation();
             $('#card-name').toggleClass('force-invisible')
