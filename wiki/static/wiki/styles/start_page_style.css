@@ -623,6 +623,7 @@ a {
 
 #card-image-box-diff {
   background: #de1414;
+  cursor: pointer;
 }
 
 form {
