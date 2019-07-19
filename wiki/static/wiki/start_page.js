@@ -15,6 +15,13 @@ $(document).ready(() => {
         })
     });
 
+    $('#card-image-box-diff').on('click', () => {
+        let difficulty = $("#diff-field").val();
+        postSettings(difficulty, () => {
+            window.location.href = '/game_start'
+        })
+    });
+
     $('#card-random').on('click', () => {
         postSettings('random', () => {
             window.location.href = '/game_start'

@@ -594,9 +594,6 @@ a {
 .card-image-box-user {
   background: #001199;
 }
-.card-image-box-diff {
-  background: #d44f00;
-}
 .card-image-box-trial {
   background: #666611;
 }
@@ -622,6 +619,10 @@ a {
   background: #221122;
   height: 40px;
   cursor: pointer;
+}
+
+#card-image-box-diff {
+  background: #d44f00;
 }
 
 form {
