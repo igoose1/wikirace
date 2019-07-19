@@ -1,0 +1,86 @@
+{% extends 'wiki/base_page.html' %}
+{% load static %}
+{% block head %}
+<title>Таблица результатов</title>
+<script src="{% static 'wiki/card_toggle.js' %}"></script>
+<script src="{% static 'wiki/end_page.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
+{% endblock %}
+
+{% block title %}
+<div class="logo-wikirace">
+    <span>Результаты</span>
+</div>
+{% endblock %}
+
+{% block buttonBar %}
+<div class="button">
+    <a href="/" class="image-button">
+        <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
+    </a>
+</div>
+{% endblock %}
+
+{% block drawerContent %}
+{% endblock %}
+
+{% block extra %}
+{% endblock %}
+
+{% block content %}
+<div class="card visible card-opened" id="card-leaderboard">
+    <div class="close-button" id="close-leaderboard" style="display: block">
+    </div>
+    <div class="card-image-box card-image-box-leaderboard">
+        <img src="{% static 'wiki/icons/award.svg' %}" alt="Кубок">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Таблица результатов
+        </div>
+        <div class="card-content-box card-content-box-text block-leaderboard visible">
+            Результаты других игроков
+        </div>
+        <div class="card-content-box card-content-box-text block-leaderboard table-content">
+            <div class="switch card-content-box-text block-leaderboard switch-checked" id="friends-button">
+                Друзья
+            </div>
+            <div class="switch card-content-box-text block-leaderboard" id="global-button">
+                Общий рейтинг
+            </div>
+            <div class="table block-leaderboard" id="friends-table">
+                <table>
+                    <tr>
+                        <th> Место</th>
+                        <th> Имя</th>
+                        <th> Результат</th>
+                    </tr>
+                    {% for item in results_table.private_table %}
+                    <tr>
+                        <td> {{ forloop.counter }}</td>
+                        <td> {{ item.name }}</td>
+                        <td> {{ item.steps }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="table block-leaderboard closed" id="global-table">
+                <table>
+                    <tr>
+                        <th> Место</th>
+                        <th> Имя</th>
+                        <th> Результат</th>
+                    </tr>
+                    {% for item in results_table.global_table %}
+                    <tr>
+                        <td> {{ forloop.counter }}</td>
+                        <td> {{ item.name }}</td>
+                        <td> {{ item.steps }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

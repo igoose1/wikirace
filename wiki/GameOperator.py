@@ -6,24 +6,18 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseServerError, Http404
 from struct import unpack
-from enum import Enum
-from .models import Game, Turn, GamePair, TurnType
+from .models import Game, Turn, GamePair, MultiplayerPair, TurnType
 from wiki.GraphReader import *
-
-
-class GameTypes(Enum):
-    random = "random"
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
-    trial = "trial"
-    by_id = "by_id"
 
 
 class GameTaskGenerator(object):
 
     def choose_game_pair(self) -> GamePair:
-        raise NotImplementedError("This is super class, implement this field in child class.")
+        raise NotImplementedError(
+            "This is super class, implement this field in child class.")
+
+    def choose_multiplayer(self):
+        return MultiplayerPair.objects.create(game_pair=self.choose_game_pair())
 
 
 class RandomGameTaskGenerator(GameTaskGenerator):
@@ -32,22 +26,6 @@ class RandomGameTaskGenerator(GameTaskGenerator):
         self._zim_file = zim_file
         self._graph_reader = graph_reader
         self.max_trying_count = max_trying_count
-
-    def choose_game_pair(self) -> GamePair:
-        start_page_id = self._zim_file.random_article().index
-        end_page_id = start_page_id
-        path = [start_page_id]
-        for step in range(5):
-            edges = list(self._graph_reader.edges(end_page_id))
-            if len(edges) == 0:
-                return path
-            next_id = randrange(0, len(edges))
-            if edges[next_id] == start_page_id:
-                continue
-            end_page_id = edges[next_id]
-            path.append(end_page_id)
-
-        return GamePair.get_or_create_by_path(path)
 
     def choose_game_pair(self) -> GamePair:
         for i in range(self.max_trying_count):
@@ -110,6 +88,18 @@ class ByIdGameTaskGenerator(GameTaskGenerator):
         return get_object_or_404(GamePair, pair_id=self.pair_id)
 
 
+class MultipayerGameTaskGenerator(GameTaskGenerator):
+
+    def __init__(self, multiplayer):
+        self._multiplayer = multiplayer
+
+    def choose_game_pair(self):
+        return self._multiplayer.game_pair
+
+    def choose_multiplayer(self):
+        return self._multiplayer
+
+
 class GameOperator:
     def __init__(self, game: Game, history: list, graph_reader: GraphReader, zim_file: ZIMFile, load_testing=False):
         self._zim = zim_file
@@ -149,7 +139,7 @@ class GameOperator:
 
     @property
     def game_pair(self):
-        return self._game.game_pair
+        return self._game.multiplayer.game_pair
 
     @property
     def game_id(self):
@@ -210,15 +200,17 @@ class GameOperator:
         self._history.append(article.index)
 
     @classmethod
-    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile, graph_reader: GraphReader):
-        game_pair = game_task_generator.choose_game_pair()
+    def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile,
+                    graph_reader: GraphReader, user_settings):
+        multiplayer = game_task_generator.choose_multiplayer()
         game = Game.objects.create(
-            current_page_id=game_pair.start_page_id,
+            current_page_id=multiplayer.game_pair.start_page_id,
             start_time=timezone.now(),
             last_action_time=timezone.now(),
-            game_pair=game_pair,
+            multiplayer=multiplayer,
+            user_settings=user_settings,
         )
-        return GameOperator(game, [game_pair.start_page_id], graph_reader, zim_file)
+        return GameOperator(game, [multiplayer.game_pair.start_page_id], graph_reader, zim_file)
 
     def serialize_game_operator(self) -> dict:
         self._game.save()
@@ -228,7 +220,7 @@ class GameOperator:
         }
 
     @staticmethod
-    def deserialize_game_operator(data=None, zim_file=None, graph_reader=None, load_testing=False):
+    def deserialize_game_operator(data=None, zim_file=None, graph_reader=None, user_settings=None, load_testing=False):
         if not data:
             return None
         # this ugly if for backward compatibility
@@ -247,11 +239,14 @@ class GameOperator:
                     start_page_id=start_page_id,
                     end_page_id=end_page_id,
                 )
+                multiplayer = MultiplayerPair.objects.create(
+                    game_pair=game_pair)
                 game = Game.objects.create(
-                    game_pair=game_pair,
+                    multiplayer=multiplayer,
                     start_time=None,
                     current_page_id=current_page_id,
-                    last_action_time=timezone.now()
+                    last_action_time=timezone.now(),
+                    user_settings=user_settings,
                 )
             else:
                 game = Game.objects.get(game_id=data[6])

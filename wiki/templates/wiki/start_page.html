@@ -4,6 +4,7 @@
 {% block head %}
 <title>WikiRace</title>
 <link rel="stylesheet" href="{% static 'wiki/styles/start_page_style.css' %}">
+<script src="{% static 'wiki/card_toggle.js' %}"></script>
 <script src="{% static 'wiki/start_page.js' %}"></script>
 {% endblock %}
 
@@ -14,6 +15,11 @@
 {% endblock %}
 
 {% block buttonBar %}
+<div class="button" id="open-settings">
+    <a>
+        <img src="{% static 'wiki/icons/baseline-settings-20px.svg' %}" alt="Настройки" title="Настройки">
+    </a>
+</div>
 {% endblock %}
 
 {% block drawerContent %}
@@ -201,4 +207,51 @@
         </div>
     </div>
 </div>
+<div class="card visible" id="card-settings">
+    <div class="close-button invisible" id="close-settings">
+        <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
+    </div>
+    <div class="card-image-box card-image-box-settings">
+        <img src="{% static 'wiki/icons/baseline-settings_black-20px.svg' %}" alt="settings">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Настройки
+        </div>
+        <div class="card-content-box card-content-box-text block-settings invisible">
+            <label for="name"> Имя: </label>
+            <input id="name" type="text" maxlength="16">
+            <div class="submit-button" id="name-button">
+                Сохранить
+            </div>
+        </div>
+    </div>
+</div>
+{% if settings.name_init_needed %}
+<script>
+    $(document).ready(() => {
+       toggleGameCard('name');
+    });
+</script>
+<div class="card visible" id="card-name">
+    <div class="close-button invisible" id="close-name">
+        <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
+    </div>
+    <div class="card-image-box card-image-box-name">
+        <img src="{% static 'wiki/icons/baseline-face-24px.svg' %}" alt="Face">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Привет, как тебя зовут?
+        </div>
+        <div class="card-content-box card-content-box-text block-name invisible">
+            <label for="name-first"> Введи имя: </label>
+            <input id="name-first" type="text" value="" maxlength="16">
+            <div class="submit-button" id="name-first-button">
+                Сохранить
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

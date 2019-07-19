@@ -1,6 +1,56 @@
 from django.db import models
+from django.conf import settings
+from random import randrange
+import hashlib
 from enum import Enum
-import datetime
+
+
+class GameTypes(Enum):
+    random = "random"
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
+    trial = "trial"
+    by_id = "by_id"
+
+
+class UserSettings(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    _difficulty = models.CharField(
+        max_length=10,
+        default=GameTypes.easy.value,
+    )
+    _name = models.CharField(max_length=16, null=True)
+
+    @property
+    def name(self):
+        return self._name if self._name else 'Player #{id}'.format(id=self.user_id)
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def difficulty(self):
+        return GameTypes(self._difficulty)
+
+    @difficulty.setter
+    def difficulty(self, value):
+        self._difficulty = value.value
+
+    def dict(self):
+        return {
+            'difficulty': self.difficulty,
+            'name': self.name,
+            'name_init_needed': (self._name is None),
+        }
+
+    def __str__(self):
+        return 'id:{id}; name:{name}; diff:{diff};'.format(
+            id=self.user_id,
+            diff=self.difficulty,
+            name=self.name,
+        )
 
 
 class GamePair(models.Model):
@@ -27,21 +77,62 @@ class GamePair(models.Model):
         return GamePair.objects.get_or_create(
             start_page_id=start_page_id,
             end_page_id=end_page_id,
-            possible_path=possible_path,
+            defaults={'possible_path': possible_path},
         )[0]
 
     @staticmethod
     def get_or_create_by_path(path):
-        return GamePair.objects.get_or_create(
+        return GamePair.get_or_create(
             start_page_id=path[0],
             end_page_id=path[-1],
             possible_path=' '.join(map(str, path)),
-        )[0]
+        )
+
+
+class MultiplayerPairManager(models.Manager):
+    def create(self, *args, **kwargs):
+        kwargs['multiplayer_key'] = self._generate_multiplayer_key()
+        return super(MultiplayerPairManager, self).create(*args, **kwargs)
+
+    def _generate_multiplayer_key(self):
+        suffix = settings.SECRET_KEY
+        counter = 0
+        multiplayer_key = None
+        while multiplayer_key is None or MultiplayerPair.objects.filter(multiplayer_key=multiplayer_key).count() > 0:
+            counter += 1
+            suffix += 'a'
+            hashed_string = hashlib.sha256(
+                (str(randrange(0, 1000000000)) + suffix).encode()
+            ).hexdigest()
+            multiplayer_key = hashed_string[:min(6 + counter // 32, 16)]
+        return multiplayer_key
+
+
+class MultiplayerPair(models.Model):
+    objects = MultiplayerPairManager()
+
+    multiplayer_id = models.AutoField(primary_key=True)
+    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    multiplayer_key = models.CharField(default='', max_length=64, blank=True)
+
+    class Meta:
+        unique_together = (('multiplayer_key',),)
+
+    @property
+    def from_page_id(self):
+        return self.game_pair.start_page_id
+
+    @property
+    def to_page_id(self):
+        return self.game_pair.end_page_id
 
 
 class Game(models.Model):
+    user_settings = models.ForeignKey(UserSettings, null=True,
+                                      on_delete=models.SET_NULL)
+    multiplayer = models.ForeignKey(MultiplayerPair, null=False,
+                                    on_delete=models.CASCADE)
     game_id = models.AutoField(primary_key=True)
-    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     current_page_id = models.IntegerField(null=True, default=None)
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
@@ -50,6 +141,10 @@ class Game(models.Model):
     @property
     def steps(self):
         return Turn.objects.filter(game_id=self.game_id).count()
+
+    @property
+    def game_pair(self):
+        return self.multiplayer.game_pair
 
     @property
     def start_page_id(self):
@@ -61,7 +156,7 @@ class Game(models.Model):
 
     @property
     def possible_path(self):
-        return self.game_pair.possible_path
+        return self.multiplayer.game_pair.possible_path
 
     @property
     def finished(self):
