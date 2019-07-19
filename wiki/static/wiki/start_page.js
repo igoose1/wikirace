@@ -63,7 +63,7 @@ $(document).ready(() => {
 
     $('#name-button').on('click', () => {
         let name = $("#name").val();
-        postData('/set_name',{name: name}, () => {
+        postData('/set_name',{name: name}, (event) => {
             toggleGameCard('settings');
             event.stopPropagation();
         });
@@ -71,7 +71,7 @@ $(document).ready(() => {
 
     $('#name-first-button').on('click', () => {
         let name = $("#name-first").val();
-        postData('/set_name',{name: name}, () => {
+        postData('/set_name',{name: name}, (event) => {
             toggleGameCard('name');
             event.stopPropagation();
             $('#card-name').toggleClass('force-invisible')
