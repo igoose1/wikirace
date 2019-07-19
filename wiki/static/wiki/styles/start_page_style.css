@@ -586,19 +586,19 @@ a {
   background: #00BB55;
 }
 .card-image-box-random {
-  background: #AAAAAA;
+  background: #8a038c;
 }
 .card-image-box-tutorial {
-  background: #DD1111;
+  background: #7d99f0;
 }
 .card-image-box-user {
   background: #001199;
 }
 .card-image-box-trial {
-  background: #666611;
+  background: #c7c702;
 }
 .card-image-box-settings {
-  background: #455a64;
+  background: #8a2700;
 }
 .card-image-box-name {
   background: #738ad0;
@@ -622,7 +622,7 @@ a {
 }
 
 #card-image-box-diff {
-  background: #d44f00;
+  background: #de1414;
 }
 
 form {
@@ -653,7 +653,7 @@ form {
 }
 
 #close-tutorial {
-  background: #DD1111;
+  background: #7d99f0;
 }
 
 #close-user-game {
@@ -661,11 +661,11 @@ form {
 }
 
 #close-trial {
-  background: #666611;
+  background: #c7c702;
 }
 
 #close-settings {
-  background: #455a64;
+  background: #8a2700;
 }
 
 #close-name {
