@@ -4,8 +4,6 @@ gevent==1.4.0
 greenlet==0.4.15
 Mako==1.0.12
 MarkupSafe==1.1.1
-mysql==0.0.2
-mysqlclient==1.4.2.post1
 pytz==2019.1
 sqlparse==0.3.0
 zimply==1.1.1
