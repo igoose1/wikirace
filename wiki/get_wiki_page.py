@@ -309,7 +309,7 @@ def choose_custom_game(prevars):
     trials = Trial.objects.all()
     template = loader.get_template('wiki/choose_custom_game.html')
     context = {
-        'title': 'Выбери челлендж',
+        'title': '������ ��������',
         'trials': trials
     }
     return HttpResponse(template.render(context, prevars.request))
