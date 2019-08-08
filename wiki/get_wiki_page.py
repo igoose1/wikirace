@@ -78,6 +78,17 @@ def requires_game(func):
     return load_prevars(wrapper)
 
 
+def finished_game(func):
+    def wrapper(prevars, *args, **kwargs):
+        if not prevars.game_operator.finished:
+            return HttpResponseRedirect(
+                prevars.game_operator.current_page.url
+            )
+        return func(prevars, *args, **kwargs)
+
+    return requires_game(wrapper)
+
+
 def get_settings(session):
     user_id = session.get('user_id', None)
     if UserSettings.objects.filter(user_id=user_id).count() == 0:
@@ -195,7 +206,7 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@requires_game
+@finished_game
 def show_path_page(prevars):
     page_id = prevars.game_operator.start_page_id
     start = prevars.zim_file[page_id].title
@@ -254,12 +265,8 @@ def surrender(prevars):
     return get_end_page(prevars)
 
 
-@requires_game
+@finished_game
 def end_page(prevars):
-    if not prevars.game_operator.finished:
-        return HttpResponseRedirect(
-            prevars.game_operator.current_page.url
-        )
     return get_end_page(prevars)
 
 
