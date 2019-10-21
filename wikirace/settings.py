@@ -67,7 +67,7 @@ TEMPLATES = [
     },
 ]
 
-STATICFILES_DIRS = ['wiki/static']
+STATIC_ROOT = 'wiki/static'
 
 WSGI_APPLICATION = 'wikirace.wsgi.application'
 

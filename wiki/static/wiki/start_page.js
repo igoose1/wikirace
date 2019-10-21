@@ -56,7 +56,7 @@ $(document).ready(() => {
     });
 
 
-    let closableCardList = ['tutorial', 'user-game', 'trial', 'settings'];
+    let closableCardList = ['tutorial', 'user-game', 'trial', 'settings', 'name'];
     closableCardList.forEach((value) => {
         addOnClick(value)
     });
