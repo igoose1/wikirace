@@ -1,4 +1,4 @@
-Django==2.2.3
+Django==2.2.2
 falcon==2.0.0
 gevent==1.4.0
 greenlet==0.4.15
