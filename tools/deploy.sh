@@ -17,7 +17,7 @@ version=`git rev-parse --short HEAD`
 cp -f -R /srv/wikirace/app/wiki/static/ /srv/wikirace/static/${version}/
 echo $version > /srv/wikirace/static/current_version.txt
 
-$BIN/pip -qq install --index-url http://mirror.p.lksh.ru/pypi --trusted-host mirror.p.lksh.ru -r requirements.txt
+$BIN/pip -qq install --index-url http://mirror/pypi --trusted-host mirror -r requirements.txt
 $BIN/python manage.py migrate
 sudo /etc/init.d/uwsgi restart
 sudo /etc/init.d/nginx restart
