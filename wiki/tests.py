@@ -9,7 +9,7 @@ from .file_holder import file_holder
 from .models import GamePair, MultiplayerPair
 from django.conf import settings
 
-ROOT_PATH = '/' + settings.ROOT_PATH
+ROOT_PATH = '/' + settings.ROOT_PATH.rstrip('/')
 
 class TestZIMFile(TestCase):
     def setUp(self):
@@ -142,42 +142,42 @@ class GameOperatorTest(TestCase):
 class GetWikiPageTest(TestCase):
 
     def testSmoke(self):
-        urls_case = (ROOT_PATH[:-1] + '/', ROOT_PATH[:-1] + '/game_start', ROOT_PATH[:-1] + '/', ROOT_PATH[:-1] + '/continue')
+        urls_case = (ROOT_PATH + '/', ROOT_PATH + '/game_start', ROOT_PATH + '/', ROOT_PATH + '/continue')
         for url in urls_case:
             resp = self.client.get(url, follow=True)
             self.assertEqual(resp.status_code, 200)
 
     def testSettings(self):
-        resp = self.client.get(ROOT_PATH[:-1] + '/', follow=True)
+        resp = self.client.get(ROOT_PATH + '/', follow=True)
         self.assertEqual(resp.status_code, 200)
         session = self.client.session
         for dif in ('random', 'easy', 'medium', 'hard'):
             session['settings'] = {'difficulty': dif, 'name': 'test'}
             session.save()
-            resp = self.client.get(ROOT_PATH[:-1] + '/game_start', follow=True)
+            resp = self.client.get(ROOT_PATH + '/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
 
     def testOldSettings(self):
-        resp = self.client.get(ROOT_PATH[:-1] + '/', follow=True)
+        resp = self.client.get(ROOT_PATH + '/', follow=True)
         self.assertEqual(resp.status_code, 200)
         session = self.client.session
         for num in range(-1, 3):
             session['settings'] = {'difficulty': num, 'name': 'test'}
             session.save()
-            resp = self.client.get(ROOT_PATH[:-1] + '/game_start', follow=True)
+            resp = self.client.get(ROOT_PATH + '/game_start', follow=True)
             self.assertEqual(resp.status_code, 200)
 
     def testImpossibleBack(self):
-        for url in (ROOT_PATH[:-1] + '/', ROOT_PATH[:-1] + '/game_start'):
+        for url in (ROOT_PATH + '/', ROOT_PATH + '/game_start'):
             resp = self.client.get(url, follow=True)
             self.assertEqual(resp.status_code, 200)
 
-        resp = self.client.get(ROOT_PATH[:-1] + '/continue', follow=True)
+        resp = self.client.get(ROOT_PATH + '/continue', follow=True)
         article_url = resp.redirect_chain[-1][0]
         if not article_url.startswith('/'):
             article_url = '/' + article_url
 
-        resp = self.client.get(ROOT_PATH[:-1] + '/back')
+        resp = self.client.get(ROOT_PATH + '/back')
         self.assertRedirects(resp, article_url)
 
 
@@ -203,13 +203,13 @@ class PlayingTest(TestCase):
             )
         ]
 
-        resp = self.client.post(ROOT_PATH[:-1] + '/set_settings', data={'difficulty': 'easy'})
+        resp = self.client.post(ROOT_PATH + '/set_settings', data={'difficulty': 'easy'})
         self.assertEqual(resp.status_code, 200)
 
         for p in self.patches:
             p.start()
 
-        for url in (ROOT_PATH[:-1] + '/', ROOT_PATH[:-1] + '/game_start', ROOT_PATH[:-1] + '/'):
+        for url in (ROOT_PATH + '/', ROOT_PATH + '/game_start', ROOT_PATH + '/'):
             resp = self.client.get(url, follow=True)
             self.assertEqual(resp.status_code, 200)
 
@@ -220,12 +220,12 @@ class PlayingTest(TestCase):
 
     def testSmoke(self):
         url_way = [
-            ROOT_PATH + 'A/Глоксин,_Беньямин_Петер.html',
-            ROOT_PATH + 'A/1765_год.html',
-            ROOT_PATH + 'A/XX_век.html',
-            ROOT_PATH + 'A/1992_год.html',
-            ROOT_PATH + 'A/XXV_летние_Олимпийские_игры.html',
-            ROOT_PATH + 'A/Куба_на_летних_Олимпийских_играх_1992.html'
+            ROOT_PATH + '/A/Глоксин,_Беньямин_Петер.html',
+            ROOT_PATH + '/A/1765_год.html',
+            ROOT_PATH + '/A/XX_век.html',
+            ROOT_PATH + '/A/1992_год.html',
+            ROOT_PATH + '/A/XXV_летние_Олимпийские_игры.html',
+            ROOT_PATH + '/A/Куба_на_летних_Олимпийских_играх_1992.html'
         ]
 
         for url in url_way:
@@ -236,13 +236,13 @@ class PlayingTest(TestCase):
 
     def testBackButtons(self):
         url_way = [
-                ROOT_PATH[:-1] + '/A/Глоксин,_Беньямин_Петер.html',
-                ROOT_PATH[:-1] + '/A/1765_год.html',
-                ROOT_PATH[:-1] + '/A/XX_век.html'
+                ROOT_PATH + '/A/Глоксин,_Беньямин_Петер.html',
+                ROOT_PATH + '/A/1765_год.html',
+                ROOT_PATH + '/A/XX_век.html'
         ]
 
         tuple(map(self.client.get, url_way))
-        resp = self.client.get(ROOT_PATH[:-1] +'/back')
+        resp = self.client.get(ROOT_PATH +'/back')
         self.assertRedirects(
             resp,
             quote(url_way[-2])
@@ -253,15 +253,15 @@ class PlayingTest(TestCase):
         end_page_id = self.zim['Москва.html'].index
         game_pair = models.GamePair.get_or_create(start_page_id=start_page_id, end_page_id=end_page_id)
         key = MultiplayerPair.objects.create(game_pair=game_pair).multiplayer_key
-        resp = self.client.get(ROOT_PATH[:-1] + '/join_game/' + str(key))
-        self.assertRedirects(resp, quote(ROOT_PATH[:-1] + '/Цензура_Википедии.html'))
+        resp = self.client.get(ROOT_PATH + '/join_game/' + str(key))
+        self.assertRedirects(resp, quote(ROOT_PATH + '/A/Цензура_Википедии.html'))
 
     def test404ByKey(self):
-        resp = self.client.get(ROOT_PATH[:-1] +'/join_game/zzz')
+        resp = self.client.get(ROOT_PATH +'/join_game/zzz')
         self.assertEqual(resp.status_code, 404)
 
     def test404ByKeyNull(self):
-        resp = self.client.get(ROOT_PATH[:-1] +'/start_by_id/')
+        resp = self.client.get(ROOT_PATH +'/start_by_id/')
         self.assertEqual(resp.status_code, 404)
 
 

@@ -17,7 +17,7 @@ urlpatterns = [
     url('^game_start', get_wiki_page.get_start),
     url('^continue', get_wiki_page.get_continue),
     url('^back', get_wiki_page.get_back),
-    url('^hint_page', get_wiki_page.get_hint_page),
+    url('^A/hint_page', get_wiki_page.get_hint_page),
     url('^show_path_page', get_wiki_page.show_path_page),
     url('^set_settings', get_wiki_page.change_settings),
     url('^set_name', get_wiki_page.change_name),
