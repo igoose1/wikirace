@@ -82,9 +82,10 @@ $(document).ready(() => {
         toggleGameCard('settings');
     });
 
-    $('.expand-event-img').on('click', (event) => {
-            const eventBlock = $(event.target).parent().parent();
-            eventBlock.find('.event-content').toggleClass('visible').toggleClass('invisible');
-            eventBlock.find('.expand-event-img').toggleClass('inverted');
+    $('.event-box').on('click', (event) => {
+        const eventBlock = $($(event.target).parents().find(".event-box"));
+        eventBlock.find('.event-content').toggleClass('visible').toggleClass('invisible');
+        eventBlock.find('.expand-event-img').toggleClass('inverted');
+        event.stopPropogation();    
     });
 });

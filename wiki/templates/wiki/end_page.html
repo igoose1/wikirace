@@ -137,7 +137,7 @@
                     </tr>
                     {% for item in results_table.global_table %}
                     <tr {% if item.is_me %} class="player-row" {% endif %}>
-                        <td> {{item.is_me}}{{ forloop.counter }}</td>
+                        <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
                     </tr>
