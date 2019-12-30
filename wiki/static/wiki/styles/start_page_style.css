@@ -582,6 +582,10 @@ a {
   top: -20px;
 }
 
+.card-image-box-event {
+    background: #FFFFFF;
+}
+
 .card-image-box-continue {
   background: #00BB55;
 }
@@ -651,6 +655,10 @@ form {
   border: 2px solid #FF0000;
 }
 
+#close-event {
+    background: #ffffff;
+}
+
 #close-tutorial {
   background: #DD1111;
 }
@@ -715,3 +723,49 @@ form {
 }
 
 /*# sourceMappingURL=start_page_style.css.map */
+
+.play-button-event {
+  text-align: center;
+  height: 25px;
+  background: #00BB55;
+  color: #FFFFFF;
+  padding: 8px;
+  width: auto;
+  cursor: pointer;
+}
+
+.results-button-event {
+  text-align: center;
+  height: 25px;
+  background: #0055BB;
+  color: #FFFFFF;
+  padding: 8px;
+  width: auto;
+  cursor: pointer;
+}
+
+.inverted {
+    transform: rotate(180deg);
+}
+
+#event-content-box {
+    overflow-y: auto;
+}
+
+.expand-event {
+    display: inline-block;
+    cursor: default;
+    padding-top: 3px;
+    vertical-align: middle;
+    float: right;
+}
+
+.event-name {
+    display: inline-block;
+    cursor: default;
+    vertical-align: middle;
+}
+
+.expand-event-img, .play-button-event, .results-button-event {
+    cursor: pointer;
+}
