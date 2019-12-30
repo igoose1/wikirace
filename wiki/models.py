@@ -1,7 +1,9 @@
 from django.db import models
 from django.conf import settings
 from random import randrange
+from django.utils import timezone
 import hashlib
+from datetime import timedelta
 from enum import Enum
 
 
@@ -220,6 +222,16 @@ class Trial(models.Model):
     trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    _length = models.DurationField(default=timedelta(seconds=0))
+    _begin = models.DateTimeField(default=timezone.now())
+
+    @property
+    def is_active(self):
+        return (timezone.now() < (self._begin + self._length)) and (timezone.now() > self._begin)
+
+    @property
+    def time_left(self):
+        return self._length - timezone.now()
 
     def __str__(self):
         return '{trial_name}, ind = {trial_id}, path: {from_page_id} -> {to_page_id}'.format(
