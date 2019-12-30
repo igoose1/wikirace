@@ -237,9 +237,9 @@ class PlayingTest(TestCase):
 
     def testBackButtons(self):
         url_way = [
-                ROOT_PATH + '/A/Глоксин,_Беньямин_Петер.html',
-                ROOT_PATH + '/A/1765_год.html',
-                ROOT_PATH + '/A/XX_век.html'
+            ROOT_PATH + '/A/Глоксин,_Беньямин_Петер.html',
+            ROOT_PATH + '/A/1765_год.html',
+            ROOT_PATH + '/A/XX_век.html'
         ]
 
         tuple(map(self.client.get, url_way))
