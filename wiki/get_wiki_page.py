@@ -101,11 +101,14 @@ def get_settings(session):
 @load_prevars
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
-    trial_list = Trial.objects.all()
+    trial_list = list(filter(lambda x: not x.is_active,
+                      list(Trial.objects.all())))
+    event_list = list(filter(lambda x: x.is_active, list(Trial.objects.all())))
     context = {
         'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
         'settings': prevars.settings.dict(),
         'trial_list': trial_list,
+        'event_list': event_list,
     }
     return HttpResponse(template.render(context, prevars.request))
 
