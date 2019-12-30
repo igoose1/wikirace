@@ -31,7 +31,6 @@ def redirect_to(page):
     return HttpResponseRedirect(page)
 
 
-
 @file_holder
 class PreVariables:
     def __init__(self, request):
@@ -57,7 +56,7 @@ class PreVariables:
     def redirect_to_curr_page(self):
         return redirect_to('/A/' + self.game_operator.current_page.url)
 
- 
+
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
