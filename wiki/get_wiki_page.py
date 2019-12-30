@@ -52,6 +52,7 @@ class PreVariables:
             return HttpResponseRedirect('/' + settings.ROOT_PATH.rstrip('/') + page)
         return HttpResponseRedirect(page)
 
+
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
@@ -169,7 +170,7 @@ def custom_game_start(prevars, trial_id):
         prevars.graph,
         prevars.settings,
     )
-    return prevars.redirect_to( "/A/" + prevars.game_operator.current_page.url)
+    return prevars.redirect_to("/A/" + prevars.game_operator.current_page.url)
 
 
 @load_prevars
@@ -180,7 +181,7 @@ def get_random_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return prevars.redirect_to( "/A/" + prevars.game_operator.current_page.url)
+    return prevars.redirect_to("/A/" + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -279,7 +280,7 @@ def get(prevars, title_name):
         return HttpResponse(article.content, content_type=article.mimetype)
 
     if not prevars.game_operator.is_jump_allowed(article):
-        return prevars.redirect_to('/A/'+ prevars.game_operator.current_page.url)
+        return prevars.redirect_to('/A/' + prevars.game_operator.current_page.url)
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:

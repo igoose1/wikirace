@@ -11,6 +11,7 @@ from django.conf import settings
 
 ROOT_PATH = '/' + settings.ROOT_PATH.rstrip('/')
 
+
 class TestZIMFile(TestCase):
     def setUp(self):
         self.zim = wiki.ZIMFile.ZIMFile(settings.WIKI_ZIMFILE_PATH,
@@ -242,7 +243,7 @@ class PlayingTest(TestCase):
         ]
 
         tuple(map(self.client.get, url_way))
-        resp = self.client.get(ROOT_PATH +'/back')
+        resp = self.client.get(ROOT_PATH + '/back')
         self.assertRedirects(
             resp,
             quote(url_way[-2])
@@ -257,11 +258,11 @@ class PlayingTest(TestCase):
         self.assertRedirects(resp, quote(ROOT_PATH + '/A/Цензура_Википедии.html'))
 
     def test404ByKey(self):
-        resp = self.client.get(ROOT_PATH +'/join_game/zzz')
+        resp = self.client.get(ROOT_PATH + '/join_game/zzz')
         self.assertEqual(resp.status_code, 404)
 
     def test404ByKeyNull(self):
-        resp = self.client.get(ROOT_PATH +'/start_by_id/')
+        resp = self.client.get(ROOT_PATH + '/start_by_id/')
         self.assertEqual(resp.status_code, 404)
 
 
