@@ -1,5 +1,6 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
+{% load hrefs %}
 
 {% block head %}
 <title>WikiRace</title>
@@ -196,7 +197,7 @@
         </div>
         <div class="block-trial invisible" id="trials">
             {% for trial in trial_list %}
-            <a href="/custom_game_start/{{ trial.trial_id }}">
+            <a href="{{"/custom_game_start/"|href}}{{trial.trial_id}}">
                 <div class="card-content-box trial-play">
                     <span>
                         {{ trial.trial_name }}

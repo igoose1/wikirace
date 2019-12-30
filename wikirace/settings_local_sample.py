@@ -4,6 +4,7 @@ STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'change_me_to_something_secret'
 DEBUG = False
+ROOT_PATCH = "/dev"  #/ for prod and /qa for qa
 ALLOWED_HOSTS = []  # Add FQDN of your host
 DATABASES = {
     'default': {

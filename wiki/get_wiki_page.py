@@ -69,7 +69,7 @@ def load_prevars(func):
 def requires_game(func):
     def wrapper(prevars, *args, **kwargs):
         if prevars.game_operator is None:
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/' + settings.ROOT_PATH )
         return func(prevars, *args, **kwargs)
 
     return load_prevars(wrapper)
@@ -151,7 +151,7 @@ def get_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + settings.ROOT_PATH + "A/" + prevars.game_operator.current_page.url)
 
 
 @load_prevars
@@ -167,7 +167,7 @@ def custom_game_start(prevars, trial_id):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + settings.ROOT_PATH + "A/" + prevars.game_operator.current_page.url)
 
 
 @load_prevars
@@ -178,12 +178,12 @@ def get_random_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + settings.ROOT_PATH + "A/" + prevars.game_operator.current_page.url)
 
 
 @requires_game
 def get_continue(prevars):
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + settings.ROOT_PATH + "A/" + prevars.game_operator.current_page.url)
 
 
 @requires_game
@@ -278,7 +278,7 @@ def get(prevars, title_name):
 
     if not prevars.game_operator.is_jump_allowed(article):
         return HttpResponseRedirect(
-            prevars.game_operator.current_page.url
+                '/' + settings.ROOT_PATH + prevars.game_operator.current_page.url
         )
     prevars.game_operator.jump_to(article)
 
@@ -318,7 +318,7 @@ def get_feedback_page(prevars):
         form = FeedbackForm(prevars.request.POST).save()
         form.time = timezone.now()
         form.save()
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/' + settings.ROOT_PATH)
     else:
         form = FeedbackForm()
 
@@ -339,7 +339,7 @@ def join_game_by_key(prevars, multiplayer_key):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + settings.ROOT_PATH +  prevars.game_operator.current_page.url)
 
 
 @load_prevars

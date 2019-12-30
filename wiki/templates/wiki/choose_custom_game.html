@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load hrefs %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +10,7 @@
 <body>
 <ul>
     {% for trial in trials %}
-        <li><a href="custom_game_start/{{ trial.trial_id }}">{{ trial.trial_name }}</a> </li>
+    <li><a href= "custom_game_start/{{ trial.trial_id }}">{{ trial.trial_name }}</a> </li>
     {% endfor %}
 </ul>
 </body>

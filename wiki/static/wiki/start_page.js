@@ -5,19 +5,19 @@ $(document).ready(() => {
         if (input.hasClass("wrong-input"))
             return;
         let game_id = input.val();
-        window.location.href = '/start_by_id/' + game_id;
+        window.location.href = 'start_by_id/' + game_id;
     });
 
     $('#diff-play').on('click', () => {
         let difficulty = $("#diff-field").val();
         postSettings(difficulty, () => {
-            window.location.href = '/game_start'
+            window.location.href = 'game_start'
         })
     });
 
     $('#card-random').on('click', () => {
         postSettings('random', () => {
-            window.location.href = '/game_start'
+            window.location.href = 'game_start'
         })
     });
 
@@ -34,7 +34,7 @@ $(document).ready(() => {
     }
 
     function postSettings(difficulty, onSuccess) {
-        postData('/set_settings',
+        postData('set_settings',
             {
                 difficulty: difficulty,
             },
@@ -52,7 +52,7 @@ $(document).ready(() => {
     });
 
     $('#card-continue').on('click', () => {
-        window.location.href = '/continue';
+        window.location.href = 'continue';
     });
 
 
@@ -63,7 +63,7 @@ $(document).ready(() => {
 
     $('#name-button').on('click', (event) => {
         let name = $("#name").val();
-        postData('/set_name',{name: name}, () => {
+        postData('set_name',{name: name}, () => {
             toggleGameCard('settings');
             event.stopPropagation();
         });
@@ -71,7 +71,7 @@ $(document).ready(() => {
 
     $('#name-first-button').on('click', (event) => {
         let name = $("#name-first").val();
-        postData('/set_name',{name: name}, () => {
+        postData('set_name',{name: name}, () => {
             toggleGameCard('name');
             event.stopPropagation();
             $('#card-name').toggleClass('force-invisible')
