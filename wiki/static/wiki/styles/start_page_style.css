@@ -570,7 +570,7 @@ a {
   display: block;
 }
 
-#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
+#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue, #card-event {
   cursor: pointer;
 }
 
@@ -580,6 +580,10 @@ a {
 }
 .card-opened img {
   top: -20px;
+}
+
+.card-image-box-event {
+    background: #FFFFFF;
 }
 
 .card-image-box-continue {
@@ -651,6 +655,10 @@ form {
   border: 2px solid #FF0000;
 }
 
+#close-event {
+    background: #ffffff;
+}
+
 #close-tutorial {
   background: #DD1111;
 }
@@ -715,3 +723,25 @@ form {
 }
 
 /*# sourceMappingURL=start_page_style.css.map */
+
+.play-button-event {
+  text-align: center;
+  height: 25px;
+  background: #00BB55;
+  padding: 8px;
+  width: auto;
+  cursor: pointer;
+}
+
+.result-button-event {
+  text-align: center;
+  height: 25px;
+  background: #0055BB;
+  padding: 8px;
+  width: auto;
+  cursor: pointer;
+}
+
+.inverted {
+    rotate: 180deg;
+}
