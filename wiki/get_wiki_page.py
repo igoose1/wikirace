@@ -189,7 +189,7 @@ def get_continue(prevars):
 @requires_game
 def get_back(prevars):
     prevars.game_operator.jump_back()
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return HttpResponseRedirect('/' + settings.ROOT_PATH + "A/" + prevars.game_operator.current_page.url)
 
 
 @requires_game
