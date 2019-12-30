@@ -9,10 +9,11 @@ from .file_holder import file_holder
 from .models import GamePair, MultiplayerPair
 from django.conf import settings
 
-if (settings.ROOT_PATH!=""):
+if (settings.ROOT_PATH != ""):
     ROOT_PATH = '/' + settings.ROOT_PATH.rstrip('/')
 else:
     ROOT_PATH = ""
+
 
 class TestZIMFile(TestCase):
     def setUp(self):
