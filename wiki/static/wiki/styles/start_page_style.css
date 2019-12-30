@@ -570,7 +570,7 @@ a {
   display: block;
 }
 
-#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue, #card-event {
+#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
   cursor: pointer;
 }
 
@@ -728,20 +728,44 @@ form {
   text-align: center;
   height: 25px;
   background: #00BB55;
+  color: #FFFFFF;
   padding: 8px;
   width: auto;
   cursor: pointer;
 }
 
-.result-button-event {
+.results-button-event {
   text-align: center;
   height: 25px;
   background: #0055BB;
+  color: #FFFFFF;
   padding: 8px;
   width: auto;
   cursor: pointer;
 }
 
 .inverted {
-    rotate: 180deg;
+    transform: rotate(180deg);
+}
+
+#event-content-box {
+    overflow-y: auto;
+}
+
+.expand-event {
+    display: inline-block;
+    cursor: default;
+    padding-top: 3px;
+    vertical-align: middle;
+    float: right;
+}
+
+.event-name {
+    display: inline-block;
+    cursor: default;
+    vertical-align: middle;
+}
+
+.expand-event-img, .play-button-event, .results-button-event {
+    cursor: pointer;
 }

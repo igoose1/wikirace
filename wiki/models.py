@@ -231,7 +231,11 @@ class Trial(models.Model):
 
     @property
     def time_left(self):
-        return self._length - timezone.now()
+        return self._begin + self._length - timezone.now()
+
+    @property
+    def hours_left(self):
+        return int(self.time_left.total_seconds() // 3600)
 
     def __str__(self):
         return '{trial_name}, ind = {trial_id}, path: {from_page_id} -> {to_page_id}'.format(

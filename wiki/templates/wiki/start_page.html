@@ -39,27 +39,30 @@
     <div class="card-image-box card-image-box-event">
         <img src="{% static 'wiki/icons/event-24px.svg' %}" alt="Event">
     </div>
-    <div class="card-content-box">
+    <div class="card-content-box" id="event-content-box">
         <div class="card-content-box card-content-box-header">
-
+            События
         </div>
         <div class="card-content-box card-content-box-text">
-
+            Пройдите глобальные испытания за ограниченное время
         </div>
         {% for event in event_list %}
-            <div class="card-content-box card-content-box-text">
-                {{event.trial_name}}
+            <div class="card-content-box card-content-box-text event-box">
+                <div class="event-name"> {{event.trial_name}} </div>
                 <div class="expand-event">
-                    <img src="{% static 'wiki/icons/baseline-expand_more.svg' %}">
+                    <img src="{% static 'wiki/icons/baseline-expand_more-white-24px.svg' %}" class="expand-event-img">
                 </div>
-                <a href="/custom_game_start/{{event.trial_id}}" class="event-content invisible">
+                <div class="time-left">
+                    Осталось {{event.hours_left}}ч
+                </div>
+                <a href="custom_game_start/{{event.trial_id}}" class="event-content invisible">
                     <div class="play-button-event">
-                        Play
+                        Играть
                     </div>
                 </a>
-                <a href="/results_of_game/{{event.trial_id}}" class="event-content invisible">
+                <a href="results_of_game/{{event.trial_id}}" class="event-content invisible">
                     <div class="results-button-event">
-                        Results
+                        Результаты
                     </div>
                 </a>
             </div>
@@ -233,7 +236,7 @@
         </div>
         <div class="block-trial invisible" id="trials">
             {% for trial in trial_list %}
-            <a href="/custom_game_start/{{ trial.trial_id }}">
+            <a href="custom_game_start/{{ trial.trial_id }}">
                 <div class="card-content-box trial-play">
                     <span>
                         {{ trial.trial_name }}

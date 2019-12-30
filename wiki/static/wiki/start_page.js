@@ -56,7 +56,7 @@ $(document).ready(() => {
     });
 
 
-    let closableCardList = ['event', 'tutorial', 'user-game', 'trial', 'settings'];
+    let closableCardList = ['tutorial', 'user-game', 'trial', 'settings'];
     closableCardList.forEach((value) => {
         addOnClick(value)
     });
@@ -82,8 +82,9 @@ $(document).ready(() => {
         toggleGameCard('settings');
     });
 
-    $('.expand-event').on('click', () => {
-        $('.event-content').toggleClass('visible').toggleClass('invisible');
-        $('.expand-event').toggleClass('inverted')
+    $('.expand-event-img').on('click', (event) => {
+            const eventBlock = $(event.target).parent().parent();
+            eventBlock.find('.event-content').toggleClass('visible').toggleClass('invisible');
+            eventBlock.find('.expand-event-img').toggleClass('inverted');
     });
 });
