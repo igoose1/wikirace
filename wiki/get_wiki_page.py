@@ -20,7 +20,7 @@ from .form import FeedbackForm
 from .PathReader import get_path
 from .models import Turn, \
     Trial, \
-    GameTypes, GamePair
+    GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
 from .models import Trial, MultiplayerPair, UserSettings, Game
 
@@ -101,10 +101,8 @@ def get_settings(session):
 @load_prevars
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
-    trial_list = list(filter(lambda x: not x.is_active,
-                             list(Trial.objects.all())))
-    event_list = list(filter(lambda x: x.is_active, list(Trial.objects.all())))
-    print(event_list)
+    trial_list = list(Trial.objects.filter(type=TrialType.TRIAL))
+    event_list = [x for x in Trial.objects.filter(type=TrialType.EVENT) if x.is_event_active]
     context = {
         'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
         'settings': prevars.settings.dict(),

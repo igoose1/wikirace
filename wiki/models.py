@@ -218,15 +218,25 @@ class Turn(models.Model):
         )
 
 
+class TrialType(Enum):
+    TRIAL = "Trial"
+    EVENT = "Event"
+
+
 class Trial(models.Model):
     trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     _length = models.DurationField(default=timedelta(seconds=0))
     _begin = models.DateTimeField(default=timezone.now())
+    type = models.CharField(
+        max_length=5,
+        choices=[(tag, tag.value) for tag in TrialType],
+        default=TrialType.TRIAL
+    )
 
     @property
-    def is_active(self):
+    def is_event_active(self):
         return (timezone.now() < (self._begin + self._length)) and (timezone.now() > self._begin)
 
     @property
