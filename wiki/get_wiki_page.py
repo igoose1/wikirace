@@ -1,18 +1,18 @@
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse,\
-    HttpResponseRedirect,\
-    HttpResponseNotFound,\
-    HttpResponseBadRequest,\
+from django.http import HttpResponse, \
+    HttpResponseRedirect, \
+    HttpResponseNotFound, \
+    HttpResponseBadRequest, \
     Http404
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
 from . import inflection
-from .GameOperator import GameOperator,\
-    DifficultGameTaskGenerator,\
-    RandomGameTaskGenerator,\
-    TrialGameTaskGenerator,\
-    MultipayerGameTaskGenerator,\
+from .GameOperator import GameOperator, \
+    DifficultGameTaskGenerator, \
+    RandomGameTaskGenerator, \
+    TrialGameTaskGenerator, \
+    MultipayerGameTaskGenerator, \
     ByIdGameTaskGenerator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
@@ -20,7 +20,7 @@ from .form import FeedbackForm
 from .PathReader import get_path
 from .models import Turn, \
     Trial, \
-    GameTypes
+    GameTypes, GamePair
 from wiki.file_holder import file_holder
 from .models import Trial, MultiplayerPair, UserSettings, Game
 
@@ -102,8 +102,9 @@ def get_settings(session):
 def get_main_page(prevars):
     template = loader.get_template('wiki/start_page.html')
     trial_list = list(filter(lambda x: not x.is_active,
-                      list(Trial.objects.all())))
+                             list(Trial.objects.all())))
     event_list = list(filter(lambda x: x.is_active, list(Trial.objects.all())))
+    print(event_list)
     context = {
         'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
         'settings': prevars.settings.dict(),
@@ -115,7 +116,6 @@ def get_main_page(prevars):
 
 @load_prevars
 def change_settings(prevars):
-
     difficulty = prevars.request.POST.get('difficulty', None)
     if not any(t.value == difficulty for t in GameTypes):
         return HttpResponseBadRequest()
@@ -355,7 +355,8 @@ def show_results_table(prevars, multiplayer_key):
         'results_table': get_results(
             multiplayer,
             prevars.settings.user_id
-        )
+        ),
+        'only_global': False
     }
     return HttpResponse(
         template.render(context, prevars.request),
@@ -410,3 +411,21 @@ def results_table(game_holder, user_id, top_n=-1):
             'is_me': user_id == curr_game_user_id
         })
     return results_table
+
+
+@load_prevars
+def show_trial_results_table(prevars, trial_id):
+    trial = get_object_or_404(Trial, trial_id=trial_id)
+    results = results_table(trial.game_pair, prevars.settings.user_id)
+    context = {
+        'results_table': {
+            'global_table': results
+        },
+        'only_global': True
+    }
+
+    template = loader.get_template('wiki/leaderboard_page.html')
+    return HttpResponse(
+        template.render(context, prevars.request),
+        content_type='text/html'
+    )
