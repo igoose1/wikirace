@@ -42,13 +42,14 @@
             Результаты других игроков
         </div>
         <div class="card-content-box card-content-box-text block-leaderboard table-content">
-            <div class="switch card-content-box-text block-leaderboard switch-checked" id="friends-button">
-                Друзья
-            </div>
-            <div class="switch card-content-box-text block-leaderboard" id="global-button">
+            {% if not only_global %}
+            <div class="switch card-content-box-text block-leaderboard switch-checked" id="global-button">
                 Общий рейтинг
             </div>
-            <div class="table block-leaderboard" id="friends-table">
+            <div class="switch card-content-box-text block-leaderboard" id="friends-button">
+                Друзья
+            </div>
+            <div class="table block-leaderboard closed" id="friends-table">
                 <table>
                     <tr>
                         <th> Место</th>
@@ -56,7 +57,7 @@
                         <th> Результат</th>
                     </tr>
                     {% for item in results_table.private_table %}
-                    <tr>
+                    <tr {% if item.is_me %} class="player-row" {% endif %}>
                         <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
@@ -64,7 +65,8 @@
                     {% endfor %}
                 </table>
             </div>
-            <div class="table block-leaderboard closed" id="global-table">
+            {% endif %}
+            <div class="table block-leaderboard" id="global-table">
                 <table>
                     <tr>
                         <th> Место</th>

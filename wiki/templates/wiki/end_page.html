@@ -120,7 +120,7 @@
                         <th> Результат</th>
                     </tr>
                     {% for item in results_table.private_table %}
-                    <tr>
+                    <tr {% if item.is_me %} class="player-row" {% endif %}>
                         <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
@@ -136,8 +136,8 @@
                         <th> Результат</th>
                     </tr>
                     {% for item in results_table.global_table %}
-                    <tr>
-                        <td> {{ forloop.counter }}</td>
+                    <tr {% if item.is_me %} class="player-row" {% endif %}>
+                        <td> {{item.is_me}}{{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
                     </tr>

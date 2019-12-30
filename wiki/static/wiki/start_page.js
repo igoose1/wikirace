@@ -81,4 +81,10 @@ $(document).ready(() => {
     $("#open-settings").on('click', () => {
         toggleGameCard('settings');
     });
+
+    $('.expand-event-img').on('click', (event) => {
+            const eventBlock = $(event.target).parent().parent();
+            eventBlock.find('.event-content').toggleClass('visible').toggleClass('invisible');
+            eventBlock.find('.expand-event-img').toggleClass('inverted');
+    });
 });
