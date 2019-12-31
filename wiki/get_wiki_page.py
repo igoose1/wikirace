@@ -22,7 +22,7 @@ from .models import Turn, \
     Trial, \
     GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
-from .models import Trial, MultiplayerPair, UserSettings, Game
+from .models import MultiplayerPair, UserSettings, Game
 
 
 def redirect_to(page):
