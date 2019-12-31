@@ -1,0 +1,55 @@
+{% extends 'wiki/base_page.html' %}
+{% load static %}
+{% load hrefs %}
+
+{% block head %}
+<title>WikiRace - вход</title>
+<link rel="stylesheet" href="{% static 'wiki/styles/login_page_style.css' %}">
+<link rel="stylesheet" href="{% static 'wiki/styles/start_page_style.css' %}">
+<script src="{% static 'wiki/card_toggle.js' %}"></script>
+{% endblock %}
+
+{% block title %}
+<div class="logo-wikirace">
+    <span>WikiRace</span>
+</div>
+{% endblock %}
+
+{% block buttonBar %}
+{% endblock %}
+
+{% block drawerContent %}
+{% endblock %}
+
+{% block extra %}
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="card visible card-opened" id="card-login">
+    <div class="close-button" id="close-login">
+    </div>
+    <div class="card-image-box card-image-box-name">
+        <img src="{% static 'wiki/icons/baseline-face-24px.svg' %}" alt="Face">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Вход
+        </div>
+        <a href="https://oauth.vk.com/authorize?client_id={{client_id}}&display=page&redirect_uri={{redirect_uri}}&scope=0friends&response_type=code&v=5.103">
+            <div class="card-content-box card-content-box-text block-name">
+                <div class="vk-login-button">
+                    <div class="vk-logo-placeholder">
+                        <img src="{% static 'wiki/icons/vkcom.svg' %}" id="vk-logo"/>
+                    </div>
+                    <div class="vk-text">
+                        Войти через ВКонтакте
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+{% endblock %}

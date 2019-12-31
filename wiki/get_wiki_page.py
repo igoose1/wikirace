@@ -23,6 +23,7 @@ from .models import Turn, \
     GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
 from .models import MultiplayerPair, UserSettings, Game
+import requests
 
 
 def redirect_to(page):
@@ -35,6 +36,8 @@ def redirect_to(page):
 class PreVariables:
     def __init__(self, request):
         self.settings = get_settings(request.session)
+        if self.settings is None:
+            return
         self.zim_file = self._add_file(ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
@@ -61,6 +64,8 @@ def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
         try:
+            if prevars.settings is None:
+                return redirect_to("/login")
             res = func(prevars, *args, **kwargs)
             prevars.settings.save()
             if prevars.game_operator is not None:
@@ -96,9 +101,13 @@ def requires_finished_game(func):
 def get_settings(session):
     user_id = session.get('user_id', None)
     if UserSettings.objects.filter(user_id=user_id).count() == 0:
-        user_settings = UserSettings.objects.create()
-        user_id = user_settings.user_id
-        session['user_id'] = user_id
+        if settings.VK_SECRET_KEY != '':
+            return None
+        else:
+            user = UserSettings.objects.create(vk_id='', vk_access_token='')
+            session['user_id'] = user.user_id
+            user.save()
+            return user
 
     user_settings = UserSettings.objects.get(user_id=user_id)
 
@@ -107,6 +116,7 @@ def get_settings(session):
 
 @load_prevars
 def get_main_page(prevars):
+
     template = loader.get_template('wiki/start_page.html')
     trial_list = list(Trial.objects.filter(type=TrialType.TRIAL))
     event_list = [x for x in Trial.objects.filter(type=TrialType.EVENT) if x.is_event_active]
@@ -268,6 +278,65 @@ def get_end_page(prevars):
 def surrender(prevars):
     prevars.game_operator.surrender()
     return get_end_page(prevars)
+
+
+def get_login_page(request):
+    context = {
+        'client_id': settings.VK_CLIENT_ID,
+        'redirect_uri': 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
+    }
+    template = loader.get_template('wiki/login_page.html')
+    if len(request.GET) == 0:
+        return HttpResponse(template.render(context, request))
+
+    if request.GET.get('code', None) is None:
+        return HttpResponse(template.render(context, request))
+
+    code = request.GET['code']
+    href = 'https://oauth.vk.com/access_token?' + \
+           'client_id={id}&client_secret={secret}' + \
+           '&redirect_uri={link}' + \
+           '&code={code}'
+    href = href.format(id=settings.VK_CLIENT_ID,
+                       secret=settings.VK_SECRET_KEY,
+                       link='http://wikirace.lksh.ru/' + settings.ROOT_PATH + "login",
+                       code=code)
+    r = requests.get(href)
+    r = r.json()
+    token = r.get('access_token', None)
+    user_id = r.get('user_id', None)
+    if token is None or user_id is None:
+        return HttpResponse(template.render(context, request))
+    vk_id = str(user_id)
+    user = UserSettings.objects.filter(vk_id=vk_id)
+    if user.exists():
+        user = user[0]
+        request.session['user_id'] = user.user_id
+        user.access_token = token
+        user.save()
+        return redirect_to('/')
+
+    href_get_user = 'https://api.vk.com/method/users.get?' + \
+                    'user_ids={id}&' + \
+                    'access_token={token}&' + \
+                    'v=5.103'
+    href_get_user = href_get_user.format(id=vk_id, token=token)
+
+    r = requests.get(href_get_user)
+    r = r.json()
+    error = r.get('error', None)
+    if error is not None:
+        return HttpResponse(template.render(context, request))
+
+    r = r['response'][0]
+    name = r["first_name"] + " " + r["last_name"]
+
+    user = UserSettings.objects.create(vk_id=vk_id, vk_access_token=token)
+    user.name = name
+    user.save()
+    request.session['user_id'] = user.user_id
+
+    return redirect_to("/")
 
 
 @requires_finished_game

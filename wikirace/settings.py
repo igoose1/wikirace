@@ -21,6 +21,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = settings_local.SECRET_KEY
 
+VK_SECRET_KEY = getattr(settings_local, 'VK_SECRET_KEY', '')
+VK_CLIENT_ID = "7266069"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = settings_local.DEBUG
 

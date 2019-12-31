@@ -18,11 +18,19 @@ class GameTypes(Enum):
 
 class UserSettings(models.Model):
     user_id = models.AutoField(primary_key=True)
+    vk_id = models.CharField(
+        max_length=256,
+        null=False
+    )
+    vk_access_token = models.CharField(
+        max_length=256,
+        null=False
+    )
     _difficulty = models.CharField(
         max_length=10,
         default=GameTypes.easy.value,
     )
-    _name = models.CharField(max_length=16, null=True)
+    _name = models.CharField(max_length=256, null=True)
 
     @property
     def name(self):
