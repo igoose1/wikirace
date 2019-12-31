@@ -1,6 +1,6 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
-
+{% load hrefs %}
 {% block head %}
 <title>{{ title }}</title>
 <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/game_page_style.css' %}">
@@ -15,17 +15,17 @@
 
 {% block buttonBar %}
 <div class="button">
-	<a href="/surrender" clss="image_button">
+    <a href="{{ "/surrender"|href }}" clss="image_button">
 		<img src="{% static "wiki/icons/baseline-flag-24px.svg" %}" alt="undo" title="сдаться">
 	</a>
 </div>
 <div class="button">
-    <a href="/" class="image-button">
+    <a href="{{ "/"|href }}" class="image-button">
         <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
     </a>
 </div>
 <div class="button">
-    <a href="/game_start" class="image-button">
+    <a href="{{ "/game_start"|href }}" class="image-button">
         <img src="{% static 'wiki/icons/baseline-autorenew-24px.svg' %}" alt="заново" title="заново">
     </a>
 </div>
@@ -43,7 +43,7 @@
     </div>
     <div class="outline">
         <div class="finish-page">
-            <span><a href="/hint_page" target="_blank">{{ to }}</a></span>
+            <span><a href="{{ "/A/hint_page"|href }}" target="_blank">{{ to }}</a></span>
         </div>
     </div>
 </div>
@@ -56,12 +56,12 @@
 
 {% block extra %}
 <div class="target mobile">
-    <span>Цель:&nbsp;<a href="/hint_page" target="_blank">{{ to }}</a></span>
+    <span>Цель:&nbsp;<a href="{{"/hint_page"|href}}" target="_blank">{{ to }}</a></span>
     <span>Ходов:&nbsp;{{ counter }}</span>
 </div>
 {% if not history_empty %}
 <div class="back-button">
-    <a href="/back">
+    <a href="{{"/back"|href}}">
         <img src="{% static 'wiki/icons/baseline-arrow_back_ios-24px.svg' %}" alt="undo">
     </a>
 </div>

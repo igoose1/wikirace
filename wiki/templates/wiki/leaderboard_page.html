@@ -1,5 +1,7 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
+{% load hrefs %}
+
 {% block head %}
 <title>Таблица результатов</title>
 <script src="{% static 'wiki/card_toggle.js' %}"></script>
@@ -15,7 +17,7 @@
 
 {% block buttonBar %}
 <div class="button">
-    <a href="/" class="image-button">
+    <a href="{{"/"|href}}" class="image-button">
         <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
     </a>
 </div>
