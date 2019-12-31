@@ -83,7 +83,9 @@ $(document).ready(() => {
     });
 
     $('.event-box').on('click', (event) => {
-        const eventBlock = $($(event.target).parents().find(".event-box"));
+        let eventBlock = $(event.target);
+        while (!eventBlock[0].classList.contains('event-box'))
+            eventBlock = eventBlock.parent();
         eventBlock.find('.event-content').toggleClass('visible').toggleClass('invisible');
         eventBlock.find('.expand-event-img').toggleClass('inverted');
         event.stopPropogation();    

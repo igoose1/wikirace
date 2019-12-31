@@ -785,5 +785,9 @@ form {
     border-width: 10px;
     border-style: solid;
     border-image:
-        linear-gradient(225deg, #00bcdd 0%, #ff00ff 120%)1 100;
+        linear-gradient(225deg, #00bcdd 0%, #ff00ff 120%)1 1;
+}
+
+#card-event {
+    box-sizing: border-box;
 }
