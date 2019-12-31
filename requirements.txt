@@ -7,3 +7,4 @@ MarkupSafe==1.1.1
 pytz==2019.1
 sqlparse==0.3.0
 zimply==1.1.1
+requests==2.22.0
