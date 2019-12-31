@@ -282,9 +282,9 @@ def surrender(prevars):
 
 def get_login_page(request):
     context = {
-            'client_id': settings.VK_CLIENT_ID,
-            'redirect_uri': 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
-            }
+        'client_id': settings.VK_CLIENT_ID,
+        'redirect_uri': 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
+    }
     template = loader.get_template('wiki/login_page.html')
     if len(request.GET) == 0:
         return HttpResponse(template.render(context, request))
@@ -298,9 +298,9 @@ def get_login_page(request):
            '&redirect_uri={link}' + \
            '&code={code}'
     href = href.format(id=settings.VK_CLIENT_ID,
-                secret=settings.VK_SECRET_KEY,
-                link='http://wikirace.lksh.ru/' + settings.ROOT_PATH + "login",
-                code=code)
+                       secret=settings.VK_SECRET_KEY,
+                       link='http://wikirace.lksh.ru/' + settings.ROOT_PATH + "login",
+                       code=code)
     r = requests.get(href)
     r = r.json()
     token = r.get('access_token', None)
@@ -316,7 +316,6 @@ def get_login_page(request):
         user.save()
         return redirect_to('/')
 
-
     href_get_user = 'https://api.vk.com/method/users.get?' + \
                     'user_ids={id}&' + \
                     'access_token={token}&' + \
@@ -330,7 +329,7 @@ def get_login_page(request):
         return HttpResponse(template.render(context, request))
 
     r = r['response'][0]
-    name = r["first_name"]+" "+r["last_name"]
+    name = r["first_name"] + " " + r["last_name"]
 
     user = UserSettings.objects.create(vk_id=vk_id, vk_access_token=token)
     user.name = name

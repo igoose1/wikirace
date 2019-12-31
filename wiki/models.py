@@ -23,8 +23,8 @@ class UserSettings(models.Model):
         null=False
     )
     vk_access_token = models.CharField(
-            max_length=256,
-            null=False
+        max_length=256,
+        null=False
     )
     _difficulty = models.CharField(
         max_length=10,
@@ -236,7 +236,7 @@ class Trial(models.Model):
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     _length = models.DurationField(default=timedelta(seconds=0))
-    _begin = models.DateTimeField(auto_now_add=True)
+    _begin = models.DateTimeField(default=timezone.now())
     type = models.CharField(
         max_length=16,
         choices=[(tag, tag.value) for tag in TrialType],

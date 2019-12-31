@@ -17,11 +17,6 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='trial',
-            name='_begin',
-            field=models.DateTimeField(auto_now_add=True),
-        ),
-        migrations.AlterField(
             model_name='usersettings',
             name='_name',
             field=models.CharField(max_length=256, null=True),
