@@ -101,7 +101,13 @@ def requires_finished_game(func):
 def get_settings(session):
     user_id = session.get('user_id', None)
     if UserSettings.objects.filter(user_id=user_id).count() == 0:
-        return None
+        if settings.VK_SECRET_KEY != '':
+            return None
+        else:
+            user = UserSettings.objects.create(vk_id='', vk_access_token='')
+            session['user_id'] = user.user_id
+            user.save()
+            return user
 
     user_settings = UserSettings.objects.get(user_id=user_id)
 
