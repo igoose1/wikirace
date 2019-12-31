@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -113,6 +114,54 @@ public:
     }
 };
 
+
+class MinPathSeeker {
+private:
+    GraphReader *graph;
+public:
+    MinPathSeeker(GraphReader *graph)
+    {
+        this->graph = graph;
+    }
+
+    void Find(int start, int end, vector<int> &path) {
+        path.clear();
+        vector<int> dist (6000000, INT32_MAX);
+        vector<int> prev (6000000, -1);
+        queue<int> q;
+        q.push(start);
+        dist[start] = 0;
+        vector<int> edges;
+        while (!q.empty()) {
+            int v = q.front();
+            q.pop();
+
+            if (v == end)
+                break;
+
+            graph->edges(v,edges);
+            for (int e: edges)
+                if (dist[e] > dist[v] + 1)
+                {
+                    dist[e] = dist[v] + 1;
+                    prev[e] = v;
+                    q.push(e);
+                }
+        }
+        int prev_v = prev[end];
+
+        while (prev_v != -1)
+        {
+            path.push_back(prev_v);
+            prev_v = prev[prev_v];
+        }
+
+        reverse(path.begin(), path.end());
+        path.push_back(end);
+    }
+};
+
+
 //#define DEBUG
 
 void FIND(vector<string> &argv){
@@ -156,6 +205,21 @@ void EDGES(vector<string> &argv) {
 }
 
 
+void MINPATH(vector<string> &argv) {
+    string arg1,arg2;
+    int start, end;
+    arg1 = argv[2];
+    arg2 = argv[3];
+    start = stoi(argv[4]);
+    end = stoi(argv[5]);
+    GraphReader graph(arg1, arg2);
+    MinPathSeeker seeker(&graph);
+    vector<int> result;
+    seeker.Find(start, end, result);
+    for (int i = 0; i < result.size(); i++)
+        cout << result[i] << ' ';
+}
+
 
 int main(int argc, char *argv[]) {
     vector<string> args;
@@ -165,4 +229,6 @@ int main(int argc, char *argv[]) {
         FIND(args);
     else if (args[1] == "/EDGES")
         EDGES(args);
+    else if (args[1] == "/MINPATH")
+        MINPATH(args);
 }
