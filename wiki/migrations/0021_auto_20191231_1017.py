@@ -21,6 +21,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='trial',
             name='type',
-            field=models.CharField(choices=[(wiki.models.TrialType('Trial'), 'Trial'), (wiki.models.TrialType('Event'), 'Event')], default=wiki.models.TrialType('Trial'), max_length=16),
+            field=models.CharField(choices=[(wiki.models.TrialType('Trial'), 'Trial'),\
+                                            (wiki.models.TrialType('Event'), 'Event')],\
+                                   default=wiki.models.TrialType('Trial'), max_length=16),
         ),
     ]
