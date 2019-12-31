@@ -28,6 +28,9 @@ ALLOWED_HOSTS = settings_local.ALLOWED_HOSTS
 
 ROOT_PATH = getattr(settings_local, 'ROOT_PATH', '')
 
+SESSION_COOKIE_NAME = "sessionid_" + ROOT_PATH.replace("/", "")
+
+
 # Application definition
 
 INSTALLED_APPS = [
