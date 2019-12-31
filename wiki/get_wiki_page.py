@@ -281,9 +281,10 @@ def surrender(prevars):
 
 
 def get_login_page(request):
+    redirect_uri = 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
     context = {
         'client_id': settings.VK_CLIENT_ID,
-        'redirect_uri': 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
+        'redirect_uri': redirect_uri
     }
     template = loader.get_template('wiki/login_page.html')
     if len(request.GET) == 0:
@@ -299,7 +300,7 @@ def get_login_page(request):
            '&code={code}'
     href = href.format(id=settings.VK_CLIENT_ID,
                        secret=settings.VK_SECRET_KEY,
-                       link='http://wikirace.lksh.ru/' + settings.ROOT_PATH + "login",
+                       link=redirect_uri,
                        code=code)
     r = requests.get(href)
     r = r.json()
