@@ -234,7 +234,7 @@ class Trial(models.Model):
     _length = models.DurationField(default=timedelta(seconds=0))
     _begin = models.DateTimeField(auto_now_add=True)
     type = models.CharField(
-        max_length=5,
+        max_length=16,
         choices=[(tag, tag.value) for tag in TrialType],
         default=TrialType.TRIAL
     )

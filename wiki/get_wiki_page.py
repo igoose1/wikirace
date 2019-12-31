@@ -22,7 +22,13 @@ from .models import Turn, \
     Trial, \
     GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
-from .models import Trial, MultiplayerPair, UserSettings, Game
+from .models import MultiplayerPair, UserSettings, Game
+
+
+def redirect_to(page):
+    if page[0] == '/' and settings.ROOT_PATH != "":
+        return HttpResponseRedirect('/' + settings.ROOT_PATH.rstrip('/') + page)
+    return HttpResponseRedirect(page)
 
 
 @file_holder
@@ -47,6 +53,9 @@ class PreVariables:
         )
         self.request = request
 
+    def redirect_to_curr_page(self):
+        return redirect_to('/A/' + self.game_operator.current_page.url)
+
 
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
@@ -69,7 +78,7 @@ def load_prevars(func):
 def requires_game(func):
     def wrapper(prevars, *args, **kwargs):
         if prevars.game_operator is None:
-            return HttpResponseRedirect('/')
+            return redirect_to('/')
         return func(prevars, *args, **kwargs)
 
     return load_prevars(wrapper)
@@ -78,9 +87,7 @@ def requires_game(func):
 def requires_finished_game(func):
     def wrapper(prevars, *args, **kwargs):
         if not prevars.game_operator.finished:
-            return HttpResponseRedirect(
-                prevars.game_operator.current_page.url
-            )
+            return prevars.redirect_to_curr_page()
         return func(prevars, *args, **kwargs)
 
     return requires_game(wrapper)
@@ -152,7 +159,7 @@ def get_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @load_prevars
@@ -168,7 +175,7 @@ def custom_game_start(prevars, trial_id):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @load_prevars
@@ -179,18 +186,18 @@ def get_random_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @requires_game
 def get_continue(prevars):
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @requires_game
 def get_back(prevars):
     prevars.game_operator.jump_back()
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @requires_game
@@ -278,9 +285,7 @@ def get(prevars, title_name):
         return HttpResponse(article.content, content_type=article.mimetype)
 
     if not prevars.game_operator.is_jump_allowed(article):
-        return HttpResponseRedirect(
-            prevars.game_operator.current_page.url
-        )
+        return prevars.redirect_to_curr_page()
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
@@ -319,7 +324,7 @@ def get_feedback_page(prevars):
         form = FeedbackForm(prevars.request.POST).save()
         form.time = timezone.now()
         form.save()
-        return HttpResponseRedirect('/')
+        return redirect_to('/')
     else:
         form = FeedbackForm()
 
@@ -340,7 +345,7 @@ def join_game_by_key(prevars, multiplayer_key):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @load_prevars

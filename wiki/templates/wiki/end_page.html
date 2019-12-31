@@ -1,5 +1,6 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
+{% load hrefs %}
 {% block head %}
 <title>WikiRace - Игра окончена</title>
 <script src="{% static 'wiki/card_toggle.js' %}"></script>
@@ -16,7 +17,7 @@
 
 {% block buttonBar %}
 <div class="button">
-    <a href="/" class="image-button">
+    <a href="{{"/"|href}}" class="image-button">
         <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
     </a>
 </div>
@@ -30,7 +31,7 @@
 
 {% block content %}
 <div class="card">
-    <a href="/game_start">
+    <a href="{{"/game_start"|href}}">
         <div class="card-image-box card-image-box-continue">
             <img src="{% static 'wiki/icons/baseline-play_arrow-24px.svg' %}" alt="Play">
         </div>
@@ -45,7 +46,7 @@
     </a>
 </div>
 <div class="card">
-    <a href="/">
+    <a href="{{"/"|href}}">
         <div class="card-image-box card-image-box-home">
             <img src="{% static 'wiki/icons/baseline-home-black-24px.svg' %}" alt="Home">
         </div>
@@ -73,13 +74,13 @@
 				<br/>
 				из {{from}}
 				<br/>
-				в <a href="/hint_page"> {{to}} </a>
+                в <a href="{{"/hint_page"|href}}"> {{to}} </a>
 			</span>
         </div>
     </div>
 </div>
 <div class="card">
-    <a href="/show_path_page">
+    <a href="{{"/show_path_page"|href}}">
         <div class="card-image-box card-image-box-path">
             <img src="{% static 'wiki/icons/baseline-swap_calls-24px.svg' %}" alt="stats">
         </div>
@@ -136,7 +137,7 @@
                     </tr>
                     {% for item in results_table.global_table %}
                     <tr {% if item.is_me %} class="player-row" {% endif %}>
-                        <td> {{item.is_me}}{{ forloop.counter }}</td>
+                        <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
                         <td> {{ item.steps }}</td>
                     </tr>
