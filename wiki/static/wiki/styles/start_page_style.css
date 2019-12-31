@@ -768,6 +768,7 @@ form {
     display: inline-block;
     cursor: default;
     vertical-align: middle;
+    width: calc(80% - 24px);
 }
 
 .expand-event-img, .play-button-event, .results-button-event {
