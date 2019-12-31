@@ -688,4 +688,7 @@ table th:first-child, table td:first-child {
   margin-right: auto;
 }
 
+.player-row {
+    background: #223322;
+}
 /*# sourceMappingURL=win_page_style.css.map */

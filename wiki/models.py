@@ -1,7 +1,9 @@
 from django.db import models
 from django.conf import settings
 from random import randrange
+from django.utils import timezone
 import hashlib
+from datetime import timedelta
 from enum import Enum
 
 
@@ -16,11 +18,19 @@ class GameTypes(Enum):
 
 class UserSettings(models.Model):
     user_id = models.AutoField(primary_key=True)
+    vk_id = models.CharField(
+        max_length=256,
+        null=False
+    )
+    vk_access_token = models.CharField(
+        max_length=256,
+        null=False
+    )
     _difficulty = models.CharField(
         max_length=10,
         default=GameTypes.easy.value,
     )
-    _name = models.CharField(max_length=16, null=True)
+    _name = models.CharField(max_length=256, null=True)
 
     @property
     def name(self):
@@ -216,10 +226,34 @@ class Turn(models.Model):
         )
 
 
+class TrialType(Enum):
+    TRIAL = "Trial"
+    EVENT = "Event"
+
+
 class Trial(models.Model):
     trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    _length = models.DurationField(default=timedelta(seconds=0))
+    _begin = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(
+        max_length=16,
+        choices=[(tag, tag.value) for tag in TrialType],
+        default=TrialType.TRIAL
+    )
+
+    @property
+    def is_event_active(self):
+        return (timezone.now() < (self._begin + self._length)) and (timezone.now() > self._begin)
+
+    @property
+    def time_left(self):
+        return self._begin + self._length - timezone.now()
+
+    @property
+    def hours_left(self):
+        return int(self.time_left.total_seconds() // 3600)
 
     def __str__(self):
         return '{trial_name}, ind = {trial_id}, path: {from_page_id} -> {to_page_id}'.format(

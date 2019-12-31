@@ -21,10 +21,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = settings_local.SECRET_KEY
 
+VK_SECRET_KEY = getattr(settings_local, 'VK_SECRET_KEY', '')
+VK_CLIENT_ID = "7266069"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = settings_local.DEBUG
 
 ALLOWED_HOSTS = settings_local.ALLOWED_HOSTS
+
+ROOT_PATH = getattr(settings_local, 'ROOT_PATH', '')
+
+SESSION_COOKIE_NAME = "sessionid_" + ROOT_PATH.replace("/", "")
+
 
 # Application definition
 
@@ -128,7 +136,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = settings_local.STATIC_URL
+if hasattr(settings_local, 'STATIC_URL'):
+    STATIC_URL = settings_local.STATIC_URL
+elif hasattr(settings_local, 'STATIC_VERSION'):
+    with open(settings_local.STATIC_VERSION) as f:
+        STATIC_URL = '/%sstatic/%s/' % (ROOT_PATH, f.readline().strip(),)
+else:
+    STATIC_URL = '/%sstatic/' % (ROOT_PATH,)
+
+
 NUMBER_OF_VERTICES_IN_GRAPH = 5054753
 
 # WIKI_MIRROR_HOST = 'http://10.5.200.206:9454/'

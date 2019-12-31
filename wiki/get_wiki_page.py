@@ -1,18 +1,18 @@
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse,\
-    HttpResponseRedirect,\
-    HttpResponseNotFound,\
-    HttpResponseBadRequest,\
+from django.http import HttpResponse, \
+    HttpResponseRedirect, \
+    HttpResponseNotFound, \
+    HttpResponseBadRequest, \
     Http404
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
 from . import inflection
-from .GameOperator import GameOperator,\
-    DifficultGameTaskGenerator,\
-    RandomGameTaskGenerator,\
-    TrialGameTaskGenerator,\
-    MultipayerGameTaskGenerator,\
+from .GameOperator import GameOperator, \
+    DifficultGameTaskGenerator, \
+    RandomGameTaskGenerator, \
+    TrialGameTaskGenerator, \
+    MultipayerGameTaskGenerator, \
     ByIdGameTaskGenerator
 from .GraphReader import GraphReader
 from .ZIMFile import ZIMFile
@@ -20,15 +20,24 @@ from .form import FeedbackForm
 from .PathReader import get_path
 from .models import Turn, \
     Trial, \
-    GameTypes
+    GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
-from .models import Trial, MultiplayerPair, UserSettings, Game
+from .models import MultiplayerPair, UserSettings, Game
+import requests
+
+
+def redirect_to(page):
+    if page[0] == '/' and settings.ROOT_PATH != "":
+        return HttpResponseRedirect('/' + settings.ROOT_PATH.rstrip('/') + page)
+    return HttpResponseRedirect(page)
 
 
 @file_holder
 class PreVariables:
     def __init__(self, request):
         self.settings = get_settings(request.session)
+        if self.settings is None:
+            return
         self.zim_file = self._add_file(ZIMFile(
             settings.WIKI_ZIMFILE_PATH,
             settings.WIKI_ARTICLES_INDEX_FILE_PATH
@@ -47,11 +56,16 @@ class PreVariables:
         )
         self.request = request
 
+    def redirect_to_curr_page(self):
+        return redirect_to('/A/' + self.game_operator.current_page.url)
+
 
 def load_prevars(func):
     def wrapper(request, *args, **kwargs):
         prevars = PreVariables(request)
         try:
+            if prevars.settings is None:
+                return redirect_to("/login")
             res = func(prevars, *args, **kwargs)
             prevars.settings.save()
             if prevars.game_operator is not None:
@@ -69,18 +83,31 @@ def load_prevars(func):
 def requires_game(func):
     def wrapper(prevars, *args, **kwargs):
         if prevars.game_operator is None:
-            return HttpResponseRedirect('/')
+            return redirect_to('/')
         return func(prevars, *args, **kwargs)
 
     return load_prevars(wrapper)
 
 
+def requires_finished_game(func):
+    def wrapper(prevars, *args, **kwargs):
+        if not prevars.game_operator.finished:
+            return prevars.redirect_to_curr_page()
+        return func(prevars, *args, **kwargs)
+
+    return requires_game(wrapper)
+
+
 def get_settings(session):
     user_id = session.get('user_id', None)
     if UserSettings.objects.filter(user_id=user_id).count() == 0:
-        user_settings = UserSettings.objects.create()
-        user_id = user_settings.user_id
-        session['user_id'] = user_id
+        if settings.VK_SECRET_KEY != '':
+            return None
+        else:
+            user = UserSettings.objects.create(vk_id='', vk_access_token='')
+            session['user_id'] = user.user_id
+            user.save()
+            return user
 
     user_settings = UserSettings.objects.get(user_id=user_id)
 
@@ -89,19 +116,21 @@ def get_settings(session):
 
 @load_prevars
 def get_main_page(prevars):
+
     template = loader.get_template('wiki/start_page.html')
-    trial_list = Trial.objects.all()
+    trial_list = list(Trial.objects.filter(type=TrialType.TRIAL))
+    event_list = [x for x in Trial.objects.filter(type=TrialType.EVENT) if x.is_event_active]
     context = {
         'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
         'settings': prevars.settings.dict(),
         'trial_list': trial_list,
+        'event_list': event_list,
     }
     return HttpResponse(template.render(context, prevars.request))
 
 
 @load_prevars
 def change_settings(prevars):
-
     difficulty = prevars.request.POST.get('difficulty', None)
     if not any(t.value == difficulty for t in GameTypes):
         return HttpResponseBadRequest()
@@ -140,7 +169,7 @@ def get_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @load_prevars
@@ -156,7 +185,7 @@ def custom_game_start(prevars, trial_id):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @load_prevars
@@ -167,18 +196,18 @@ def get_random_start(prevars):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @requires_game
 def get_continue(prevars):
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @requires_game
 def get_back(prevars):
     prevars.game_operator.jump_back()
-    return HttpResponseRedirect(prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @requires_game
@@ -192,7 +221,7 @@ def get_hint_page(prevars):
     return HttpResponse(template.render(context, prevars.request))
 
 
-@requires_game
+@requires_finished_game
 def show_path_page(prevars):
     page_id = prevars.game_operator.start_page_id
     start = prevars.zim_file[page_id].title
@@ -251,12 +280,68 @@ def surrender(prevars):
     return get_end_page(prevars)
 
 
-@requires_game
+def get_login_page(request):
+    redirect_uri = 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
+    context = {
+        'client_id': settings.VK_CLIENT_ID,
+        'redirect_uri': redirect_uri
+    }
+    template = loader.get_template('wiki/login_page.html')
+    if len(request.GET) == 0:
+        return HttpResponse(template.render(context, request))
+
+    if request.GET.get('code', None) is None:
+        return HttpResponse(template.render(context, request))
+
+    code = request.GET['code']
+    href = 'https://oauth.vk.com/access_token?' + \
+           'client_id={id}&client_secret={secret}' + \
+           '&redirect_uri={link}' + \
+           '&code={code}'
+    href = href.format(id=settings.VK_CLIENT_ID,
+                       secret=settings.VK_SECRET_KEY,
+                       link=redirect_uri,
+                       code=code)
+    r = requests.get(href)
+    r = r.json()
+    token = r.get('access_token', None)
+    user_id = r.get('user_id', None)
+    if token is None or user_id is None:
+        return HttpResponse(template.render(context, request))
+    vk_id = str(user_id)
+    user = UserSettings.objects.filter(vk_id=vk_id)
+    if user.exists():
+        user = user[0]
+        request.session['user_id'] = user.user_id
+        user.access_token = token
+        user.save()
+        return redirect_to('/')
+
+    href_get_user = 'https://api.vk.com/method/users.get?' + \
+                    'user_ids={id}&' + \
+                    'access_token={token}&' + \
+                    'v=5.103'
+    href_get_user = href_get_user.format(id=vk_id, token=token)
+
+    r = requests.get(href_get_user)
+    r = r.json()
+    error = r.get('error', None)
+    if error is not None:
+        return HttpResponse(template.render(context, request))
+
+    r = r['response'][0]
+    name = r["first_name"] + " " + r["last_name"]
+
+    user = UserSettings.objects.create(vk_id=vk_id, vk_access_token=token)
+    user.name = name
+    user.save()
+    request.session['user_id'] = user.user_id
+
+    return redirect_to("/")
+
+
+@requires_finished_game
 def end_page(prevars):
-    if not prevars.game_operator.finished:
-        return HttpResponseRedirect(
-            prevars.game_operator.current_page.url
-        )
     return get_end_page(prevars)
 
 
@@ -270,9 +355,7 @@ def get(prevars, title_name):
         return HttpResponse(article.content, content_type=article.mimetype)
 
     if not prevars.game_operator.is_jump_allowed(article):
-        return HttpResponseRedirect(
-            prevars.game_operator.current_page.url
-        )
+        return prevars.redirect_to_curr_page()
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
@@ -311,7 +394,7 @@ def get_feedback_page(prevars):
         form = FeedbackForm(prevars.request.POST).save()
         form.time = timezone.now()
         form.save()
-        return HttpResponseRedirect('/')
+        return redirect_to('/')
     else:
         form = FeedbackForm()
 
@@ -332,7 +415,7 @@ def join_game_by_key(prevars, multiplayer_key):
         prevars.graph,
         prevars.settings,
     )
-    return HttpResponseRedirect('/' + prevars.game_operator.current_page.url)
+    return prevars.redirect_to_curr_page()
 
 
 @load_prevars
@@ -345,7 +428,8 @@ def show_results_table(prevars, multiplayer_key):
         'results_table': get_results(
             multiplayer,
             prevars.settings.user_id
-        )
+        ),
+        'only_global': False
     }
     return HttpResponse(
         template.render(context, prevars.request),
@@ -400,3 +484,21 @@ def results_table(game_holder, user_id, top_n=-1):
             'is_me': user_id == curr_game_user_id
         })
     return results_table
+
+
+@load_prevars
+def show_trial_results_table(prevars, trial_id):
+    trial = get_object_or_404(Trial, trial_id=trial_id)
+    results = results_table(trial.game_pair, prevars.settings.user_id)
+    context = {
+        'results_table': {
+            'global_table': results
+        },
+        'only_global': True
+    }
+
+    template = loader.get_template('wiki/leaderboard_page.html')
+    return HttpResponse(
+        template.render(context, prevars.request),
+        content_type='text/html'
+    )

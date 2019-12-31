@@ -1,0 +1,16 @@
+.close-button {
+    display: block !important;
+    background: #738ad0;
+    height: 30px;
+}
+
+.vk-logo-placeholder {
+    margin-bottom: 10px;
+    width: 20%;
+    display: flex;
+}
+
+#vk-logo {
+    width: 50px;
+}
+

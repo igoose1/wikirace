@@ -1,5 +1,6 @@
 {% extends 'wiki/base_page.html' %}
 {% load static %}
+{% load hrefs %}
 
 {% block head %}
 <title>WikiRace</title>
@@ -15,11 +16,13 @@
 {% endblock %}
 
 {% block buttonBar %}
+<!--
 <div class="button" id="open-settings">
     <a>
         <img src="{% static 'wiki/icons/baseline-settings-20px.svg' %}" alt="Настройки" title="Настройки">
     </a>
 </div>
+-->
 {% endblock %}
 
 {% block drawerContent %}
@@ -30,6 +33,46 @@
 
 {% block content %}
 {% csrf_token %}
+
+{% if event_list|length > 0 %}
+<div class="card visible with-gradient-border" id="card-event" >
+    <div class="close-button invisible" id="close-event">
+        <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
+    </div>
+    <div class="card-image-box card-image-box-event">
+        <img src="{% static 'wiki/icons/event-24px.svg' %}" alt="Event">
+    </div>
+    <div class="card-content-box" id="event-content-box">
+        <div class="card-content-box card-content-box-header">
+            События
+        </div>
+        <div class="card-content-box card-content-box-text">
+            Пройдите глобальные испытания за ограниченное время
+        </div>
+        {% for event in event_list %}
+            <div class="card-content-box card-content-box-text event-box event-handler">
+                <div class="event-name event-handler"> {{event.trial_name}} </div>
+                <div class="expand-event event-handler">
+                    <img src="{% static 'wiki/icons/baseline-expand_more-white-24px.svg' %}" class="expand-event-img">
+                </div>
+                <div class="time-left">
+                    Осталось {{event.hours_left}}ч
+                </div>
+                <a href="{{"/custom_game_start/"|href}}{{event.trial_id}}" class="event-content invisible">
+                    <div class="play-button-event">
+                        Играть
+                    </div>
+                </a>
+                <a href="{{"/results_of_trial/"|href}}{{event.trial_id}}" class="event-content invisible">
+                    <div class="results-button-event">
+                        Результаты
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 {% if is_playing %}
 <div class="card visible" id="card-continue">
@@ -196,7 +239,7 @@
         </div>
         <div class="block-trial invisible" id="trials">
             {% for trial in trial_list %}
-            <a href="/custom_game_start/{{ trial.trial_id }}">
+            <a href="{{"/custom_game_start/"|href}}{{trial.trial_id}}">
                 <div class="card-content-box trial-play">
                     <span>
                         {{ trial.trial_name }}
@@ -207,6 +250,7 @@
         </div>
     </div>
 </div>
+<!--
 <div class="card visible" id="card-settings">
     <div class="close-button invisible" id="close-settings">
         <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
@@ -227,6 +271,8 @@
         </div>
     </div>
 </div>
+-->
+<!--
 {% if settings.name_init_needed %}
 <script>
     $(document).ready(() => {
@@ -254,4 +300,5 @@
     </div>
 </div>
 {% endif %}
+-->
 {% endblock %}
