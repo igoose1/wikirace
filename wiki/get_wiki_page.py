@@ -112,7 +112,7 @@ def change_settings(prevars):
 
 @load_prevars
 def change_name(prevars):
-    name_len = 16
+    name_len = 256
     name = prevars.request.POST.get('name')
     if isinstance(name, str) and len(name) > name_len:
         return HttpResponseBadRequest()
