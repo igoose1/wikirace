@@ -32,6 +32,7 @@ ROOT_PATH = getattr(settings_local, 'ROOT_PATH', '')
 
 INSTALLED_APPS = [
     'wiki',
+    'devtools',
     'django.contrib.admindocs',
     'django.contrib.admin',
     'django.contrib.auth',
