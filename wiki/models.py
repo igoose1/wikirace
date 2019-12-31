@@ -22,6 +22,10 @@ class UserSettings(models.Model):
         max_length=256,
         null=False
     )
+    vk_access_token = models.CharField(
+            max_length=256,
+            null=False
+    )
     _difficulty = models.CharField(
         max_length=10,
         default=GameTypes.easy.value,

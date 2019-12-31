@@ -25,6 +25,7 @@ from wiki.file_holder import file_holder
 from .models import MultiplayerPair, UserSettings, Game
 import requests
 
+
 def redirect_to(page):
     if page[0] == '/' and settings.ROOT_PATH != "":
         return HttpResponseRedirect('/' + settings.ROOT_PATH.rstrip('/') + page)
@@ -109,6 +110,7 @@ def get_settings(session):
 
 @load_prevars
 def get_main_page(prevars):
+
     template = loader.get_template('wiki/start_page.html')
     trial_list = list(Trial.objects.filter(type=TrialType.TRIAL))
     event_list = [x for x in Trial.objects.filter(type=TrialType.EVENT) if x.is_event_active]
@@ -275,10 +277,10 @@ def surrender(prevars):
 def get_login_page(request):
     context = {
             'client_id': settings.VK_CLIENT_ID,
-            'redirect_uri': settings.ROOT_PATH + 'login'
+            'redirect_uri': 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
             }
-    template = loader.get_template('wiki/login_page')
-    if request.GET.length == 0:
+    template = loader.get_template('wiki/login_page.html')
+    if len(request.GET) == 0:
         return HttpResponse(template.render(context, request))
 
     if request.GET.get('code', None) is None:
@@ -287,11 +289,11 @@ def get_login_page(request):
     code = request.GET['code']
     href = 'https://oauth.vk.com/access_token?' + \
            'client_id={id}&client_secret={secret}' + \
-           '&redirect_uri=https://wikirace.lksh.ru/{link}' + \
+           '&redirect_uri={link}' + \
            '&code={code}'
     href = href.format(id=settings.VK_CLIENT_ID,
                 secret=settings.VK_SECRET_KEY,
-                k=settings.ROOT_PATH + "login",
+                link='http://wikirace.lksh.ru/' + settings.ROOT_PATH + "login",
                 code=code)
     r = requests.get(href)
     r = r.json()
@@ -304,7 +306,7 @@ def get_login_page(request):
     if user.exists():
         user = user[0]
         request.session['user_id'] = user.user_id
-        user.access_token = access_token
+        user.access_token = token
         user.save()
         return redirect_to('/')
 
@@ -313,7 +315,7 @@ def get_login_page(request):
                     'user_ids={id}&' + \
                     'access_token={token}&' + \
                     'v=5.103'
-    href_get_user = href_get_user.format(id=vk_id, token=access_token)
+    href_get_user = href_get_user.format(id=vk_id, token=token)
 
     r = requests.get(href_get_user)
     r = r.json()
@@ -324,13 +326,12 @@ def get_login_page(request):
     r = r['response'][0]
     name = r["first_name"]+" "+r["last_name"]
 
-    user = UserSettings.objects.create(vk_id=vk_id, access_token=access_token)
+    user = UserSettings.objects.create(vk_id=vk_id, vk_access_token=token)
     user.name = name
     user.save()
     request.session['user_id'] = user.user_id
 
     return redirect_to("/")
-
 
 
 @requires_finished_game
