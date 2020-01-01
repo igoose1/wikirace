@@ -242,6 +242,7 @@ class Trial(models.Model):
         choices=[(tag, tag.value) for tag in TrialType],
         default=TrialType.TRIAL
     )
+    difficulty = models.FloatField(default=0)
 
     @property
     def is_event_active(self):
@@ -265,7 +266,8 @@ class Trial(models.Model):
 
 
 class GameStats(models.Model):
-    class_type = models.CharField(max_length=64,
+    class_type = models.CharField(
+        max_length=64,
         choices=[(tag, tag.value) for tag in GameTypes]
     )
     tial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, null=True)

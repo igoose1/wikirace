@@ -22,7 +22,7 @@ from .models import Turn, \
     Trial, \
     GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
-from .models import MultiplayerPair, UserSettings, Game
+from .models import MultiplayerPair, UserSettings, Game, GameStats
 import requests
 
 
@@ -343,6 +343,25 @@ def get_login_page(request):
 @requires_finished_game
 def end_page(prevars):
     return get_end_page(prevars)
+
+
+def change_stats(prevars: PreVariables):
+    game_type = prevars.game_operator.game.user_settings.difficulty
+    trial_id = None
+    if game_type == GameTypes.Trial:
+        game_pair_id = prevars.game_operator.game_pair
+        trial_id = Trial.objects.filter(game_pair=game_pair_id)[0]
+    user_id = prevars.game_operator.game.user_settings
+    hops = prevars.game_operator.game.steps
+    time = timezone.now() - prevars.game_operator.game.start_time
+    stat = GameStats.objects.creat(
+        class_type=game_type,
+        trial_id=trial_id,
+        user_id=user_id,
+        hops=hops,
+        time=time
+    )
+    stat.save()
 
 
 @requires_game
