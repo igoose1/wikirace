@@ -38,7 +38,7 @@ def calculate_rate_change(game_stats):
         k_avg - rating coefficient, k_avg < 1
         a, b, c - some parameters
     """
-    class_type = game_stats.class_type
+    class_type = game_stats.class_type.value
 
     k_avg = calculate_rating_coefficient()
     k_diff = get_difficult_coefficient(class_type)
