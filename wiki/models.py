@@ -270,7 +270,7 @@ class GameStats(models.Model):
         max_length=64,
         choices=[(tag, tag.value) for tag in GameTypes]
     )
-    tial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, null=True)
+    trial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, null=True)
     user_id = models.ForeignKey(UserSettings, on_delete=models.CASCADE, null=False)
     hops = models.IntegerField(default=0)
     time = models.DurationField()
