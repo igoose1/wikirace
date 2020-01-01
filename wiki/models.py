@@ -262,3 +262,13 @@ class Trial(models.Model):
             from_page_id=self.game_pair.start_page_id,
             to_page_id=self.game_pair.end_page_id
         )
+
+
+class GameStats(models.Model):
+    class_type = models.CharField(
+        choices=[(tag, tag.value) for tag in GameTypes]
+    )
+    tial_id = models.ForeignKey(Trial, models=models.CASCADE, null=True)
+    user_id = models.ForeignKey(UserSettings, models=models.CASCADE, null=False)
+    hops = models.IntegerField(default=0)
+    time = models.DurationField()
