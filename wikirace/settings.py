@@ -179,7 +179,7 @@ LEVEL_AMOUNT_OF_BLOCKS = 2
 FORBIDDEN_WORDS_FILE = DATA_DIR + 'forbidden_words.txt'
 
 K_DIFF = getattr(
-    settings_local, 
+    settings_local,
     "K_DIFF", {
         GameTypes.easy: 1.0,
         GameTypes.medium: 2.0,
@@ -189,7 +189,7 @@ K_DIFF = getattr(
     }
 )
 DEFAULT_MIN_MOVES = getattr(
-    settings_local, 
+    settings_local,
     "DEFAULT_MIN_MOVES", {
         GameTypes.easy: 3,
         GameTypes.medium: 4,
@@ -201,4 +201,3 @@ DEFAULT_MIN_MOVES = getattr(
 )
 AVG_MULT = getattr(settings_local, "AVG_MULT", 1.5)
 K_DEFAULT_RATE = getattr(settings_local, "K_DEFAULT_RATE", 0.5)
-
