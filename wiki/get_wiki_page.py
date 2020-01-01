@@ -7,6 +7,7 @@ from django.http import HttpResponse, \
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
+from django.db.models import Q
 from . import inflection
 from .GameOperator import GameOperator, \
     DifficultGameTaskGenerator, \
@@ -339,6 +340,21 @@ def get_login_page(request):
     request.session['user_id'] = user.user_id
 
     return redirect_to("/")
+
+
+@load_prevars
+def get_global_rating_page(prevars):
+    user_models = UserSettings.objects.filter(~Q(vk_id="")).order_by('-rate').all()
+    users_table = []
+    for user in user_models:
+        users_table.append({'name': user.name, 'rate': user.rate})
+    context = {
+        'results_table': {
+            'global_table': users_table,
+        }
+    }
+    template = loader.get_template('wiki/rating_page.html')
+    return HttpResponse(template.render(context, prevars.request))
 
 
 @requires_finished_game

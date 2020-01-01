@@ -25,5 +25,6 @@ urlpatterns = [
     url('^surrender', get_wiki_page.surrender),
     url('^endpage', get_wiki_page.end_page),
     url('^login', get_wiki_page.get_login_page),
+    url('^global_rating', get_wiki_page.get_global_rating_page),
     url('^(.*)', get_wiki_page.get)
 ]
