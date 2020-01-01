@@ -22,6 +22,7 @@ class UserSettings(models.Model):
         max_length=256,
         null=False
     )
+    rate = models.FloatField(default=0)
     vk_access_token = models.CharField(
         max_length=256,
         null=False
