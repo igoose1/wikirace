@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from wikirace import settings_local
+from wiki.models import GameTypes
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -167,8 +168,6 @@ LEVEL_FILE_NAMES = {
 V2_DIR = 'precalc_pairs_v2/'
 LEVEL_PATH_FILE_NAMES_V2 = {
     "easy": DATA_DIR + V2_DIR + 'easy_paths',
-    "medium": DATA_DIR + V2_DIR + 'medium_paths',
-    "hard": DATA_DIR + V2_DIR + 'hard_paths'
 }
 LEVEL_FILE_NAMES_V2 = {
     "easy": DATA_DIR + V2_DIR + 'easy',
@@ -178,3 +177,28 @@ LEVEL_FILE_NAMES_V2 = {
 LEVEL_AMOUNT_OF_BLOCKS_V2 = 3
 LEVEL_AMOUNT_OF_BLOCKS = 2
 FORBIDDEN_WORDS_FILE = DATA_DIR + 'forbidden_words.txt'
+
+K_DIFF = getattr(
+    settings_local, 
+    "K_DIFF", {
+        GameTypes.easy: 1.0,
+        GameTypes.medium: 2.0,
+        GameTypes.hard: 3.0,
+        GameTypes.random: 2.0,
+        GameTypes.by_id: 0.0
+    }
+)
+DEFAULT_MIN_MOVES = getattr(
+    settings_local, 
+    "DEFAULT_MIN_MOVES", {
+        GameTypes.easy: 3,
+        GameTypes.medium: 4,
+        GameTypes.hard: 5,
+        GameTypes.random: 4,
+        GameTypes.by_id: 4,
+        GameTypes.trial: 4
+    }
+)
+AVG_MULT = getattr(settings_local, "AVG_MULT", 1.5)
+K_DEFAULT_RATE = getattr(settings_local, "K_DEFAULT_RATE", 0.5)
+

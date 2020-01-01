@@ -1,24 +1,22 @@
 from .models import GameTypes, GameStats
+from django.conf import settings
 
 
-def get_average_move_count():
-    return GameStats.get_average_hops_count()
+def get_average_move_count(class_type):
+    n_avg = GameStats.get_average_hops_count()
+    if n_avg is None:
+        n_avg = settings.DEFAULT_MIN_MOVES[class_type] * settings.AVG_MULT
+    return n_avg
 
 
-def get_min_move_count():
-    return GameStats.get_min_hops_count()
+def get_min_move_count(class_type):
+    n_min = GameStats.get_min_hops_count()
+    if n_min in None:
+        n_min = settings.DEFAULT_MIN_MOVES[class_type]
+    return n_min
 
 
-def get_difficult_coefficient(game_stats):
-    # There are random difficulty coefficients
-    # TODO: Find normal values
-    k_diff = {
-        GameTypes.easy: 1.0,
-        GameTypes.medium: 2.0,
-        GameTypes.hard: 3.0,
-        GameTypes.random: 2.0,
-        GameTypes.by_id: 0.0
-    }
+def get_difficult_coefficient(class_type):
     if game_stats.class_type == GameTypes.trial:
         return game_stats.trial_id.difficulty
     return k_diff[game_stats.class_type]
@@ -26,7 +24,7 @@ def get_difficult_coefficient(game_stats):
 
 def calculate_rating_coefficient():
     # TODO: Create dynamic coefficient
-    return 0.5
+    return settings.K_DEFAULT_RATE
 
 
 def calculate_rate_change(game_stats):
@@ -40,11 +38,12 @@ def calculate_rate_change(game_stats):
         k_avg - rating coefficient, k_avg < 1
         a, b, c - some parameters
     """
+    class_type = game_stats.class_type
 
     k_avg = calculate_rating_coefficient()
-    k_diff = get_difficult_coefficient[game_stats]
-    n_avg = get_average_move_count()
-    n_min = get_min_move_count()
+    k_diff = get_difficult_coefficient(class_type)
+    n_avg = get_average_move_count(class_type)
+    n_min = get_min_move_count(class_type)
 
     n = game_stats.hops
 
