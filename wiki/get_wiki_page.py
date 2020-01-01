@@ -26,6 +26,7 @@ from .models import MultiplayerPair, UserSettings, Game, GameStats
 import requests
 from wiki import user_rating
 
+
 def redirect_to(page):
     if page[0] == '/' and settings.ROOT_PATH != "":
         return HttpResponseRedirect('/' + settings.ROOT_PATH.rstrip('/') + page)
