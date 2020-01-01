@@ -1,0 +1,62 @@
+{% extends 'wiki/base_page.html' %}
+{% load static %}
+{% load hrefs %}
+
+{% block head %}
+<title>Глобальный рейтинг</title>
+<script src="{% static 'wiki/rating_utils.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
+{% endblock %}
+
+{% block title %}
+<div class="logo-wikirace">
+    <span>Рейтинг</span>
+</div>
+{% endblock %}
+
+{% block buttonBar %}
+<div class="button">
+    <a href="{{"/"|href}}" class="image-button">
+        <img src="{% static 'wiki/icons/baseline-home-24px.svg' %}" alt="домой" title="дом">
+    </a>
+</div>
+{% endblock %}
+
+{% block drawerContent %}
+{% endblock %}
+
+{% block extra %}
+{% endblock %}
+
+{% block content %}
+<div class="card visible card-opened" id="card-leaderboard">
+    <div class="close-button" id="close-leaderboard" style="display: block">
+    </div>
+    <div class="card-image-box card-image-box-leaderboard">
+        <img src="{% static 'wiki/icons/award.svg' %}" alt="Кубок">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Глобальный Рейтинг
+        </div>
+        <div class="card-content-box card-content-box-text block-leaderboard table-content">
+            <div class="table block-leaderboard" id="global-table">
+                <table>
+                    <tr>
+                        <th> Место</th>
+                        <th> Имя</th>
+                        <th> Счёт</th>
+                    </tr>
+                    {% for item in results_table.global_table %}
+                    <tr>
+                        <td> {{ forloop.counter }}</td>
+                        <td> {{ item.name }}</td>
+                        <td class="content-loading rating"> {{ item.rating }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
