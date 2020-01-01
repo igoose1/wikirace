@@ -1,12 +1,13 @@
-from .models import GameTypes
+from .models import GameTypes, GameStats
 
-#TODO: Get it from db
-def get_average_move_count(game_stats):
-    pass
 
-#TODO: Get it from db
-def get_min_move_count(game_stats):
-    pass
+def get_average_move_count():
+    return GameStats.get_average_hops_count()
+
+
+def get_min_move_count():
+    return GameStats.get_min_hops_count()
+
 
 def get_difficult_coefficient(game_stats):
     # There are random difficulty coefficients
@@ -22,9 +23,11 @@ def get_difficult_coefficient(game_stats):
         return game_stats.trial_id.difficulty
     return k_diff[game_stats.class_type]
 
+
 def calculate_rating_coefficient():
     # TODO: Create dynamic coefficient
     return 0.5
+
 
 def calculate_rate_change(game_stats):
     """
@@ -40,9 +43,9 @@ def calculate_rate_change(game_stats):
 
     k_avg = calculate_rating_coefficient()
     k_diff = get_difficult_coefficient[game_stats]
-    n_avg = get_average_move_count(game_stats)
-    n_min = get_min_move_count(game_stats)
-    
+    n_avg = get_average_move_count()
+    n_min = get_min_move_count()
+
     n = game_stats.hops
 
     c = -1
@@ -54,4 +57,3 @@ def calculate_rate_change(game_stats):
         delta = -k_diff
 
     return delta
-

@@ -275,3 +275,13 @@ class GameStats(models.Model):
     user_id = models.ForeignKey(UserSettings, on_delete=models.CASCADE, null=False)
     hops = models.IntegerField(default=0)
     time = models.DurationField()
+
+    @staticmethod
+    def get_average_hops_count():
+        val = GameStats.objects.aggregate(models.Avg('hops'))
+        return val.get('hops__avg', None)
+
+    @staticmethod
+    def get_min_hops_count():
+        val = GameStats.objects.aggregate(models.Min('hops'))
+        return val.get('hops__min', None)

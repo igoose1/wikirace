@@ -24,7 +24,7 @@ from .models import Turn, \
 from wiki.file_holder import file_holder
 from .models import MultiplayerPair, UserSettings, Game, GameStats
 import requests
-
+from wiki import user_rating
 
 def redirect_to(page):
     if page[0] == '/' and settings.ROOT_PATH != "":
@@ -348,7 +348,7 @@ def end_page(prevars):
 def change_stats(prevars: PreVariables):
     game_type = prevars.game_operator.game.user_settings.difficulty
     trial_id = None
-    if game_type == GameTypes.Trial:
+    if game_type == GameTypes.trial:
         game_pair_id = prevars.game_operator.game_pair
         trial_id = Trial.objects.filter(game_pair=game_pair_id)[0]
     user_id = prevars.game_operator.game.user_settings
@@ -362,6 +362,8 @@ def change_stats(prevars: PreVariables):
         time=time
     )
     stat.save()
+    user_id.rate += user_rating.calculate_rate_change(stat)
+    user_id.save()
 
 
 @requires_game
