@@ -21,6 +21,11 @@ $(document).ready(() => {
         })
     });
 
+
+    $('#card-global-rating').on('click', () => {
+                window.location.href = 'global_rating'
+    });
+
     function postData(where, data, onSuccess) {
         data['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
         $.ajax({
