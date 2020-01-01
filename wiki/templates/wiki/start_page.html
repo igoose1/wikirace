@@ -16,13 +16,13 @@
 {% endblock %}
 
 {% block buttonBar %}
-<!--
+{#  
 <div class="button" id="open-settings">
     <a>
         <img src="{% static 'wiki/icons/baseline-settings-20px.svg' %}" alt="Настройки" title="Настройки">
     </a>
 </div>
--->
+ #}
 {% endblock %}
 
 {% block drawerContent %}
@@ -191,7 +191,7 @@
         </div>
     </div>
 </div>
-<!--
+{#
 <div class="card visible" id="card-user-game">
     <div class="close-button invisible" id="close-user-game">
         <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
@@ -222,7 +222,7 @@
         </div>
     </div>
 </div>
--->
+#}
 <div class="card visible" id="card-trial">
     <div class="close-button invisible" id="close-trial">
         <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
@@ -250,7 +250,7 @@
         </div>
     </div>
 </div>
-<!--
+{#
 <div class="card visible" id="card-settings">
     <div class="close-button invisible" id="close-settings">
         <img src="{% static 'wiki/icons/baseline-close-24px.svg' %}" alt="close">
@@ -271,8 +271,8 @@
         </div>
     </div>
 </div>
--->
-<!--
+#}
+{#
 {% if settings.name_init_needed %}
 <script>
     $(document).ready(() => {
@@ -300,5 +300,5 @@
     </div>
 </div>
 {% endif %}
--->
+#}
 {% endblock %}
