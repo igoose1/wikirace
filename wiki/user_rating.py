@@ -29,32 +29,33 @@ def calculate_rating_coefficient():
 
 def calculate_rate_change(game_stats):
     """
-        f(n) = k_diff * (a / (n - b) - c)
+        f(n) = k_diff * (a / (n - b) - c) / k_att
         f(n_min) = k_diff
         f(n_avg) = k_avg
         f(inf) = -k_diff
         f(n) - change of rate, -k_diff <= f(n) <= k_diff
         k_diff - difficulty coefficient, k_diff >= 0
         k_avg - rating coefficient, k_avg < 1
+        k_att - attempt coefficient, k_att >= 1
         a, b, c - some parameters
     """
     class_type = game_stats.class_type.value
 
     k_avg = calculate_rating_coefficient()
     k_diff = get_difficult_coefficient(game_stats)
+    k_att = GameStats.get_attemps_count(game_stats.user_id, game_stats.game_pair)
     n_avg = get_average_move_count(class_type)
     n_min = get_min_move_count(class_type)
-
     n = game_stats.hops
 
-    c = -1
+    c = 1
     b = (2 * n_min - n_avg * (k_avg + 1)) / (1 - k_avg)
     a = 2 * (n_min - b)
     if (n - b == 0):
-        return k_diff
+        return k_diff / k_att
 
     delta = k_diff * (a / (n - b) - c)
     if delta < -k_diff:
         delta = -k_diff
 
-    return delta
+    return delta / k_att

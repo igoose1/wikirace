@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
                 duration_in_hours = int(trial.get('length', "0"))
 
-                diff = float(trial.get('difficulty', 0))
+                diff = trial.get('difficulty', 0)
 
                 trial_type = TrialType.EVENT
                 if duration_in_hours == 0:
