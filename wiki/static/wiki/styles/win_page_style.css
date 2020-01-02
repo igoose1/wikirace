@@ -715,6 +715,27 @@ table th:first-child, table td:first-child {
     white-space: pre;
 }
 
+.rating .original {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.rating-full .rating .original {
+    display: block;
+    text-align: right;
+}
+
+.rating .edited {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.rating-full .rating .edited {
+    display: none;
+}
+
 @keyframes content_loading {
   0%   {content: "...";}
   25%  {content: " ..";}
