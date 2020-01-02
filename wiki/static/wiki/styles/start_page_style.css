@@ -580,6 +580,8 @@ a {
 
 .card-opened {
   min-height: fit-content;
+  height: fit-content;
+  padding-bottom: 20px;
   cursor: default !important;
 }
 .card-opened img {

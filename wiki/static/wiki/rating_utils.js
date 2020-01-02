@@ -43,6 +43,10 @@ $(document).ready(() => {
 		}
 		var postfix = postfixes[current_postfix_id];
 		var original = Math.floor(rating).toString();
+		original = original.split("").reverse().join("");
+		original = original.match(/.{1,3}/g);
+		original = original.join('.');
+		original = original.split("").reverse().join("");
 		var content = Math.floor(
 			rating / postfix.count
 			).toString() + postfix.postfix
