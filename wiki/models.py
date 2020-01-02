@@ -270,7 +270,9 @@ class GameStats(models.Model):
     class_type = models.CharField(
         max_length=64,
         choices=[(tag, tag.value) for tag in GameTypes]
-    )
+    ) 
+    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    rate_delta = models.FloatField(default=0)
     trial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, null=True)
     user_id = models.ForeignKey(UserSettings, on_delete=models.CASCADE, null=False)
     hops = models.IntegerField(default=0)
@@ -285,3 +287,8 @@ class GameStats(models.Model):
     def get_min_hops_count():
         val = GameStats.objects.aggregate(models.Min('hops'))
         return val.get('hops__min', None)
+
+    @staticmethod
+    def get_attemps_count(user):
+        val = GameStats.objects.filter(user_id=user, ).aggregate(models.Count())
+        return val['count']
