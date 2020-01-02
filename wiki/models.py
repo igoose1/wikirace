@@ -291,4 +291,4 @@ class GameStats(models.Model):
     @staticmethod
     def get_attemps_count(user, game_pair):
         val = GameStats.objects.filter(user_id=user, game_pair=game_pair).aggregate(models.Count('user_id'))
-        return val.get('user_id__count',1)
+        return val.get('user_id__count', 1)

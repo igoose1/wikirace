@@ -136,7 +136,6 @@ def change_settings(prevars):
     difficulty = prevars.request.POST.get('difficulty', None)
     if not any(t.value == difficulty for t in GameTypes):
         return HttpResponseBadRequest()
-    
 
     prevars.settings.difficulty = GameTypes[difficulty]
     prevars.settings.save()
