@@ -202,3 +202,5 @@ DEFAULT_MIN_MOVES = getattr(
 )
 AVG_MULT = getattr(settings_local, "AVG_MULT", 1.5)
 K_DEFAULT_RATE = getattr(settings_local, "K_DEFAULT_RATE", 0.5)
+
+RATING_TOP_N = 20
