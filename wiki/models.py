@@ -289,6 +289,6 @@ class GameStats(models.Model):
         return val.get('hops__min', None)
 
     @staticmethod
-    def get_attemps_count(user):
-        val = GameStats.objects.filter(user_id=user, ).aggregate(models.Count())
+    def get_attemps_count(user,game_pair):
+        val = GameStats.objects.filter(user_id=user, game_pair=game_pair).aggregate(models.Count())
         return val['count']

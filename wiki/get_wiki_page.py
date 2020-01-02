@@ -392,7 +392,8 @@ def change_stats(prevars: PreVariables):
         trial_id=trial_id,
         user_id=user_id,
         hops=hops,
-        time=time
+        time=time,
+        game_pair=prevars.game_operator.game_pair
     )
     stat.save()
     user_id.rate += user_rating.calculate_rate_change(stat)
