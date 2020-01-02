@@ -377,7 +377,6 @@ def change_stats(prevars: PreVariables):
     )
     stat.save()
     user_id.rate += user_rating.calculate_rate_change(stat)
-    print(user_id.rate)
     user_id.save()
 
 
