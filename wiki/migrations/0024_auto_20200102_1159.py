@@ -30,7 +30,13 @@ class Migration(migrations.Migration):
                 ('rate_delta', models.FloatField(default=0)),
                 ('hops', models.IntegerField(default=0)),
                 ('time', models.DurationField()),
-                ('game_pair', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='wiki.GamePair')),
+                (
+                    'game_pair',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='wiki.GamePair'
+                        )
+                ),
                 ('trial_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='wiki.Trial')),
                 ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='wiki.UserSettings')),
             ],
