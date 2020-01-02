@@ -249,9 +249,6 @@ def show_path_page(prevars):
 
 
 def get_end_page(prevars):
-    settings_user = get_settings(
-        prevars.request.session.get('settings', dict())
-    )
     surrendered = prevars.game_operator.surrendered
     prevars.game_operator.game.save()
     context = {
@@ -363,15 +360,15 @@ def end_page(prevars):
 
 
 def change_stats(prevars: PreVariables):
-    game_type = prevars.game_operator.game.user_settings.difficulty
+    game_type = prevars.settings.difficulty
     trial_id = None
     if game_type == GameTypes.trial:
         game_pair_id = prevars.game_operator.game_pair
         trial_id = Trial.objects.filter(game_pair=game_pair_id)[0]
-    user_id = prevars.game_operator.game.user_settings
+    user_id = prevars.settings
     hops = prevars.game_operator.game.steps
     time = timezone.now() - prevars.game_operator.game.start_time
-    stat = GameStats.objects.creat(
+    stat = GameStats.objects.create(
         class_type=game_type,
         trial_id=trial_id,
         user_id=user_id,
@@ -379,7 +376,8 @@ def change_stats(prevars: PreVariables):
         time=time
     )
     stat.save()
-    user_id.rate += user_rating.calculate_rate_change(stat)
+    user_id.rate = user_id.rate + user_rating.calculate_rate_change(stat)
+    print(user_id.rate)
     user_id.save()
 
 
@@ -397,6 +395,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
+        change_stats(prevars)
         return get_end_page(prevars)
 
     template = loader.get_template('wiki/game_page.html')

@@ -11,15 +11,15 @@ def get_average_move_count(class_type):
 
 def get_min_move_count(class_type):
     n_min = GameStats.get_min_hops_count()
-    if n_min in None:
+    if n_min is None:
         n_min = settings.DEFAULT_MIN_MOVES[class_type]
     return n_min
 
 
-def get_difficult_coefficient(class_type):
+def get_difficult_coefficient(game_stats):
     if game_stats.class_type == GameTypes.trial:
         return game_stats.trial_id.difficulty
-    return k_diff[game_stats.class_type]
+    return settings.K_DIFF[game_stats.class_type.value]
 
 
 def calculate_rating_coefficient():
@@ -41,7 +41,7 @@ def calculate_rate_change(game_stats):
     class_type = game_stats.class_type.value
 
     k_avg = calculate_rating_coefficient()
-    k_diff = get_difficult_coefficient(class_type)
+    k_diff = get_difficult_coefficient(game_stats)
     n_avg = get_average_move_count(class_type)
     n_min = get_min_move_count(class_type)
 
@@ -50,9 +50,10 @@ def calculate_rate_change(game_stats):
     c = -1
     b = (2 * n_min - n_avg * (k_avg + 1)) / (1 - k_avg)
     a = 2 * (n_min - b)
-
+    print(k_avg, k_diff, n_avg, n_min)
     delta = k_diff * (a / (n - b) - c)
     if delta < -k_diff:
         delta = -k_diff
 
+    print(delta)
     return delta
