@@ -7,6 +7,7 @@ from django.http import HttpResponse, \
 from django.conf import settings
 from django.template import loader
 from django.utils import timezone
+from django.db.models import Q
 from . import inflection
 from .GameOperator import GameOperator, \
     DifficultGameTaskGenerator, \
@@ -22,8 +23,9 @@ from .models import Turn, \
     Trial, \
     GameTypes, GamePair, TrialType
 from wiki.file_holder import file_holder
-from .models import MultiplayerPair, UserSettings, Game
+from .models import MultiplayerPair, UserSettings, Game, GameStats
 import requests
+from wiki import user_rating
 
 
 def redirect_to(page):
@@ -122,7 +124,7 @@ def get_main_page(prevars):
     event_list = [x for x in Trial.objects.filter(type=TrialType.EVENT) if x.is_event_active]
     context = {
         'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
-        'settings': prevars.settings.dict(),
+        'settings': prevars.settings,
         'trial_list': trial_list,
         'event_list': event_list,
     }
@@ -247,9 +249,6 @@ def show_path_page(prevars):
 
 
 def get_end_page(prevars):
-    settings_user = get_settings(
-        prevars.request.session.get('settings', dict())
-    )
     surrendered = prevars.game_operator.surrendered
     prevars.game_operator.game.save()
     context = {
@@ -340,9 +339,62 @@ def get_login_page(request):
     return redirect_to("/")
 
 
+@load_prevars
+def get_global_rating_page(prevars):
+    users_table = [
+        {
+            'is_current_user': (user.user_id == prevars.settings.user_id),
+            'name': user.name,
+            'rate': user.rate
+        }
+        for user in UserSettings.objects.filter(~Q(vk_id="")).order_by('-rate')[:settings.RATING_TOP_N]
+    ]
+    current_user_above = len(list(filter(lambda x: x['is_current_user'], users_table))) == 0
+    current_user_vkid = prevars.settings.vk_id
+    current_user_name = prevars.settings.name
+    current_user_rate = prevars.settings.rate
+    current_user_place = UserSettings.objects.filter(~Q(vk_id=""), ~Q(
+        vk_id=current_user_vkid), rate__gt=current_user_rate).count() + 1
+    context = {
+        'results_table': {
+            'global_table': users_table,
+            'user': {
+                'above': current_user_above,
+                'place': current_user_place,
+                'name': current_user_name,
+                'rate': current_user_rate,
+            }
+        }
+    }
+    template = loader.get_template('wiki/rating_page.html')
+    return HttpResponse(template.render(context, prevars.request))
+
+
 @requires_finished_game
 def end_page(prevars):
     return get_end_page(prevars)
+
+
+def change_stats(prevars: PreVariables):
+    game_type = prevars.settings.difficulty
+    trial_id = None
+    if game_type == GameTypes.trial:
+        game_pair_id = prevars.game_operator.game_pair
+        trial_id = Trial.objects.filter(game_pair=game_pair_id)[0]
+    user_id = prevars.settings
+    hops = prevars.game_operator.game.steps
+    time = timezone.now() - prevars.game_operator.game.start_time
+    stat = GameStats.objects.create(
+        class_type=game_type,
+        trial_id=trial_id,
+        user_id=user_id,
+        hops=hops,
+        time=time,
+        game_pair=prevars.game_operator.game_pair
+    )
+    stat.save()
+    user_id.rate += user_rating.calculate_rate_change(stat)
+    user_id.save()
 
 
 @requires_game
@@ -359,6 +411,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
+        change_stats(prevars)
         return get_end_page(prevars)
 
     template = loader.get_template('wiki/game_page.html')

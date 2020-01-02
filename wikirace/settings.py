@@ -178,3 +178,29 @@ LEVEL_FILE_NAMES_V2 = {
 LEVEL_AMOUNT_OF_BLOCKS_V2 = 3
 LEVEL_AMOUNT_OF_BLOCKS = 2
 FORBIDDEN_WORDS_FILE = DATA_DIR + 'forbidden_words.txt'
+
+K_DIFF = getattr(
+    settings_local,
+    "K_DIFF", {
+        "easy": 1.0,
+        "medium": 2.0,
+        "hard": 3.0,
+        "random": 2.0,
+        "by_id": 0.0
+    }
+)
+DEFAULT_MIN_MOVES = getattr(
+    settings_local,
+    "DEFAULT_MIN_MOVES", {
+        "easy": 3,
+        "medium": 4,
+        "hard": 5,
+        "random": 1,
+        "by_id": 4,
+        "trial": 4
+    }
+)
+AVG_MULT = getattr(settings_local, "AVG_MULT", 1.5)
+K_DEFAULT_RATE = getattr(settings_local, "K_DEFAULT_RATE", 0.5)
+
+RATING_TOP_N = 20

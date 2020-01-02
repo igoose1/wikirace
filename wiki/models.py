@@ -22,6 +22,7 @@ class UserSettings(models.Model):
         max_length=256,
         null=False
     )
+    rate = models.FloatField(default=0)
     vk_access_token = models.CharField(
         max_length=256,
         null=False
@@ -242,6 +243,7 @@ class Trial(models.Model):
         choices=[(tag, tag.value) for tag in TrialType],
         default=TrialType.TRIAL
     )
+    difficulty = models.FloatField(default=0)
 
     @property
     def is_event_active(self):
@@ -262,3 +264,31 @@ class Trial(models.Model):
             from_page_id=self.game_pair.start_page_id,
             to_page_id=self.game_pair.end_page_id
         )
+
+
+class GameStats(models.Model):
+    class_type = models.CharField(
+        max_length=64,
+        choices=[(tag, tag.value) for tag in GameTypes]
+    )
+    game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
+    rate_delta = models.FloatField(default=0)
+    trial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, null=True)
+    user_id = models.ForeignKey(UserSettings, on_delete=models.CASCADE, null=False)
+    hops = models.IntegerField(default=0)
+    time = models.DurationField()
+
+    @staticmethod
+    def get_average_hops_count():
+        val = GameStats.objects.aggregate(models.Avg('hops'))
+        return val.get('hops__avg', None)
+
+    @staticmethod
+    def get_min_hops_count():
+        val = GameStats.objects.aggregate(models.Min('hops'))
+        return val.get('hops__min', None)
+
+    @staticmethod
+    def get_attemps_count(user, game_pair):
+        val = GameStats.objects.filter(user_id=user, game_pair=game_pair).aggregate(models.Count())
+        return val['count']

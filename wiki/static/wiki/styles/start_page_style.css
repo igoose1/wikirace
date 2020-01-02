@@ -574,7 +574,7 @@ a {
   display: block;
 }
 
-#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue {
+#card-tutorial, #card-user-game, #card-trial, #card-random, #card-continue, #card-global-rating{
   cursor: pointer;
 }
 
@@ -613,6 +613,9 @@ a {
 }
 .card-image-box-name {
   background: #738ad0;
+}
+.card-image-box-leaderboard {
+  background: #FFFF00;
 }
 
 .tutorial-screen {
@@ -791,4 +794,72 @@ form {
 
 #card-event {
     box-sizing: border-box;
+}
+
+.rating-box {
+    width: 60px;
+    height: 30px;
+    color: #ffffff;
+    font-size: 20px;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    background: #0d0d29;
+    border-color: #0c0c26;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    position: relative;
+}
+
+.rating {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.player-name-box {
+    width: 300px;
+    margin: 10px;
+    font-size: 30px;
+    color: #ffffff;
+    text-align: right;
+}
+
+@media (max-device-width: 600px) {
+    .button-bar {
+      justify-content: flex-end;
+      width: 100vw;
+      background: #282247;
+      margin-right: 0;
+      padding-right: 5px;
+      border-top: 5px solid #738ad0;
+      border-bottom: 5px solid #738ad0;
+    }
+}
+
+.content-loading {
+    color: transparent;
+    position: relative;
+}
+
+.content-loading:after {
+    color: #ffffff;
+    transform: translateX(-50%);
+    font-family: monospace;
+    white-space: pre;
+    position: absolute;
+    left: 50%;
+    content: "...";
+    animation: 0.5s linear 0s infinite normal content_loading
+}
+
+@keyframes content_loading {
+  0%   {content: "...";}
+  25%  {content: " ..";}
+  50%  {content: "  .";}
+  75%  {content: ".  ";}
+  100% {content: ".. ";}
 }

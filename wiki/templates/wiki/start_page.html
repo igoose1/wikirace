@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{% static 'wiki/styles/start_page_style.css' %}">
 <script src="{% static 'wiki/card_toggle.js' %}"></script>
 <script src="{% static 'wiki/start_page.js' %}"></script>
+<script src="{% static 'wiki/rating_utils.js' %}"></script>
 {% endblock %}
 
 {% block title %}
@@ -23,6 +24,14 @@
     </a>
 </div>
 {% endcomment %}
+<div class="player-name-box">
+	{{ settings.name }}
+</div>
+<div class="rating-box">
+	<div class="rating content-loading">
+		{{ settings.rate }}
+	</div>
+</div>
 {% endblock %}
 
 {% block drawerContent %}
@@ -249,6 +258,16 @@
                 </div>
             </a>
             {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="card visible" id="card-global-rating">
+    <div class="card-image-box card-image-box-leaderboard">
+        <img src="{% static 'wiki/icons/award.svg' %}" alt="random">
+    </div>
+    <div class="card-content-box">
+        <div class="card-content-box card-content-box-header">
+            Найдите себя в глобальном рейтинге
         </div>
     </div>
 </div>
