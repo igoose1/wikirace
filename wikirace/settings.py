@@ -195,7 +195,7 @@ DEFAULT_MIN_MOVES = getattr(
         "easy": 3,
         "medium": 4,
         "hard": 5,
-        "random": 4,
+        "random": 1,
         "by_id": 4,
         "trial": 4
     }

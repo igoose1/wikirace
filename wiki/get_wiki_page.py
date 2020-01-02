@@ -361,6 +361,7 @@ def end_page(prevars):
 
 def change_stats(prevars: PreVariables):
     game_type = prevars.settings.difficulty
+    print(user_id)
     trial_id = None
     if game_type == GameTypes.trial:
         game_pair_id = prevars.game_operator.game_pair
@@ -376,7 +377,7 @@ def change_stats(prevars: PreVariables):
         time=time
     )
     stat.save()
-    user_id.rate = user_id.rate + user_rating.calculate_rate_change(stat)
+    user_id.rate += user_rating.calculate_rate_change(stat)
     print(user_id.rate)
     user_id.save()
 
