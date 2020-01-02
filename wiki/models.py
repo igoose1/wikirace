@@ -270,7 +270,7 @@ class GameStats(models.Model):
     class_type = models.CharField(
         max_length=64,
         choices=[(tag, tag.value) for tag in GameTypes]
-    ) 
+    )
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     rate_delta = models.FloatField(default=0)
     trial_id = models.ForeignKey(Trial, on_delete=models.CASCADE, null=True)

@@ -33,10 +33,10 @@ class Migration(migrations.Migration):
                             (wiki.models.GameTypes('random'), 'random'),
                             (wiki.models.GameTypes('easy'), 'easy'),
                             (wiki.models.GameTypes('medium'), 'medium'),
-                            (wiki.models.GameTypes('hard'), 'hard'), 
+                            (wiki.models.GameTypes('hard'), 'hard'),
                             (wiki.models.GameTypes('trial'), 'trial'),
                             (wiki.models.GameTypes('by_id'), 'by_id')
-                            ],
+                                ],
                         max_length=64)),
                 ('rate_delta', models.FloatField(default=0)),
                 ('hops', models.IntegerField(default=0)),
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to='wiki.GamePair'
-                        )
+                                     )
                 ),
                 (
                     'trial_id',
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         to='wiki.Trial'
-                        )
+                                     )
                 ),
                 ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='wiki.UserSettings')),
             ],
