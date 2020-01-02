@@ -344,18 +344,15 @@ def get_login_page(request):
 
 @load_prevars
 def get_global_rating_page(prevars):
-    user_models = UserSettings.objects.filter(~Q(vk_id="")).order_by('-rate')[:settings.RATING_TOP_N]
-    users_table = []
-    current_user_above = True
-    for user in user_models:
-        is_current_user = (user.user_id == prevars.settings.user_id)
-        users_table.append({
-            'is_current_user': is_current_user,
+    users_table = [
+        {
+            'is_current_user': (user.user_id == prevars.settings.user_id),
             'name': user.name,
             'rate': user.rate
-        })
-        if is_current_user:
-            current_user_above = False
+        }
+        for user in UserSettings.objects.filter(~Q(vk_id="")).order_by('-rate')[:settings.RATING_TOP_N]
+    ]
+    current_user_above = len(list(filter(lambda x: x['is_current_user'], users_table))) == 0
     current_user_vkid = prevars.settings.vk_id
     current_user_name = prevars.settings.name
     current_user_rate = prevars.settings.rate
