@@ -50,10 +50,12 @@ def calculate_rate_change(game_stats):
     c = -1
     b = (2 * n_min - n_avg * (k_avg + 1)) / (1 - k_avg)
     a = 2 * (n_min - b)
-    print(k_avg, k_diff, n_avg, n_min)
+    if (n - b == 0):
+        print(n)
+        return k_diff
+
     delta = k_diff * (a / (n - b) - c)
     if delta < -k_diff:
         delta = -k_diff
 
-    print(delta)
     return delta

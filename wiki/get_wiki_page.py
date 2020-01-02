@@ -124,7 +124,7 @@ def get_main_page(prevars):
     event_list = [x for x in Trial.objects.filter(type=TrialType.EVENT) if x.is_event_active]
     context = {
         'is_playing': prevars.game_operator is not None and not prevars.game_operator.finished,
-        'settings': prevars.settings.dict(),
+        'settings': prevars.settings,
         'trial_list': trial_list,
         'event_list': event_list,
     }
