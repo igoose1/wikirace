@@ -233,6 +233,7 @@ class TrialType(Enum):
 
 
 class Trial(models.Model):
+    min_hops = models.IntegerField(default=4)
     trial_id = models.AutoField(primary_key=True)
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
