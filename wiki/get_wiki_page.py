@@ -137,6 +137,7 @@ def change_settings(prevars):
     if not any(t.value == difficulty for t in GameTypes):
         return HttpResponseBadRequest()
 
+    prevars.settings.difficulty = GameTypes[difficulty]
     prevars.settings.save()
     return HttpResponse('Ok')
 
@@ -176,6 +177,7 @@ def get_start(prevars):
 
 @load_prevars
 def custom_game_start(prevars, trial_id):
+    prevars.settings.difficulty = GameTypes.trial
     t = get_object_or_404(Trial.objects.all(), trial_id=trial_id)
     prevars.game_operator = GameOperator.create_game(
         get_game_task_generator(
