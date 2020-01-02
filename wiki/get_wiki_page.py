@@ -361,7 +361,6 @@ def end_page(prevars):
 
 def change_stats(prevars: PreVariables):
     game_type = prevars.settings.difficulty
-    print(user_id)
     trial_id = None
     if game_type == GameTypes.trial:
         game_pair_id = prevars.game_operator.game_pair
