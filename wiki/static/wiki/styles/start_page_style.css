@@ -797,7 +797,7 @@ form {
 }
 
 .rating-box {
-    width: fit-content;
+    min-width: fit-content;
     height: 30px;
     color: #ffffff;
     font-size: 20px;
@@ -821,16 +821,18 @@ form {
 }
 
 .player-name-box {
-    width: 300px;
+    width: auto;
     margin: 10px;
     font-size: 30px;
     color: #ffffff;
     text-align: right;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
     .button-bar {
       justify-content: flex-end;
       width: 100vw;
@@ -839,6 +841,11 @@ form {
       padding-right: 5px;
       border-top: 5px solid #738ad0;
       border-bottom: 5px solid #738ad0;
+    }
+    .container {
+        height: calc(100vh - 210px);
+        padding-bottom: 60px;
+        padding-top: 10px;
     }
 }
 
