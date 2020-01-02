@@ -341,13 +341,32 @@ def get_login_page(request):
 
 @load_prevars
 def get_global_rating_page(prevars):
-    user_models = UserSettings.objects.filter(~Q(vk_id="")).order_by('-rate').all()
+    user_models = UserSettings.objects.filter(~Q(vk_id="")).order_by('-rate')[:settings.RATING_TOP_N]
     users_table = []
+    current_user_above = True
     for user in user_models:
-        users_table.append({'name': user.name, 'rate': user.rate})
+        is_current_user = (user.user_id == prevars.settings.user_id)
+        users_table.append({
+            'is_current_user': is_current_user,
+            'name': user.name,
+            'rate': user.rate
+        })
+        if is_current_user:
+            current_user_above = False
+    current_user_vkid = prevars.settings.vk_id
+    current_user_name = prevars.settings.name
+    current_user_rate = prevars.settings.rate
+    current_user_place = UserSettings.objects.filter(~Q(vk_id=""), ~Q(
+        vk_id=current_user_vkid), rate__gt=current_user_rate).count() + 1
     context = {
         'results_table': {
             'global_table': users_table,
+            'user': {
+                'above': current_user_above,
+                'place': current_user_place,
+                'name': current_user_name,
+                'rate': current_user_rate,
+            }
         }
     }
     template = loader.get_template('wiki/rating_page.html')

@@ -48,12 +48,19 @@
                         <th> Счёт</th>
                     </tr>
                     {% for item in results_table.global_table %}
-                    <tr>
+                    <tr  {% if item.is_current_user %}class="player-row"{% endif %}>
                         <td> {{ forloop.counter }}</td>
                         <td> {{ item.name }}</td>
-                        <td class="content-loading rating"> {{ item.rating }}</td>
+                        <td class="content-loading rating"> {{ item.rate }}</td>
                     </tr>
                     {% endfor %}
+                    {% if results_table.user.above %}
+                    <tr class="player-row">
+                        <td> {{ results_table.user.place }}</td>
+                        <td> {{ results_table.user.name }}</td>
+                        <td class="content-loading rating"> {{ results_table.user.rate }}</td>
+                    </tr>
+                    {% endif %}
                 </table>
             </div>
         </div>
