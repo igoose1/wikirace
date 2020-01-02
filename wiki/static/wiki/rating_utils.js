@@ -1,9 +1,8 @@
 
-
 $(document).ready(() => {
 
-	$('#full_rating').on('click', (object) => {
-		var full_rating = $('#full_rating');
+	$("#full_rating").on("click", (object) => {
+		var full_rating = $("#full_rating");
 		full_rating.toggleClass("rating-full");
 	});
 
@@ -45,7 +44,7 @@ $(document).ready(() => {
 		var original = Math.floor(rating).toString();
 		original = original.split("").reverse().join("");
 		original = original.match(/.{1,3}/g);
-		original = original.join('.');
+		original = original.join(".");
 		original = original.split("").reverse().join("");
 		var content = Math.floor(
 			rating / postfix.count
@@ -61,4 +60,3 @@ $(document).ready(() => {
 	}
 
 })
-
