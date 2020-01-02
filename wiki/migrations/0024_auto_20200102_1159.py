@@ -26,7 +26,18 @@ class Migration(migrations.Migration):
             name='GameStats',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('class_type', models.CharField(choices=[(wiki.models.GameTypes('random'), 'random'), (wiki.models.GameTypes('easy'), 'easy'), (wiki.models.GameTypes('medium'), 'medium'), (wiki.models.GameTypes('hard'), 'hard'), (wiki.models.GameTypes('trial'), 'trial'), (wiki.models.GameTypes('by_id'), 'by_id')], max_length=64)),
+                (
+                    'class_type',
+                    models.CharField(
+                        choices=[
+                            (wiki.models.GameTypes('random'), 'random'),
+                            (wiki.models.GameTypes('easy'), 'easy'),
+                            (wiki.models.GameTypes('medium'), 'medium'),
+                            (wiki.models.GameTypes('hard'), 'hard'), 
+                            (wiki.models.GameTypes('trial'), 'trial'),
+                            (wiki.models.GameTypes('by_id'), 'by_id')
+                            ],
+                        max_length=64)),
                 ('rate_delta', models.FloatField(default=0)),
                 ('hops', models.IntegerField(default=0)),
                 ('time', models.DurationField()),
@@ -37,7 +48,14 @@ class Migration(migrations.Migration):
                         to='wiki.GamePair'
                         )
                 ),
-                ('trial_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='wiki.Trial')),
+                (
+                    'trial_id',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='wiki.Trial'
+                        )
+                ),
                 ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='wiki.UserSettings')),
             ],
         ),
