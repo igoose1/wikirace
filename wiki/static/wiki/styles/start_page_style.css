@@ -815,13 +815,6 @@ form {
     position: relative;
 }
 
-.rating {
-  position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
 .player-name-box {
     width: auto;
     margin: 10px;
@@ -851,50 +844,3 @@ form {
     }
 }
 
-.content-loading {
-    color: transparent;
-    position: relative;
-}
-
-.content-loading:after {
-    color: #ffffff;
-    transform: translateX(-50%);
-    font-family: monospace;
-    white-space: pre;
-    position: absolute;
-    left: 50%;
-    content: "...";
-    animation: 0.5s linear 0s infinite normal content_loading
-}
-
-.rating .original {
-    width: 100%;
-    height: 100%;
-    visibility: hidden;
-}
-
-.rating-full .original {
-    visibility: visible;
-}
-
-.rating .edited {
-    width: 100%;
-    height: 100%;
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-}
-
-.rating-full .edited {
-    visibility: hidden;
-}
-
-@keyframes content_loading {
-  0%   {content: "...";}
-  25%  {content: " ..";}
-  50%  {content: "  .";}
-  75%  {content: ".  ";}
-  100% {content: ".. ";}
-}

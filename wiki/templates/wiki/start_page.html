@@ -5,6 +5,7 @@
 {% block head %}
 <title>WikiRace</title>
 <link rel="stylesheet" href="{% static 'wiki/styles/start_page_style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/rating_utils.css' %}">
 <script src="{% static 'wiki/card_toggle.js' %}"></script>
 <script src="{% static 'wiki/start_page.js' %}"></script>
 <script src="{% static 'wiki/rating_utils.js' %}"></script>
@@ -28,7 +29,7 @@
 	{{ settings.name }}
 </div>
 <div class="rating-box" id="full_rating">
-	<div class="rating content-loading">
+	<div class="rating align-center content-loading">
 		{{ settings.rate }}
 	</div>
 </div>

@@ -6,6 +6,7 @@
 <title>Глобальный рейтинг</title>
 <script src="{% static 'wiki/rating_utils.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/win_page_style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'wiki/styles/rating_utils.css' %}">
 {% endblock %}
 
 {% block title %}
@@ -41,7 +42,7 @@
         </div>
         <div class="card-content-box card-content-box-text block-leaderboard table-content">
             <div class="table block-leaderboard" id="global-table">
-                <table id="full_rating">
+                <table id="full_rating" class="right-original">
                     <tr>
                         <th> Место</th>
                         <th> Имя</th>
