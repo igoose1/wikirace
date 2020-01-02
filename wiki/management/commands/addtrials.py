@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
                 duration_in_hours = int(trial.get('length', "0"))
 
-                diff = float(trial.get('difficulty',0))
+                diff = float(trial.get('difficulty', 0))
 
                 trial_type = TrialType.EVENT
                 if duration_in_hours == 0:
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     _begin=begin,
                     _length=datetime.timedelta(hours=int(duration_in_hours)),
                     type=trial_type,
-                    difficulty = diff
+                    difficulty=diff
                 )
 
                 print("Trial {name} added".format(name=trial['name']))
