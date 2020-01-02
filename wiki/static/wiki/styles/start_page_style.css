@@ -797,7 +797,7 @@ form {
 }
 
 .rating-box {
-    width: 60px;
+    min-width: fit-content;
     height: 30px;
     color: #ffffff;
     font-size: 20px;
@@ -814,21 +814,25 @@ form {
 }
 
 .rating {
-  position: absolute;
+  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 .player-name-box {
-    width: 300px;
+    width: auto;
     margin: 10px;
     font-size: 30px;
     color: #ffffff;
     text-align: right;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
-@media (max-device-width: 600px) {
+
+
+@media (max-width: 700px) {
     .button-bar {
       justify-content: flex-end;
       width: 100vw;
@@ -837,6 +841,11 @@ form {
       padding-right: 5px;
       border-top: 5px solid #738ad0;
       border-bottom: 5px solid #738ad0;
+    }
+    .container {
+        height: calc(100vh - 210px);
+        padding-bottom: 60px;
+        padding-top: 10px;
     }
 }
 
@@ -854,6 +863,30 @@ form {
     left: 50%;
     content: "...";
     animation: 0.5s linear 0s infinite normal content_loading
+}
+
+.rating .original {
+    width: 100%;
+    height: 100%;
+    visibility: hidden;
+}
+
+.rating-full .original {
+    visibility: visible;
+}
+
+.rating .edited {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.rating-full .edited {
+    visibility: hidden;
 }
 
 @keyframes content_loading {
