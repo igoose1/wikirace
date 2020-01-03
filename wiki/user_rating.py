@@ -31,15 +31,14 @@ def calculate_rating_coefficient():
 
 def calculate_rate_change(game_stats):
     """
-        f(n) = k_diff * (a / (n - b) - c) / k_att
+        f(n) = k_diff * (a * n + b) / k_att
         f(n_min) = k_diff
         f(n_avg) = k_avg
-        f(inf) = -k_diff
         f(n) - change of rate, -k_diff <= f(n) <= k_diff
         k_diff - difficulty coefficient, k_diff >= 0
         k_avg - rating coefficient, k_avg < 1
         k_att - attempt coefficient, k_att >= 1
-        a, b, c - some parameters
+        a, b - some parameters
     """
     class_type = game_stats.class_type.value
 
@@ -49,18 +48,17 @@ def calculate_rate_change(game_stats):
     n_avg = get_average_move_count(class_type)
     n_min = get_min_move_count(game_stats)
     n = game_stats.hops
-    if n == n_min:
+
+    if n_avg == n_min:
         return k_diff / k_att
 
-    c = 1
-    b = (2 * n_min - n_avg * (k_avg + 1)) / (1 - k_avg)
-    a = 2 * (n_min - b)
-    if (n - b == 0):
-        return k_diff / k_att
+    b = -n_avg * (1 - k_avg) / (n_min - n_avg) + k_avg 
+    a = (1 - k_avg) / (n_min - n_avg) 
 
-    delta = k_diff * (a / (n - b) - c)
-    if delta < -k_diff:
-        delta = -k_diff
+    delta = a * n + b
+    if abs(delta) > 1:
+        delta = delta / abs(delta)
     if delta < 0:
         delta /= settings.NEGATIVE_DELTA_DEVIDER
-    return delta / k_att
+    print(delta, k_avg, k_diff, k_att, n_avg, n_min)
+    return k_diff * delta / k_att
