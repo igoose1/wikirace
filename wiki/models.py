@@ -238,7 +238,7 @@ class Trial(models.Model):
     trial_name = models.CharField(default='испытание', max_length=200)
     game_pair = models.ForeignKey(GamePair, models.CASCADE, null=False)
     _length = models.DurationField(default=timedelta(seconds=0))
-    _begin = models.DateTimeField(auto_now_add=True)
+    _begin = models.DateTimeField()
     type = models.CharField(
         max_length=16,
         choices=[(tag, tag.value) for tag in TrialType],

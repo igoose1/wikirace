@@ -5,7 +5,7 @@ from django.conf import settings
 import wiki.ZIMFile
 import json
 import datetime
-
+from django.utils import timezone
 
 class Command(BaseCommand):
     help = 'Add trials from file. You should write full path'
@@ -26,9 +26,9 @@ class Command(BaseCommand):
 
                 begin = trial.get('begin', None)
                 if begin is not None:
-                    begin = datetime.datetime.strptime(begin, "%d/%m/%Y")
+                    begin = timezone.datetime.strptime(begin, "%d/%m/%Y %H:%M")
                 else:
-                    begin = datetime.datetime.now()
+                    begin = timezone.now()
 
                 duration_in_hours = int(trial.get('length', "0"))
 
@@ -42,7 +42,7 @@ class Command(BaseCommand):
                     trial_name=trial['name'],
                     game_pair=game_pair,
                     _begin=begin,
-                    _length=datetime.timedelta(hours=int(duration_in_hours)),
+                    _length=timezone.timedelta(hours=int(duration_in_hours)),
                     type=trial_type,
                     difficulty=diff,
                     min_hops=hops
