@@ -241,7 +241,7 @@ class Trial(models.Model):
     _begin = models.DateTimeField()
     type = models.CharField(
         max_length=16,
-        choices=[(tag, tag.value) for tag in TrialType],
+        choices=[(str(tag), tag.value) for tag in TrialType],
         default=TrialType.TRIAL
     )
     difficulty = models.FloatField(default=0)
