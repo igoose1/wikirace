@@ -9,10 +9,12 @@ def get_average_move_count(class_type):
     return n_avg
 
 
-def get_min_move_count(class_type):
+def get_min_move_count(game_stats):
     n_min = GameStats.get_min_hops_count()
+    if game_stats.class_type == GameTypes.trial:
+        n_min = game_stats.trial_id.min_hops
     if n_min is None:
-        n_min = settings.DEFAULT_MIN_MOVES[class_type]
+        n_min = settings.DEFAULT_MIN_MOVES[game_stats.class_type.value]
     return n_min
 
 
@@ -29,15 +31,14 @@ def calculate_rating_coefficient():
 
 def calculate_rate_change(game_stats):
     """
-        f(n) = k_diff * (a / (n - b) - c) / k_att
+        f(n) = k_diff * (a * n + b) / k_att
         f(n_min) = k_diff
         f(n_avg) = k_avg
-        f(inf) = -k_diff
         f(n) - change of rate, -k_diff <= f(n) <= k_diff
         k_diff - difficulty coefficient, k_diff >= 0
         k_avg - rating coefficient, k_avg < 1
         k_att - attempt coefficient, k_att >= 1
-        a, b, c - some parameters
+        a, b - some parameters
     """
     class_type = game_stats.class_type.value
 
@@ -45,17 +46,19 @@ def calculate_rate_change(game_stats):
     k_diff = get_difficult_coefficient(game_stats)
     k_att = GameStats.get_attemps_count(game_stats.user_id, game_stats.game_pair)
     n_avg = get_average_move_count(class_type)
-    n_min = get_min_move_count(class_type)
+    n_min = get_min_move_count(game_stats)
     n = game_stats.hops
 
-    c = 1
-    b = (2 * n_min - n_avg * (k_avg + 1)) / (1 - k_avg)
-    a = 2 * (n_min - b)
-    if (n - b == 0):
+    if n_avg == n_min:
         return k_diff / k_att
 
-    delta = k_diff * (a / (n - b) - c)
-    if delta < -k_diff:
-        delta = -k_diff
+    b = -n_avg * (1 - k_avg) / (n_min - n_avg) + k_avg
+    a = (1 - k_avg) / (n_min - n_avg)
 
-    return delta / k_att
+    delta = a * n + b
+    if abs(delta) > 1:
+        delta = delta / abs(delta)
+    if delta < 0:
+        delta /= settings.NEGATIVE_DELTA_DEVIDER
+    print(delta, k_avg, k_diff, k_att, n_avg, n_min)
+    return k_diff * delta / k_att

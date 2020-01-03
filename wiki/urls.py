@@ -1,11 +1,10 @@
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from . import get_wiki_page
 
 
 urlpatterns = [
-    path('admin', admin.site.urls),
     path('admin/', admin.site.urls),
     url('^$', get_wiki_page.get_main_page),
     url('^feedback', get_wiki_page.get_feedback_page),
@@ -26,5 +25,5 @@ urlpatterns = [
     url('^endpage', get_wiki_page.end_page),
     url('^login', get_wiki_page.get_login_page),
     url('^global_rating', get_wiki_page.get_global_rating_page),
-    url('^(.*)', get_wiki_page.get)
+    re_path(r'^(?P<title_name>(((?!admin).*)|(admin(?!\/).+)))$', get_wiki_page.get)
 ]
