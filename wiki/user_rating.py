@@ -52,8 +52,8 @@ def calculate_rate_change(game_stats):
     if n_avg == n_min:
         return k_diff / k_att
 
-    b = -n_avg * (1 - k_avg) / (n_min - n_avg) + k_avg 
-    a = (1 - k_avg) / (n_min - n_avg) 
+    b = -n_avg * (1 - k_avg) / (n_min - n_avg) + k_avg
+    a = (1 - k_avg) / (n_min - n_avg)
 
     delta = a * n + b
     if abs(delta) > 1:
