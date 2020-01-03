@@ -7,6 +7,7 @@ import json
 import datetime
 from django.utils import timezone
 
+
 class Command(BaseCommand):
     help = 'Add trials from file. You should write full path'
 
