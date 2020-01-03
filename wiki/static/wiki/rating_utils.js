@@ -24,6 +24,15 @@ $(document).ready(() => {
 		new Postfix("B", 1000000000),
 	]
 
+	function beautify_number(n) {
+		var result = Math.floor(n).toString();
+		result = result.split("").reverse().join("");
+		result = result.match(/.{1,3}/g);
+		result = result.join(" ");
+		result = result.split("").reverse().join("");
+		return result;
+	}
+
 	var elements = $(".rating");
 
 	for (var i=0; i < elements.length; i++) 
@@ -41,11 +50,8 @@ $(document).ready(() => {
 				break;
 		}
 		var postfix = postfixes[current_postfix_id];
-		var original = Math.floor(rating).toString();
-		original = original.split("").reverse().join("");
-		original = original.match(/.{1,3}/g);
-		original = original.join(".");
-		original = original.split("").reverse().join("");
+		var original = beautify_number(rating);
+
 		var content = Math.floor(
 			rating / postfix.count
 			).toString() + postfix.postfix
