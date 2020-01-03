@@ -6,6 +6,7 @@ $(document).ready(() => {
 		full_rating.toggleClass("rating-full");
 	});
 
+	WS = "&nbsp"
 
 
 	class Postfix {
@@ -33,11 +34,20 @@ $(document).ready(() => {
 		return result;
 	}
 
+	function make_n_len(n, text) {
+		if (text.length < n) {
+			var count = n - text.length;
+			while (count-- > 0)
+				text = WS + text;
+		}
+		return text;	
+	}
+
 	var elements = $(".rating");
 
 	for (var i=0; i < elements.length; i++) 
 	{
-		element = elements[i];
+		var element = elements[i];
 		var rating_string = element.innerText;
 		element.classList.remove("content-loading")
 		var rating = Number(rating_string);
@@ -55,10 +65,7 @@ $(document).ready(() => {
 		var content = Math.floor(
 			rating / postfix.count
 			).toString() + postfix.postfix
-		while (content.length < 4) {
-			content = " " + content;
-		}
-		
+
 		var html = `<div class="original">${original}</div><div class="edited">${content}</div>`
 		element.innerHTML = html;
 		element.classList.add(`rating-group-0${postfix.postfix}`);

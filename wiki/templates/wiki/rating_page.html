@@ -42,29 +42,34 @@
         </div>
         <div class="card-content-box card-content-box-text block-leaderboard table-content">
             <div class="table block-leaderboard" id="global-table">
-                <table id="full_rating" class="right-original">
-                    <tr>
-                        <th> Место</th>
-                        <th> Имя</th>
-                        <th> Счёт</th>
-                    </tr>
-                    {% for item in results_table.global_table %}
-                    <tr  {% if item.is_current_user %}class="player-row"{% endif %}>
-                        <td> {{ forloop.counter }}</td>
-                        <td> {{ item.name }}</td>
-                        <td class="content-loading rating"> {{ item.rate }}</td>
-                    </tr>
-                    {% endfor %}
-                    {% if results_table.user.above %}
-                    <tr>
-                        <td></td>
-                    </tr>
-                    <tr class="player-row">
-                        <td> {{ results_table.user.place }}</td>
-                        <td> {{ results_table.user.name }}</td>
-                        <td class="content-loading rating"> {{ results_table.user.rate }}</td>
-                    </tr>
-                    {% endif %}
+                <table id="full_rating" class="right-original rating-table">
+                    <thead>
+                        <tr>
+                            <th> Место</th>
+                            <th> Имя</th>
+                            <th> Счёт</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        {% for item in results_table.global_table %}
+                        <tr  {% if item.is_current_user %}class="player-row"{% endif %}>
+                            <td> {{ forloop.counter }}</td>
+                            <td> {{ item.name }}</td>
+                            <td class="content-loading rating"> {{ item.rate }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if results_table.user.above %}
+                        <tr>
+                            <td></td>
+                        </tr>
+                        <tr class="player-row">
+                            <td> {{ results_table.user.place }}</td>
+                            <td> {{ results_table.user.name }}</td>
+                            <td class="content-loading rating"> {{ results_table.user.rate }}</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
                 </table>
             </div>
         </div>
