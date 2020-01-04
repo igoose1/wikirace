@@ -417,7 +417,7 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        if not prevars.game.surrendered:
+        if not prevars.game_operator.game.surrendered:
             change_stats(prevars)
         return get_end_page(prevars)
 
