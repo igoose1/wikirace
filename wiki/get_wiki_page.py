@@ -48,12 +48,11 @@ class PreVariables:
             settings.GRAPH_OFFSET_PATH,
             settings.GRAPH_EDGES_PATH
         ))
-        sess = {}
-        if self.settings.curr_game_id == -1:
-            sess = request.session.get('operator', None)
-        else:
+        sess = self.request.session.get('operator', {})
+        if self.settings.curr_game_id is not None:
             sess['game_id'] = self.settings.curr_game_id
             sess['history'] = json.loads(self.settings.history_json)
+
         self.game_operator = GameOperator.deserialize_game_operator(
             sess,
             self.zim_file,
@@ -78,7 +77,7 @@ def load_prevars(func):
             prevars.settings.save()
             if prevars.game_operator is not None:
                 sess = prevars.game_operator.serialize_game_operator()
-                prevars.settings.curr_game_id = sess.get('game_id', -1)
+                prevars.settings.curr_game_id = sess.get('game_id', None)
                 prevars.settings.history_json = json.dumps(sess['history'])
                 prevars.settings.save()
                 prevars.request.session['operator'] = sess
