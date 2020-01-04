@@ -37,6 +37,10 @@ class UserSettingsAdmin(admin.ModelAdmin):
     ordering = ['user_id']
     fields = ['_name', 'rate', 'vk_id']
     readonly_fields = ('vk_id',)
+    actions = ['nullify_rate']
+
+    def nullify_rate(self, request, queryset):
+        queryset.update(rate=0)
 
 
 admin.site.register(Game, GameAdmin)
