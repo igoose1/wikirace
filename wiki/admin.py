@@ -1,5 +1,5 @@
 from django.contrib import admin
-from wiki.models import Game, Feedback, Turn, Trial, GamePair, MultiplayerPair
+from wiki.models import Game, Feedback, Turn, Trial, GamePair, MultiplayerPair, UserSettings
 
 
 class GameAdmin(admin.ModelAdmin):
@@ -32,9 +32,17 @@ class MultiplayerAdmin(admin.ModelAdmin):
     ordering = ['multiplayer_id']
 
 
+class UserSettingsAdmin(admin.ModelAdmin):
+    list_display = ['user_id', 'name', 'rate', 'vk_id']
+    ordering = ['user_id']
+    fields = ['_name', 'rate', 'vk_id']
+    readonly_fields = ('vk_id',)
+
+
 admin.site.register(Game, GameAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Turn, TurnAdmin)
 admin.site.register(Trial, TrialAdmin)
 admin.site.register(GamePair, GamePairAdmin)
 admin.site.register(MultiplayerPair, MultiplayerAdmin)
+admin.site.register(UserSettings, UserSettingsAdmin)
