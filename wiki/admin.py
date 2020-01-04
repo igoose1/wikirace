@@ -1,9 +1,10 @@
 from django.contrib import admin
-from wiki.models import Game, Feedback, Turn, Trial, GamePair, MultiplayerPair
+from wiki.models import Game, Feedback, Turn, Trial, GamePair, MultiplayerPair, UserSettings
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'steps', 'finished', 'start_time', 'last_action_time']
+    list_display = ['game_id', 'steps', 'finished', 'start_time', 'last_action_time', 'user_settings']
+    list_display_links = ['user_settings']
     ordering = ['game_id']
 
 
@@ -32,9 +33,21 @@ class MultiplayerAdmin(admin.ModelAdmin):
     ordering = ['multiplayer_id']
 
 
+class UserSettingsAdmin(admin.ModelAdmin):
+    list_display = ['user_id', 'name', 'rate', 'vk_id']
+    ordering = ['user_id']
+    fields = ['_name', 'rate', 'vk_id']
+    readonly_fields = ('vk_id',)
+    actions = ['nullify_rate']
+
+    def nullify_rate(self, request, queryset):
+        queryset.update(rate=0)
+
+
 admin.site.register(Game, GameAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(Turn, TurnAdmin)
 admin.site.register(Trial, TrialAdmin)
 admin.site.register(GamePair, GamePairAdmin)
 admin.site.register(MultiplayerPair, MultiplayerAdmin)
+admin.site.register(UserSettings, UserSettingsAdmin)
