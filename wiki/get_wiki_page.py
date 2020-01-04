@@ -417,7 +417,8 @@ def get(prevars, title_name):
     prevars.game_operator.jump_to(article)
 
     if prevars.game_operator.finished:
-        change_stats(prevars)
+        if not prevars.game.surrendered:
+            change_stats(prevars)
         return get_end_page(prevars)
 
     template = loader.get_template('wiki/game_page.html')
