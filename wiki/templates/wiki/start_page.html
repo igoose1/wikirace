@@ -108,7 +108,7 @@
             Случайная игра
         </div>
         <div class="card-content-box card-content-box-text">
-            Начальная и конечная страницы выбираются случайным образом
+            Начальная и конечная страницы выбираются случайным образом<br/> За игру дается до 20 баллов
         </div>
     </div>
 </div>
@@ -126,15 +126,15 @@
         <select id="diff-field" class="card-content-box card-content-box-text">
             <option value="easy"
                     {% ifequal settings.difficulty "easy" %} selected="selected" {% endifequal %}>
-                Просто
+                Просто (20 баллов)
             </option>
             <option value="medium"
                     {% ifequal settings.difficulty "medium" %} selected="selected" {% endifequal %}>
-                Нормально
+                Нормально (40 баллов)
             </option>
             <option value="hard"
                     {% ifequal settings.difficulty "hard" %} selected="selected" {% endifequal %}>
-                Сложно
+                Сложно (80 баллов)
             </option>
         </select>
         <div class="card-content-box play-button" id="diff-play">
