@@ -22,7 +22,7 @@ class UserSettings(models.Model):
         max_length=256,
         null=False
     )
-    curr_game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
+    curr_game_id = models.IntegerField(default=-1)
     history_json = models.CharField(max_length=512, default='')
     rate = models.FloatField(default=0)
     vk_access_token = models.CharField(

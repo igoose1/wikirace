@@ -49,10 +49,10 @@ class PreVariables:
             settings.GRAPH_EDGES_PATH
         ))
         sess = {}
-        if self.settings.curr_game == None:
+        if self.settings.curr_game_id == -1:
             sess = request.session.get('operator', None)
         else:
-            sess['game_id'] = self.settings.curr_game.game_id
+            sess['game_id'] = self.settings.curr_game_id
             sess['history'] = json.loads(self.settings.history_json)
         self.game_operator = GameOperator.deserialize_game_operator(
             sess,
@@ -78,12 +78,10 @@ def load_prevars(func):
             prevars.settings.save()
             if prevars.game_operator is not None:
                 sess = prevars.game_operator.serialize_game_operator()
-                game = Game.objects.filter(game_id=sess.get('game_id', None))
-                if len(game) > 0:
-                    prevars.settings.curr_game = game[0]
-                    prevars.settings.history_json = json.dumps(sess['history'])
-                    prevars.settings.save
-                prevars.request['operator'] = sess
+                prevars.settings.curr_game_id = sess.get('game_id', -1)
+                prevars.settings.history_json = json.dumps(sess['history'])
+                prevars.settings.save()
+                prevars.request.session['operator'] = sess
             else:
                 prevars.request.session['operator'] = None
         finally:
