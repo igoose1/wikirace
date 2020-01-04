@@ -156,6 +156,8 @@ def get_game_task_generator(difficulty, prevars, trial=None, pair_id=None):
     if difficulty == GameTypes.random:
         return RandomGameTaskGenerator(prevars.zim_file, prevars.graph)
     elif difficulty == GameTypes.trial:
+        if trial is None:
+            return None
         return TrialGameTaskGenerator(trial)
     else:
         return DifficultGameTaskGenerator(difficulty)
@@ -172,6 +174,8 @@ def get_start(prevars):
         prevars.graph,
         prevars.settings,
     )
+    if prevars.game_operator is None:
+        return redirect_to('/')
     return prevars.redirect_to_curr_page()
 
 

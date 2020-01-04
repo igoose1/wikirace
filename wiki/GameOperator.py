@@ -202,6 +202,10 @@ class GameOperator:
     @classmethod
     def create_game(cls, game_task_generator: GameTaskGenerator, zim_file: ZIMFile,
                     graph_reader: GraphReader, user_settings):
+
+        if game_task_generator is None:
+            return None
+
         multiplayer = game_task_generator.choose_multiplayer()
         game = Game.objects.create(
             current_page_id=multiplayer.game_pair.start_page_id,
