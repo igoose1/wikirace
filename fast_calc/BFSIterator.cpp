@@ -2,34 +2,35 @@
 
 BFSIterator::BFSIterator() {}
 
-BFSIterator::BFSIterator(graph* gr, vertex_id start_vertex, int max_depth) :
+BFSIterator::BFSIterator(GraphReader* gr, VertexID start_vertex, int max_depth) :
     gr(gr), start_vertex(start_vertex), max_depth(max_depth) 
 {
     q.emplace(start_vertex, 0);     
     used.emplace(start_vertex);
 }
 
-vertex_id BFSIterator::operator *()
+VertexID BFSIterator::operator *()
 {
-    return q.front();
+    return q.front().first;
 }
 
-BFSIterator BFSIterator::operator ++()
+BFSIterator &BFSIterator::operator ++()
 {
-    vertex_id current_vertex = q.front()->first;
-    int current_depth = q.front()->second;
+    VertexID current_vertex = q.front().first;
+    int current_depth = q.front().second;
     q.pop();
     if (current_depth < max_depth)
     {
-        for (vertex_id next_vertex : graph.get_edges(current_vertex))
+        for (VertexID next_vertex : gr->list_edges(current_vertex))
         {
-            if (!used.find(current_vertex) != used.end())
+            if (used.find(current_vertex) == used.end())
             {
                 q.emplace(next_vertex, current_depth + 1);
                 used.emplace(next_vertex); 
             }
         }
     }
+    return *this;
 }
 
 bool BFSIterator::operator ==(BFSIterator const & another)
@@ -40,4 +41,7 @@ bool BFSIterator::operator ==(BFSIterator const & another)
 bool BFSIterator::operator!=(BFSIterator const & another)
 {
     return !(*this == another); 
+}
+
+int main(){
 }

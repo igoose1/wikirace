@@ -1,25 +1,24 @@
 #pragma once 
 
 #include <queue>
-#include <set>
+#include <unordered_set>
+#include "reader.h"
+#include <utility>
 
-typedef vertex_id;
-  
 class BFSIterator 
 {
 private:
-    vertex_id start_vertex;
-    graph* gr; 
+    VertexID start_vertex;
+    GraphReader* gr; 
     int max_depth;
-    queue<pair<vertex_id, int>> q;
-    ordered_set<vertex_id> used;
+    std::queue<std::pair<VertexID, int>> q;
+    std::unordered_set<VertexID> used;
 public:
     BFSIterator();
-    BFSIterator(graph* gr, vertex_id start_vertex, int max_depth);
-    vertex_id operator *();
-    BFSIterator operator ++();
+    BFSIterator(GraphReader* gr, VertexID start_vertex, int max_depth);
+    VertexID operator *();
+    BFSIterator &operator ++();
     bool operator ==(BFSIterator const & another);
     bool operator !=(BFSIterator const & another);
 };
 
-#endif
