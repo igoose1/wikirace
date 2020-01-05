@@ -26,6 +26,7 @@ from wiki.file_holder import file_holder
 from .models import MultiplayerPair, UserSettings, Game, GameStats
 import requests
 from wiki import user_rating
+from django.db import transaction
 
 
 def redirect_to(page):
@@ -412,14 +413,20 @@ def get(prevars, title_name):
     if article.namespace != ZIMFile.NAMESPACE_ARTICLE:
         return HttpResponse(article.content, content_type=article.mimetype)
 
+    if prevars.game_operator.finished:
+        return get_end_page(prevars)
+
     if not prevars.game_operator.is_jump_allowed(article):
         return prevars.redirect_to_curr_page()
-    prevars.game_operator.jump_to(article)
 
-    if prevars.game_operator.finished:
-        if not prevars.game_operator.game.surrendered:
-            change_stats(prevars)
-        return get_end_page(prevars)
+    with transaction.atomic():
+        prevars.game_operator.jump_to(article)
+
+        if prevars.game_operator.finished:
+            if not prevars.game_operator.game.surrendered:
+                change_stats(prevars)
+            return get_end_page(prevars)
+        prevars.game_operator.game.save()
 
     template = loader.get_template('wiki/game_page.html')
     context = {
