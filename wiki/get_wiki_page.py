@@ -28,6 +28,7 @@ import requests
 from wiki import user_rating
 import json
 
+
 def redirect_to(page):
     if page[0] == '/' and settings.ROOT_PATH != "":
         return HttpResponseRedirect('/' + settings.ROOT_PATH.rstrip('/') + page)
