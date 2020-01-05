@@ -1,17 +1,22 @@
 CC = g++
-IDIR = ./include
-CFLAGS = -I$(IDIR)
-ODIR= obj
+ODIR= .obj
+DEPDIR = .deps
 
-_DEPS = graph.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+SRCS = 
+OBJS = $(patsubst %,$(ODIR)/%.o,$(SRCS))
 
-_OBJ = main.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+BIN = fast_calc
 
+all: $(BIN)
 
-$(ODIR)/%.o: %.cpp $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+$(ODIR)/%.cpp.o: %.cpp Makefile
+	@mkdir -p $(dir $@) $(DEPDIR)
+	$(CC) -c -o $@ $< $(CFLAGS) -MD -MF $(DEPDIR)/$(subst /,_,$<).d -MQ $@
 
-build: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+$(BIN): $(OBJS) Makefile
+	$(CC) -o $@ $(OBJS) $(CFLAGS) $(LIBS)
+
+clean:
+	rm -rf $(ODIR) $(DEPDIR) $(BIN)
+
+-include $(DEPDIR)/*.d
