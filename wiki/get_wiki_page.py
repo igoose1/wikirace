@@ -26,6 +26,7 @@ from wiki.file_holder import file_holder
 from .models import MultiplayerPair, UserSettings, Game, GameStats
 import requests
 from wiki import user_rating
+import json
 
 
 def redirect_to(page):
@@ -48,15 +49,22 @@ class PreVariables:
             settings.GRAPH_OFFSET_PATH,
             settings.GRAPH_EDGES_PATH
         ))
+        self.request = request
+        sess = self.request.session.get('operator', {})
+        if sess is None:
+            sess = {}
+        if self.settings.curr_game_id is not None:
+            sess['game_id'] = self.settings.curr_game_id
+            sess['history'] = json.loads(self.settings.history_json)
+
         self.game_operator = GameOperator.deserialize_game_operator(
-            request.session.get('operator', None),
+            sess,
             self.zim_file,
             self.graph,
             self.settings,
             'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith(
                 '127.0.0.1'),
         )
-        self.request = request
 
     def redirect_to_curr_page(self):
         return redirect_to('/A/' + self.game_operator.current_page.url)
@@ -71,8 +79,11 @@ def load_prevars(func):
             res = func(prevars, *args, **kwargs)
             prevars.settings.save()
             if prevars.game_operator is not None:
-                prevars.request.session['operator'] = prevars.game_operator.serialize_game_operator(
-                )
+                sess = prevars.game_operator.serialize_game_operator()
+                prevars.settings.curr_game_id = sess.get('game_id', None)
+                prevars.settings.history_json = json.dumps(sess.get('history', ""))
+                prevars.settings.save()
+                prevars.request.session['operator'] = sess
             else:
                 prevars.request.session['operator'] = None
         finally:
