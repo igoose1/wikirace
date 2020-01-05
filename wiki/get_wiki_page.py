@@ -49,7 +49,10 @@ class PreVariables:
             settings.GRAPH_OFFSET_PATH,
             settings.GRAPH_EDGES_PATH
         ))
+        self.request = request
         sess = self.request.session.get('operator', {})
+        if sess is None:
+            sess = {}
         if self.settings.curr_game_id is not None:
             sess['game_id'] = self.settings.curr_game_id
             sess['history'] = json.loads(self.settings.history_json)
@@ -62,7 +65,6 @@ class PreVariables:
             'loadtesting' in request.GET and request.META['REMOTE_ADDR'].startswith(
                 '127.0.0.1'),
         )
-        self.request = request
 
     def redirect_to_curr_page(self):
         return redirect_to('/A/' + self.game_operator.current_page.url)
@@ -79,7 +81,7 @@ def load_prevars(func):
             if prevars.game_operator is not None:
                 sess = prevars.game_operator.serialize_game_operator()
                 prevars.settings.curr_game_id = sess.get('game_id', None)
-                prevars.settings.history_json = json.dumps(sess['history'])
+                prevars.settings.history_json = json.dumps(sess.get('history', ""))
                 prevars.settings.save()
                 prevars.request.session['operator'] = sess
             else:
