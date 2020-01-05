@@ -117,3 +117,8 @@ public:
 			map.close_map();
 	}
 };
+
+int main()
+{
+
+}

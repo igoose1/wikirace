@@ -2,7 +2,7 @@ CC = g++
 ODIR= .obj
 DEPDIR = .deps
 
-SRCS = 
+SRCS = reader.cpp
 OBJS = $(patsubst %,$(ODIR)/%.o,$(SRCS))
 
 BIN = fast_calc
