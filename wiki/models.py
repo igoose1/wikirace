@@ -33,7 +33,7 @@ class UserSettings(models.Model):
         max_length=10,
         default=GameTypes.easy.value,
     )
-    _name = models.CharField(max_length=256, null=True)
+    _name = models.CharField(max_length=256, null=True, blank=True)
 
     @property
     def name(self):
