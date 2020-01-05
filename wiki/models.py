@@ -31,7 +31,7 @@ class UserSettings(models.Model):
         max_length=10,
         default=GameTypes.easy.value,
     )
-    _name = models.CharField(max_length=256, null=True)
+    _name = models.CharField(max_length=256, null=True, blank=True)
 
     @property
     def name(self):
@@ -241,7 +241,7 @@ class Trial(models.Model):
     _begin = models.DateTimeField()
     type = models.CharField(
         max_length=16,
-        choices=[(tag, tag.value) for tag in TrialType],
+        choices=[(str(tag), tag.value) for tag in TrialType],
         default=TrialType.TRIAL
     )
     difficulty = models.FloatField(default=0)
