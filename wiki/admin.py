@@ -3,7 +3,7 @@ from wiki.models import Game, Feedback, Turn, Trial, GamePair, MultiplayerPair, 
 
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['game_id', 'steps', 'finished', 'start_time', 'last_action_time', 'user_settings']
+    list_display = ['game_id', 'steps', 'finished', 'start_time', 'last_action_time', 'user_settings', 'got_rate']
     list_display_links = ['user_settings']
     ordering = ['game_id']
 

@@ -382,6 +382,8 @@ def end_page(prevars):
 
 
 def change_stats(prevars: PreVariables):
+    prevars.game_operator.game.got_rate = True
+    prevars.game_operator.game.save()
     game_type = prevars.settings.difficulty
     trial_id = None
     if game_type == GameTypes.trial:
@@ -418,7 +420,8 @@ def get(prevars, title_name):
 
     if prevars.game_operator.finished:
         if not prevars.game_operator.game.surrendered:
-            change_stats(prevars)
+            if not prevars.game_operator.game.got_rate:
+                change_stats(prevars)
         return get_end_page(prevars)
 
     template = loader.get_template('wiki/game_page.html')

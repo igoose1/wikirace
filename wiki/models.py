@@ -148,6 +148,7 @@ class Game(models.Model):
     start_time = models.DateTimeField(null=True)
     last_action_time = models.DateTimeField()
     surrendered = models.BooleanField(default=False)
+    got_rate = models.BooleanField(null=False, default=False)
 
     @property
     def steps(self):
