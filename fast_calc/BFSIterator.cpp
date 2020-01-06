@@ -2,44 +2,46 @@
 
 #include <boost/core/noncopyable.hpp>
 #include <boost/python.hpp>
-#include <iterator>
 
 const BFSIterator BFSIterator::Empty = BFSIterator();
 
 BFSIterator::BFSIterator() {}
 
-BFSIterator::BFSIterator(GraphReader* g, VertexID start_vertex, int max_depth) :
-    start_vertex(start_vertex), gr(g), max_depth(max_depth), used(g->vertex_count(), 0) 
+BFSIterator::BFSIterator(GraphReader* g, VertexID start, int max_depth) :
+    start_vertex({start, std::vector<VertexID>(MAX_DEPTH,-1), 0}), gr(g), max_depth(max_depth), used(g->vertex_count(), 0) 
 {
-    used[start_vertex] = 1;
-    q.emplace(start_vertex, 0);     
+    used[start] = 1;
+    start_vertex.prev[0] = start;
+    q.emplace(start_vertex);     
 }
 
-VertexID BFSIterator::operator *()
+vertex BFSIterator::operator *()
 {
-    return q.front().first;
+    return q.front();
 }
 
 BFSIterator &BFSIterator::operator ++()
 {
-    VertexID current_vertex = q.front().first;
-    int current_depth = q.front().second;
-    q.pop();
-    if (current_depth < max_depth)
+    VertexID current_vertex = q.front().curr_id;
+    int current_depth = q.front().depth;
+    if (current_depth < max_depth && current_depth < MAX_DEPTH)
     {
         for (VertexID next_vertex : gr->list_edges(current_vertex))
         {
             if (!used[next_vertex])
             {
-                q.emplace(next_vertex, current_depth + 1);
+                std::vector<VertexID> n = q.front().prev;
+                n[current_depth + 1] = next_vertex;
+                q.push({next_vertex, n, current_depth + 1});
                 used[next_vertex] = 1; 
             }
         }
 
     }
+    q.pop();
     return *this;
 }
-const VertexID *BFSIterator::operator++(int){
+const vertex *BFSIterator::operator++(int){
     _last = **this;
     ++*this;
     return &_last;
@@ -75,14 +77,35 @@ class range{
 }; 
 
 
+template <class T>
+boost::python::list toList(std::vector<T> vector) {
+	typename std::vector<T>::iterator iter;
+	boost::python::list list;
+	for (iter = vector.begin(); iter != vector.end(); ++iter) {
+		list.append(*iter);
+	}
+	return list;
+}
+
+
 range<BFSIterator> bfs(VertexID start, int depth, GraphReader &gr){
     BFSIterator iter(&gr, start, depth);
     return range<BFSIterator>(iter, BFSIterator::Empty);
 };
 
+boost::python::list get_path(vertex &v){
+    std::vector<VertexID> ret;
+    for (int i = 0; i <= v.depth+1; ++i){
+        ret.push_back(v.prev[i]);
+    }
+    return toList<VertexID>(ret);
+}
+
+
+
 BOOST_PYTHON_MODULE(fast_calc){
 using namespace boost::python;
-    class_<boost::iterator_range<const VertexID*>>("vertex_range", no_init)
+    class_<boost::iterator_range<const vertex*>>("vertex_range", no_init)
     .def("__len__", &::range<BFSIterator>::size)
     .def("__iter__", iterator<::range<BFSIterator>>())
     ;
@@ -92,6 +115,12 @@ using namespace boost::python;
        .def("vertex_count", &GraphReader::vertex_count)
     ;
 
+    class_<vertex>("bfs_vertex")
+        .def_readonly("curr", &vertex::curr_id)
+        .def_readonly("depth", &vertex::depth);
+
+    def ("get_path", &get_path);
+
     class_<::range<BFSIterator>>("_bfs_range", no_init)
         .def("__iter__", iterator<::range<BFSIterator>>());
     def ("bfs", &bfs);
@@ -100,7 +129,7 @@ using namespace boost::python;
 int main(){
     GraphReader g("/home/artolord/Projects/wikirace_app/data/graph/graph");
     int c = 0;
-    for(VertexID i: bfs(2160195, 2, g)){
+    for(vertex i: bfs(2160195, 2, g)){
         i = i; // unused
         c++;
     }

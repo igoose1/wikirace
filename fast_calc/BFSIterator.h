@@ -5,25 +5,33 @@
 #include <unordered_set>
 #include "reader.h"
 #include <utility>
+#include <vector>
 
-class BFSIterator: public std::iterator<std::input_iterator_tag, const VertexID> 
+#define MAX_DEPTH 12
+
+struct vertex{
+    VertexID curr_id;
+    std::vector<VertexID> prev;
+    int depth;
+};
+
+class BFSIterator: public std::iterator<std::input_iterator_tag, const vertex> 
 {
 private:
-    VertexID start_vertex;
+    vertex start_vertex;
     GraphReader* gr;
-    VertexID _last; 
+    vertex _last; 
     int max_depth;
-    std::queue<std::pair<VertexID, int>> q;
+    std::queue<vertex> q;
     std::vector<bool> used;
 public:
-    const VertexID * operator ++(int);
+    const vertex * operator ++(int);
     static const BFSIterator Empty;
     BFSIterator();
     BFSIterator(GraphReader* gr, VertexID start_vertex, int max_depth);
-    VertexID operator *();
+    vertex operator *();
     BFSIterator &operator ++();
     bool operator ==(BFSIterator const & another);
     bool operator !=(BFSIterator const & another);
 };
-
 
