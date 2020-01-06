@@ -23,3 +23,4 @@ public:
     bool operator !=(BFSIterator const & another);
 };
 
+

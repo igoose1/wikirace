@@ -46,11 +46,29 @@ bool BFSIterator::operator!=(BFSIterator const & another)
     return !(*this == another); 
 }
 
+template <class Iterator>
+class range_iterator{
+    private:
+        const Iterator _begin;
+        const Iterator _end;
+    public:
+        range_iterator(Iterator begin, Iterator end):
+            _begin(begin), _end(end){}
+        const Iterator begin() const{
+            return _begin;
+        };
+        const Iterator end() const{
+            return _end;
+        };
+}; 
+
+
 int main(){
     GraphReader gr("/home/artolord/Projects/wikirace_app/data/graph/graph");
     BFSIterator iter(&gr, 2160195, 300);
+    range_iterator<BFSIterator> it(iter, BFSIterator::Empty);
     int c = 0;
-    for (BFSIterator i = iter; i!=BFSIterator::Empty; ++i){
+    for (VertexID i:it){
         c++;
     }
     std::cout<<c;
