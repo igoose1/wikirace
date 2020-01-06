@@ -11,7 +11,7 @@ all: $(BIN)
 
 $(ODIR)/%.cpp.o: %.cpp Makefile
 	@mkdir -p $(dir $@) $(DEPDIR)
-	$(CC) -c -o $@ $< $(CFLAGS) -MD -MF $(DEPDIR)/$(subst /,_,$<).d -MQ $@
+	$(CC) -c -o $@ $< $(CFLAGS) -MD  -O3 -MF $(DEPDIR)/$(subst /,_,$<).d -MQ $@
 
 $(BIN): $(OBJS) Makefile
 	$(CC) -o $@ $(OBJS) $(CFLAGS) $(LIBS)

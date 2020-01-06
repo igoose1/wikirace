@@ -75,6 +75,9 @@ int GraphReader::re(int x) {
 			return ntohl(x);
 }
 
+int GraphReader::vertex_count() const{
+    return _vertex_count;
+};
 
 GraphReader::~GraphReader() {
 		for (opened_map map: maps)

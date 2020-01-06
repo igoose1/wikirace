@@ -12,8 +12,9 @@ private:
     GraphReader* gr; 
     int max_depth;
     std::queue<std::pair<VertexID, int>> q;
-    std::unordered_set<VertexID> used;
+    std::vector<bool> used;
 public:
+    static const BFSIterator Empty;
     BFSIterator();
     BFSIterator(GraphReader* gr, VertexID start_vertex, int max_depth);
     VertexID operator *();
