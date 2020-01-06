@@ -37,7 +37,7 @@ for i in range(int(args.att_count)):
     iter_result = []
 
     for vertex in bfs_result:
-        if vertex.depth in dist_range and checker.is_title_ok(vertex.curr):
+        if vertex.depth in dist_range:
             iter_result.append(vertex)
     iter_result = random.choices(iter_result, k=min(int(args.max_paths), len(iter_result)))
     for vertex in iter_result:

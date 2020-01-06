@@ -2,7 +2,7 @@ CXX = g++
 ODIR= .obj
 DEPDIR = .deps
 
-CXXFLAGS = -O0 -ggdb -Wall -Wextra -Werror
+CXXFLAGS = -O3 -Wall -Wextra -Werror
 
 SRCS = reader.cpp BFSIterator.cpp
 OBJS = $(patsubst %,$(ODIR)/%.o,$(SRCS))
