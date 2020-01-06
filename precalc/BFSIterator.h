@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#define MAX_DEPTH 12
+#define MAX_VECTOR_SIZE 12
 
 struct vertex{
     VertexID curr_id;

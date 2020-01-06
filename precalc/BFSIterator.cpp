@@ -8,7 +8,7 @@ const BFSIterator BFSIterator::Empty = BFSIterator();
 BFSIterator::BFSIterator() {}
 
 BFSIterator::BFSIterator(GraphReader* g, VertexID start, int max_depth) :
-    start_vertex({start, std::vector<VertexID>(MAX_DEPTH,-1), 0}), gr(g), max_depth(max_depth), used(g->vertex_count(), 0) 
+    start_vertex({start, std::vector<VertexID>(MAX_VECTOR_SIZE, -1), 0}), gr(g), max_depth(max_depth), used(g->vertex_count(), 0) 
 {
     used[start] = 1;
     start_vertex.prev[0] = start;
@@ -24,15 +24,15 @@ BFSIterator &BFSIterator::operator ++()
 {
     VertexID current_vertex = q.front().curr_id;
     int current_depth = q.front().depth;
-    if (current_depth < max_depth && current_depth < MAX_DEPTH)
+    if (current_depth < max_depth && current_depth < MAX_VECTOR_SIZE)
     {
         for (VertexID next_vertex : gr->list_edges(current_vertex))
         {
             if (!used[next_vertex])
             {
-                std::vector<VertexID> n = q.front().prev;
-                n[current_depth + 1] = next_vertex;
-                q.push({next_vertex, n, current_depth + 1});
+                std::vector<VertexID> prev = q.front().prev;
+                prev[current_depth + 1] = next_vertex;
+                q.push({next_vertex, prev, current_depth + 1});
                 used[next_vertex] = 1; 
             }
         }
