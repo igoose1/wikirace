@@ -1,11 +1,15 @@
 #include "BFSIterator.h"
 
+#include <boost/core/noncopyable.hpp>
+#include <boost/python.hpp>
+#include <iterator>
+
 const BFSIterator BFSIterator::Empty = BFSIterator();
 
 BFSIterator::BFSIterator() {}
 
-BFSIterator::BFSIterator(GraphReader* gr, VertexID start_vertex, int max_depth) :
-    gr(gr), start_vertex(start_vertex), max_depth(max_depth), used(gr->vertex_count(), 0) 
+BFSIterator::BFSIterator(GraphReader* g, VertexID start_vertex, int max_depth) :
+    start_vertex(start_vertex), gr(g), max_depth(max_depth), used(g->vertex_count(), 0) 
 {
     used[start_vertex] = 1;
     q.emplace(start_vertex, 0);     
@@ -35,7 +39,11 @@ BFSIterator &BFSIterator::operator ++()
     }
     return *this;
 }
-
+const VertexID *BFSIterator::operator++(int){
+    _last = **this;
+    ++*this;
+    return &_last;
+}
 bool BFSIterator::operator ==(BFSIterator const & another)
 {
     return q.empty() && another.q.empty();
@@ -47,12 +55,16 @@ bool BFSIterator::operator!=(BFSIterator const & another)
 }
 
 template <class Iterator>
-class range_iterator{
+class range{
     private:
         const Iterator _begin;
         const Iterator _end;
     public:
-        range_iterator(Iterator begin, Iterator end):
+        typedef Iterator iterator;
+        typedef Iterator const_iterator;
+        size_t size() const{return std::distance(_begin, _end);}
+        bool empty() const {return _begin == _end;}
+        range(Iterator begin, Iterator end):
             _begin(begin), _end(end){}
         const Iterator begin() const{
             return _begin;
@@ -63,13 +75,35 @@ class range_iterator{
 }; 
 
 
+range<BFSIterator> bfs(VertexID start, int depth, GraphReader &gr){
+    BFSIterator iter(&gr, start, depth);
+    return range<BFSIterator>(iter, BFSIterator::Empty);
+};
+
+BOOST_PYTHON_MODULE(fast_calc){
+using namespace boost::python;
+    class_<boost::iterator_range<const VertexID*>>("vertex_range", no_init)
+    .def("__len__", &::range<BFSIterator>::size)
+    .def("__iter__", iterator<::range<BFSIterator>>())
+    ;
+
+    class_<GraphReader, boost::noncopyable>("GraphReader", init<std::string>())
+       .def("edges", &GraphReader::list_edges)
+       .def("vertex_count", &GraphReader::vertex_count)
+    ;
+
+    class_<::range<BFSIterator>>("_bfs_range", no_init)
+        .def("__iter__", iterator<::range<BFSIterator>>());
+    def ("bfs", &bfs);
+}
+
 int main(){
-    GraphReader gr("/home/artolord/Projects/wikirace_app/data/graph/graph");
-    BFSIterator iter(&gr, 2160195, 300);
-    range_iterator<BFSIterator> it(iter, BFSIterator::Empty);
+    GraphReader g("/home/artolord/Projects/wikirace_app/data/graph/graph");
     int c = 0;
-    for (VertexID i:it){
+    for(VertexID i: bfs(2160195, 2, g)){
+        i = i; // unused
         c++;
     }
     std::cout<<c;
+    return 0;
 }
