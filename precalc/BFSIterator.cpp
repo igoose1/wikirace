@@ -95,7 +95,7 @@ range<BFSIterator> bfs(VertexID start, int depth, GraphReader &gr){
 
 boost::python::list get_path(vertex &v){
     std::vector<VertexID> ret;
-    for (int i = 0; i <= v.depth+1; ++i){
+    for (int i = 0; i <= v.depth; ++i){
         ret.push_back(v.prev[i]);
     }
     return toList<VertexID>(ret);

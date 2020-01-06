@@ -102,11 +102,10 @@ def choose_start_vertex(reader):
 
 
 class TitleChecker:
-    def __init__(self):
+    def __init__(self, zim=ZIMFile(settings.WIKI_ZIMFILE_PATH, settings.WIKI_ARTICLES_INDEX_FILE_PATH)):
         with open(settings.FORBIDDEN_WORDS_FILE, 'r') as f:
             self._bad_words = f.read().split()
-        self.zim_file = ZIMFile(settings.WIKI_ZIMFILE_PATH,
-                                settings.WIKI_ARTICLES_INDEX_FILE_PATH)
+        self.zim_file = zim
 
     def is_number(self, name):
         return all(c.isdigit() for c in name)
