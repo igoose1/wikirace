@@ -155,6 +155,7 @@ DATA_DIR = settings_local.DATA_DIR
 WIKI_ZIMFILE_PATH = DATA_DIR + 'wikipedia_ru.zim'
 GRAPH_OFFSET_PATH = DATA_DIR + 'graph/offset_all'
 GRAPH_EDGES_PATH = DATA_DIR + 'graph/edges_all'
+GRAPH_PATH = DATA_DIR + 'graph/unigraph'
 REVERSE_GRAPH_OFFSET_PATH = DATA_DIR + 'reverse_graph/reverse_offset'
 REVERSE_GRAPH_EDGES_PATH = DATA_DIR + 'reverse_graph/reverse_edges'
 WIKI_ARTICLES_INDEX_FILE_PATH = DATA_DIR + 'good_articles_list'
