@@ -293,63 +293,60 @@ def surrender(prevars):
 
 
 def get_login_page(request):
-    redirect_uri = 'https://wikirace.lksh.ru/' + settings.ROOT_PATH + "login"
+    redirect_uri = ''.join(
+        ('https://wikirace.lksh.ru/', settings.ROOT_PATH, 'login')
+    )
     context = {
         'client_id': settings.VK_CLIENT_ID,
         'redirect_uri': redirect_uri
     }
     template = loader.get_template('wiki/login_page.html')
-    if len(request.GET) == 0:
-        return HttpResponse(template.render(context, request))
 
-    if request.GET.get('code', None) is None:
-        return HttpResponse(template.render(context, request))
+    # If something goes wrong return rendered `template`.
+    default_returnable_response = HttpResponse(template.render(context, request))
+    code = request.GET.get('code', None)
+    if code is None:
+        return default_returnable_response
 
-    code = request.GET['code']
-    href = 'https://oauth.vk.com/access_token?' + \
-           'client_id={id}&client_secret={secret}' + \
-           '&redirect_uri={link}' + \
-           '&code={code}'
-    href = href.format(id=settings.VK_CLIENT_ID,
-                       secret=settings.VK_SECRET_KEY,
-                       link=redirect_uri,
-                       code=code)
-    r = requests.get(href)
-    r = r.json()
-    token = r.get('access_token', None)
-    user_id = r.get('user_id', None)
-    if token is None or user_id is None:
-        return HttpResponse(template.render(context, request))
-    vk_id = str(user_id)
-    user = UserSettings.objects.filter(vk_id=vk_id)
-    if user.exists():
-        user = user[0]
-        request.session['user_id'] = user.user_id
-        user.access_token = token
-        user.save()
-        return redirect_to('/')
+    href = 'https://oauth.vk.com/access_token'
+    params = dict(
+        client_id=settings.VK_CLIENT_ID,
+        client_secret=settings.VK_SECRET_KEY,
+        redirect_uri=redirect_uri,
+        code=code
+    )
+    oauth_response = requests.get(href, params).json()
 
-    href_get_user = 'https://api.vk.com/method/users.get?' + \
-                    'user_ids={id}&' + \
-                    'access_token={token}&' + \
-                    'v=5.103'
-    href_get_user = href_get_user.format(id=vk_id, token=token)
+    # Get values by key or get None if it doesn't exist.
+    token, vk_id = map(
+        lambda key: oauth_response.get(key, None),
+        ('access_token', 'user_id')
+    )
+    vk_id = str(vk_id)
+    if None in (token, vk_id):
+        return default_returnable_response
 
-    r = requests.get(href_get_user)
-    r = r.json()
-    error = r.get('error', None)
-    if error is not None:
-        return HttpResponse(template.render(context, request))
+    # Execute `UserSettings.objects.get` once as we are sure we'll update it.
+    user, created = UserSettings.objects.get_or_create(vk_id=vk_id)
+    if created:
+        href_get_user = 'https://api.vk.com/method/users.get'
+        params = dict(
+            user_ids=vk_id,
+            access_token=token,
+            v='5.103'
+        )
+        user_response = requests.get(href_get_user, params).json()
+        if 'error' in user_response:
+            return default_returnable_response
 
-    r = r['response'][0]
-    name = r["first_name"] + " " + r["last_name"]
+        user.name = ' '.join(
+            user_response['response'][0][key] for key in ('first_name', 'last_name')
+        )
 
-    user = UserSettings.objects.create(vk_id=vk_id, vk_access_token=token)
-    user.name = name
+    user.access_token = token
     user.save()
     request.session['user_id'] = user.user_id
-
-    return redirect_to("/")
+    return redirect_to('/')
 
 
 @load_prevars
